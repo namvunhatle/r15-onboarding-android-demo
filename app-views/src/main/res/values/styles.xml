@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Design-frame text: sizes in dp (the frame is art-directed and scaled as a whole, so it ignores the user's
+         font scale — same as the web and the Compose build). Heights = CSS line-height, text centred in it. -->
+    <style name="T">
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">#FFFFFFFF</item>
+    </style>
+    <style name="T.W400"><item name="android:fontFamily">@font/bevietnampro_regular</item></style>
+    <style name="T.W500"><item name="android:fontFamily">@font/bevietnampro_medium</item></style>
+    <style name="T.W600"><item name="android:fontFamily">@font/bevietnampro_semibold</item></style>
+    <!-- 28/36 · -0.96px -->
+    <style name="T.Lyric" parent="T.W600">
+        <item name="android:textSize">28dp</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:letterSpacing">-0.0343</item>
+    </style>
+    <!-- 20/28 · -0.72px -->
+    <style name="T.Line" parent="T.W600">
+        <item name="android:textSize">20dp</item>
+        <item name="android:layout_height">28dp</item>
+        <item name="android:letterSpacing">-0.036</item>
+    </style>
+    <!-- 14/20 · -0.32px -->
+    <style name="T.Meta" parent="T.W600">
+        <item name="android:textSize">14dp</item>
+        <item name="android:layout_height">20dp</item>
+        <item name="android:letterSpacing">-0.0229</item>
+    </style>
+    <!-- 18/24 · -0.4px -->
+    <style name="T.Bubble" parent="T.W600">
+        <item name="android:textSize">18dp</item>
+        <item name="android:layout_height">24dp</item>
+        <item name="android:letterSpacing">-0.0222</item>
+    </style>
+</resources>

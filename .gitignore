@@ -1,0 +1,20 @@
+# Local build and IDE files
+.gradle/
+.kotlin/
+.idea/
+**/build/
+local.properties
+*.iml
+.DS_Store
+
+# Optional tooling dependencies
+node_modules/
+
+# APKs are distributed through GitHub Releases
+apk/
+*.apk
+*.aab
+
+# Local signing material
+*.jks
+*.keystore

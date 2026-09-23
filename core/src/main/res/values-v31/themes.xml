@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+ always shows a system splash first, and it can only be a flat colour + icon: it is set to the
+         splash art's corner colour with no icon, so the hand-off into our own 5 s splash is a colour → image change
+         rather than a second logo. A shipping build has to decide this with the app's real icon. -->
+    <style name="A7" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/a7_splash</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowSplashScreenBackground">@color/a7_splash</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@android:color/transparent</item>
+    </style>
+</resources>

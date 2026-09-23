@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- G03 bubble: “Hey · Sam · calling…” lit word by word. Glow = a static copy with the shadow baked in (shadowRadius
+     here holds the CSS text-shadow blur in px; MainActivity converts it) — only its opacity animates. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:tag="g03_bubble"
+    android:layout_width="403dp" android:layout_height="214dp"
+    android:layout_marginLeft="37dp" android:layout_marginTop="223dp">
+    <!-- web box 137,283 203×94, grown around the same centre so the overflowing pill is not clipped while it fades
+         (Scene.BUBBLE / Scene.ORIGIN keep the web's pivot) -->
+
+    <namvunhatle.r15.onboarding.views.CssBox
+        android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center"
+        android:rotation="4" android:paddingLeft="16dp" android:paddingRight="16dp" android:paddingTop="7dp" android:paddingBottom="8dp"
+        app:fill="#BB4ABF" app:cornerRadius="999dp" app:shadowY="12dp" app:shadowBlur="24dp" app:shadowColor="#59000000">
+
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+            <FrameLayout android:tag="bw_hey" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text="“Hey" />
+                <namvunhatle.r15.onboarding.views.GlowFrame android:tag="bw_hey_g" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                    <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text="“Hey" android:shadowColor="#E6FFD6FF" android:shadowRadius="22" />
+                    <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text="“Hey" android:shadowColor="#F2FFFFFF" android:shadowRadius="10" />
+                </namvunhatle.r15.onboarding.views.GlowFrame>
+            </FrameLayout>
+            <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text=" " />
+            <FrameLayout android:tag="bw_sam" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="3dp" android:layout_marginRight="5dp">
+                <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text="Sam" />
+                <!-- CSS inset: -1px -6px → same text + 6 dp padding, pulled back by -6 dp margins so it does not widen the word -->
+                <TextView android:tag="chip" style="@style/T.Bubble" android:layout_width="wrap_content" android:layout_height="26dp"
+                    android:layout_marginLeft="-6dp" android:layout_marginRight="-6dp" android:layout_marginTop="-1dp"
+                    android:paddingLeft="6dp" android:paddingRight="6dp"
+                    android:background="@drawable/chip" android:gravity="center" android:textColor="#BB4ABF" android:text="Sam" />
+            </FrameLayout>
+            <FrameLayout android:tag="bw_call" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text=", calling…”" />
+                <namvunhatle.r15.onboarding.views.GlowFrame android:tag="bw_call_g" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                    <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text=", calling…”" android:shadowColor="#E6FFD6FF" android:shadowRadius="22" />
+                    <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text=", calling…”" android:shadowColor="#F2FFFFFF" android:shadowRadius="10" />
+                </namvunhatle.r15.onboarding.views.GlowFrame>
+            </FrameLayout>
+        </LinearLayout>
+    </namvunhatle.r15.onboarding.views.CssBox>
+</FrameLayout>

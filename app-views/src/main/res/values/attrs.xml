@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CssBox">
+        <attr name="fill" format="color" />
+        <attr name="fill2" format="color" />
+        <attr name="fillAngle" format="float" />
+        <attr name="fillStop0" format="float" />
+        <attr name="fillStop1" format="float" />
+        <attr name="cornerRadius" format="dimension" />
+        <attr name="strokeColor" format="color" />
+        <attr name="strokeWidth" format="dimension" />
+        <attr name="shadowY" format="dimension" />
+        <attr name="shadowBlur" format="dimension" />
+        <attr name="shadowColor" format="color" />
+    </declare-styleable>
+    <declare-styleable name="RingView">
+        <attr name="ringStroke" format="dimension" />
+        <attr name="ringAlpha" format="float" />
+    </declare-styleable>
+</resources>

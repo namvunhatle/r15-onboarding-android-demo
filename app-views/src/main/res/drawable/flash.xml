@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- radial-gradient(circle, white .95 0%, rgba(231,170,255,.55) 35%, transparent 70%) on a 300px box:
+     CSS "circle" = farthest-corner = 212px, so 70% = 148px; 35% = half of that = the centre colour. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <gradient android:type="radial" android:gradientRadius="148dp"
+        android:startColor="#F2FFFFFF" android:centerColor="#8CE7AAFF" android:endColor="#00BB4ABF" />
+</shape>
