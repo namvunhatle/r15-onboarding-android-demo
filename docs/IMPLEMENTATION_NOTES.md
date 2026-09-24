@@ -52,10 +52,8 @@ The common clock is useful as a reference for keeping the sequence together. Pro
 - Blur and glow bitmaps are prepared during startup. Motion animates their transforms and opacity.
 - Some elements extend beyond their layout bounds. The renderers account for this when drawing rings, shadows, and the call bubble.
 - Compose removes hidden overlay tap areas from composition. Setting alpha to zero alone would leave them able to intercept input.
-- The scene uses a fixed **360 × 800** coordinate space. Each renderer scales the entire frame uniformly and centers it on a dark background.
+- The scene uses a **360 × 800** coordinate space. Each renderer scales the frame uniformly to fit, centers it, and fills the rest of a phone screen around it. See [Screen sizes](#screen-sizes-responsive-phone).
 - Font scaling is fixed. Status bars and the camera cutout are simulated artwork; the actual system bars are hidden.
-
-This layout preserves the reference composition. It does **not** provide responsive layouts for different device aspect ratios. Wider or taller viewports show black bars.
 
 ## Native art (`main`)
 
@@ -69,12 +67,13 @@ On [`archive/v1.3.3-sprites`](https://github.com/namvunhatle/r15-onboarding-andr
 | Spotlight backgrounds, splash glows | Figma `LAYER_BLUR` ellipses, blurred at startup into small bitmaps (`A7Glow`), because a live blur of this size costs a full-screen pass every frame |
 | Splash background | Figma image fill (bitmap) + 52 % black ramp + tilted grid (vector union from `fillGeometry`) + glows + 40 % smoke photo (bitmap) |
 | Status bar | Roboto text and three `VectorDrawable` icons copied from the Figma paths |
+| Interstitial (`15560:138551`) | Creative = the frame's image fill (FILL, radius 24). SDK chrome in code: "Ads progress" lines and the "Skip ads" pill (Mona Sans Medium, close-circle path) |
 
-**Still bitmaps:** the splash image fill and smoke photo, the three phone screens, the logo record, the mock interstitial, and the three destination screens. These are images in Figma too, or screens owned by other products.
+**Still bitmaps:** the splash image fill and smoke photo, the three phone screens, the logo record, the interstitial creative, and the three destination screens. These are images in Figma too, or screens owned by other products.
 
 **Effect calibration.** Figma drop shadows follow CSS: σ = blur / 2. For layer blur, the closest fit to Figma's own export was σ = 0.42 × radius, applied to the whole ellipse and then cut by the frame (mean error 0.8/255 over the four spotlight screens).
 
-**Per-frame cost.** Every native element except the spotlights is drawn into its own GPU layer: `CompositingStrategy.Offscreen` in Compose and `LAYER_TYPE_HARDWARE` in Views. The layer is drawn once at device resolution. After that, the timeline only transforms and fades it, so each frame costs the same as drawing a sprite. The spotlights are a single bitmap draw and skip the layer.
+**Per-frame cost.** Every native element except the spotlights and the interstitial is drawn into its own GPU layer: `CompositingStrategy.Offscreen` in Compose and `LAYER_TYPE_HARDWARE` in Views. The layer is drawn once at device resolution. After that, the timeline only transforms and fades it, so each frame costs the same as drawing a sprite. The spotlights are a single bitmap draw and skip the layer; the interstitial is static while it shows.
 
 **Differences from the sprite archive (intentional).**
 
@@ -88,11 +87,31 @@ On [`archive/v1.3.3-sprites`](https://github.com/namvunhatle/r15-onboarding-andr
 **Pixel review tool.** Launch with `--ez dump true` to write every native element, at 2× its box, to `Android/data/<package>/files/dump/`. Compare those files against the `main` sprites of the same name.
 
 ```sh
-adb shell am start -n namvunhatle.r15.onboarding.compose.vector/namvunhatle.r15.onboarding.compose.MainActivity --ez dump true
-adb pull /sdcard/Android/data/namvunhatle.r15.onboarding.compose.vector/files/dump
+adb shell am start -n namvunhatle.r15.onboarding.compose.responsive/namvunhatle.r15.onboarding.compose.MainActivity --ez dump true
+adb pull /sdcard/Android/data/namvunhatle.r15.onboarding.compose.responsive/files/dump
 ```
 
+**Interstitial vs. the v1.3.3 screenshot.** Mean difference 1.1/255 at 1080 × 2400. The screenshot's corners were white (its rounded corners exported onto a JPEG); the native version is black behind the radius, like an SDK window.
+
 **Changing the art.** Edit the numbers in `FigmaArt.kt` or `A7Native.kt`; they are written in Figma's frame coordinates. If an element's footprint changes, update its box in `manifest.json` and rerun `tools/gen_layout.py`, as on `main`.
+
+## Screen sizes (`responsive-phone`)
+
+The 360 × 800 frame keeps its v1.3.3 scale (fit, never distorted), so on a 20:9 phone nothing changes. On other phones the leftover screen goes to the sides (shorter screens, 16:9 = 45 dp each side) or above and below (taller ones, 21:9 = 20 dp each). `Viewport.kt` measures it; `Scene` turns it into boxes; both renderers read those boxes.
+
+| Element | What it does with the extra screen |
+| --- | --- |
+| Splash background, spotlights | Drawn over the whole screen: the image fill covers it, the black ramp spans it, the smoke keeps to the top, and the glows are baked at screen size |
+| Genre wall | Tiles cut by the frame edge are drawn whole. Each row gets one more tile at either end, repeating the far end of the row, while it is on screen |
+| Stickers, G01 phone | Grown about their centre until the shadow is whole, so their motion is unchanged |
+| Status bar, wave, headlines | Hold the top edge. The status bar spans the width: time at the left, icons at the right |
+| Splash progress, disclaimer, banner ad | Hold the bottom edge. The banner spans the width |
+| Interstitial | Creative covers the screen (16:9 shows it uncropped). Progress spans the width, the Skip pill and its tap area hold the top-right corner |
+| Destination screens | Screenshots of other products stay at the frame. Each margin continues the screenshot's edge colour (`Bleed.kt`) |
+
+Margins are capped at 60 dp (about 16:9 to 23:9). Beyond that — tablets, landscape — the rest is letterboxed as before.
+
+**Validation.** API 36 emulators at 1080 × 1920 (16:9), 1080 × 2400 (20:9) and 1080 × 2520 (21:9), 17 timeline points each. At 20:9 both apps are pixel-identical to `main` except the interstitial (above). At 16:9 and 21:9, Compose and Views match each other at 0.3–3.1/255 mean. Skip ads → CTA → paywall → AI was tapped through in both apps on all three screens. Not tested on physical devices, foldables or in multi-window.
 
 ## Lifecycle
 
@@ -105,11 +124,11 @@ The ad exception anticipates an SDK that presents a separate activity. There is 
 Force-stop the selected build, then launch it with the `t` argument. This makes sure a new activity reads the requested time.
 
 ```sh
-adb shell am force-stop namvunhatle.r15.onboarding.compose.vector
-adb shell am start -n namvunhatle.r15.onboarding.compose.vector/namvunhatle.r15.onboarding.compose.MainActivity --ef t 12.4
+adb shell am force-stop namvunhatle.r15.onboarding.compose.responsive
+adb shell am start -n namvunhatle.r15.onboarding.compose.responsive/namvunhatle.r15.onboarding.compose.MainActivity --ef t 12.4
 ```
 
-For XML Views, use the package `namvunhatle.r15.onboarding.views.vector` and activity `namvunhatle.r15.onboarding.views.MainActivity`. Time inspection suppresses timeline callbacks and audio. It is a visual review tool, not a way to test the interactive ad flow.
+For XML Views, use the package `namvunhatle.r15.onboarding.views.responsive` and activity `namvunhatle.r15.onboarding.views.MainActivity`. Time inspection suppresses timeline callbacks and audio. It is a visual review tool, not a way to test the interactive ad flow.
 
 **Known limitation:** at or after the final scene's idle-loop start (19.47 s at 100 BPM), the master timeline freezes but the idle loop can still move stickers and the primary action. Screenshots taken after waiting may differ.
 

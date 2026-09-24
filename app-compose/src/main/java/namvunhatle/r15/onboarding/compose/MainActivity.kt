@@ -10,6 +10,7 @@ import namvunhatle.r15.onboarding.core.Scene
 import namvunhatle.r15.onboarding.core.immersive
 import namvunhatle.r15.onboarding.core.dumpExtra
 import namvunhatle.r15.onboarding.core.seekExtra
+import namvunhatle.r15.onboarding.core.viewport
 
 /** A7 onboarding — Jetpack Compose build. Same engine, native art and audio as the Views build (module :core). */
 class MainActivity : ComponentActivity() {
@@ -18,7 +19,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         immersive()
-        val scene = Scene(this)
+        val scene = Scene(this, viewport())
         player = A7Player(this, scene)
         seekExtra()?.let(player::seekFrozen)
         val art = A7Art(this)

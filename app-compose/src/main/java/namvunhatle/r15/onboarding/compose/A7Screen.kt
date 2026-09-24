@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -79,6 +80,7 @@ import androidx.compose.foundation.text.BasicText
 import namvunhatle.r15.onboarding.core.A7Art
 import namvunhatle.r15.onboarding.core.A7Native
 import namvunhatle.r15.onboarding.core.A7Player
+import namvunhatle.r15.onboarding.core.Bleed
 import namvunhatle.r15.onboarding.core.Box as DBox
 import namvunhatle.r15.onboarding.core.Css
 import namvunhatle.r15.onboarding.core.Dest
@@ -133,7 +135,7 @@ private fun Modifier.at(b: DBox) =
  */
 private fun Modifier.anim(c: Ctx, id: String, leaf: Boolean = false, cached: Boolean = false, scaleFrom: (El) -> Float = { 1f }): Modifier {
     val el = c.store[id]
-    val (ox, oy) = Scene.origin(id)
+    val (ox, oy) = c.player.scene.origin(id)
     return graphicsLayer {
         c.tick.longValue // read → re-run this block every frame
         val k = scaleFrom(el)
@@ -164,11 +166,15 @@ fun A7Screen(player: A7Player, art: A7Art, native: A7Native) {
     val c = remember(player) { Ctx(player, art, native, tick) }
     BoxWithConstraints(Modifier.fillMaxSize().background(Color(0xFF050507))) {
         // Fit the 360×800 design frame (20:9) to the screen, never distort; the design dp becomes s × a real dp.
+        // The scene fills the screen around the frame up to the viewport ([Scene.vp]); only past that is it cut.
         val s = min(maxWidth.value / Scene.W, maxHeight.value / Scene.H)
         val outer = LocalDensity.current
-        Box(Modifier.align(Alignment.Center).size((Scene.W * s).dp, (Scene.H * s).dp).clipToBounds()) {
-            CompositionLocalProvider(LocalDensity provides Density(outer.density * s, 1f)) {
-                Device(c, ui)
+        val vp = player.scene.vp
+        Box(Modifier.align(Alignment.Center).size((vp.view.w * s).dp, (vp.view.h * s).dp).clipToBounds()) {
+            Box(Modifier.absoluteOffset((vp.mx * s).dp, (vp.my * s).dp).size((Scene.W * s).dp, (Scene.H * s).dp)) {
+                CompositionLocalProvider(LocalDensity provides Density(outer.density * s, 1f)) {
+                    Device(c, ui)
+                }
             }
         }
         if (ui >= 0 && (player.atAd || player.dest != null)) ReplayFab(c, Modifier.align(Alignment.BottomEnd))
@@ -199,7 +205,7 @@ private fun Device(c: Ctx, ui: Int) {
             })
             // G01 genre wall
             Box(Modifier.size(Scene.W.dp, Scene.H.dp).anim(c, "tiles")) {
-                Scene.REST_TILES.forEach { Sprite(c, it) }
+                scene.restTiles.forEach { Sprite(c, it) }
                 Scene.MINIS.forEach { m ->
                     val b = scene.gtileBox(m)
                     val (x0, y0, x1, y1) = Css.linear(118f, 168f, 120f).toList()
@@ -232,7 +238,7 @@ private fun Device(c: Ctx, ui: Int) {
         }
         Sprite(c, "statusbar")
         // the Figma status bar marks the camera as a white dot — a real punch-hole is black
-        Box(Modifier.at(Scene.PUNCH).drawBehind {
+        Box(Modifier.at(scene.punch).drawBehind {
             drawCircle(Color.Black)
             val u = size.width / 25f
             drawCircle(
@@ -240,18 +246,17 @@ private fun Device(c: Ctx, ui: Int) {
                 radius = 11f * u,
             )
         })
-        // Interstitial — third-party, R15 does not control it
+        // Interstitial — third-party, R15 does not control it. Creative + SDK chrome, drawn natively over the screen.
         Box(Modifier.size(Scene.W.dp, Scene.H.dp).anim(c, "bridge")) {
-            SpriteImage("bridge_full", Modifier.size(Scene.W.dp, Scene.H.dp))
+            Sprite(c, "bridge_full")
             // A hidden layer must not take touches (CSS visibility: hidden does that for free; Compose does not):
             // hotspots of overlays exist only while their layer is up, re-read on every ui change.
-            if (ui >= 0 && c.player.atAd) Hot(c, Scene.HOT_SKIP, enabled = { c.player.atAd }) { c.player.skipAd() }
+            if (ui >= 0 && c.player.atAd) Hot(c, scene.hotSkip, enabled = { c.player.atAd }) { c.player.skipAd() }
         }
         // Destinations — the one opened last is on top
         val order = if (ui >= 0) c.player.destOrder.toList() else emptyList()
         (Dest.entries.filter { it !in order } + order).forEach { d ->
-            Box(Modifier.size(Scene.W.dp, Scene.H.dp).anim(c, A7Player.destId(d))) {
-                SpriteImage("dest_" + d.name.lowercase(), Modifier.size(Scene.W.dp, Scene.H.dp))
+            Screenshot(c, A7Player.destId(d), "dest_" + d.name.lowercase()) {
                 if (d == Dest.PAYWALL && c.player.dest == Dest.PAYWALL) {
                     Hot(c, Scene.HOT_PAYWALL_CLOSE, enabled = { c.player.dest == Dest.PAYWALL }) { c.player.go(Dest.AI) }
                     Hot(c, Scene.HOT_SUBSCRIBE, enabled = { c.player.dest == Dest.PAYWALL }) { c.player.go(Dest.AI) }
@@ -276,6 +281,25 @@ private fun SpriteImage(k: String, modifier: Modifier) {
 }
 
 /**
+ * A full-screen screenshot [k] (a destination) on layer [id], at the frame; the screen margins around it continue its edges ([Bleed]).
+ * [content] (hotspots) is laid out in the frame.
+ */
+@Composable
+private fun Screenshot(c: Ctx, id: String, k: String, content: @Composable () -> Unit) {
+    val scene = c.player.scene
+    val bmp = spriteBitmap(k)
+    val bleed = remember(bmp) { if (scene.vp.isFrame) null else Bleed(bmp.asAndroidBitmap(), scene.vp) }
+    Box(Modifier.at(scene.view).anim(c, id).drawBehind {
+        bleed?.run { setBounds(0, 0, size.width.roundToInt(), size.height.roundToInt()); drawIntoCanvas { draw(it.nativeCanvas) } }
+    }) {
+        Box(Modifier.at(DBox(-scene.view.x, -scene.view.y, Scene.W, Scene.H))) {
+            SpriteImage(k, Modifier.size(Scene.W.dp, Scene.H.dp))
+            content()
+        }
+    }
+}
+
+/**
  * A scene element in its v1.3.3 sprite box. Native elements ([A7Native]) draw Figma geometry, text and effects; they
  * fade through the layer (not per draw call) because they are several overlapping draws, and the box already holds
  * every shadow, so the layer clips nothing. [A7Native.LAYERED] ones keep that layer (Offscreen): drawn once, then only
@@ -284,9 +308,9 @@ private fun SpriteImage(k: String, modifier: Modifier) {
 @Composable
 private fun Sprite(c: Ctx, k: String) {
     val box = Modifier.at(c.player.scene.pos.getValue(k))
-    if (k !in A7Native.IDS) return SpriteImage(k, box.anim(c, k, leaf = true))
+    if (k !in c.native.ids) return SpriteImage(k, box.anim(c, k, leaf = true))
     val art = remember(k) { c.native.art(k) }
-    Box(box.anim(c, k, cached = k in A7Native.LAYERED).drawBehind {
+    Box(box.anim(c, k, cached = k in c.native.layered).drawBehind {
         art.setBounds(0, 0, size.width.roundToInt(), size.height.roundToInt())
         drawIntoCanvas { art.draw(it.nativeCanvas) }
     })
@@ -334,7 +358,7 @@ private fun Logo(c: Ctx) {
 
 @Composable
 private fun SplashTrack(c: Ctx) {
-    Box(Modifier.at(Scene.SP_TRACK).anim(c, "sp_track").clip(CircleShape).background(Color(1, 1, 1, 15))) {
+    Box(Modifier.at(c.player.scene.spTrack).anim(c, "sp_track").clip(CircleShape).background(Color(1, 1, 1, 15))) {
         Box(Modifier.fillMaxSize().anim(c, "sp_fill").background(Accent, CircleShape))
     }
 }
@@ -449,7 +473,7 @@ private fun Wave(c: Ctx) {
     val span = c.player.times.tG04 - c.player.times.tG01
     val left by remember(span) { derivedStateOf { c.tick.longValue; ((1 - clock[Prop.P]) * span).roundToInt().coerceAtLeast(0) } }
     val tc = c.store["wave_tc"]
-    Box(Modifier.at(Scene.WAVE).anim(c, "wave")) {
+    Box(Modifier.at(c.player.scene.wave).anim(c, "wave")) {
         Canvas(Modifier.at(DBox(0f, 0f, 282f, 28f))) {
             c.tick.longValue
             val played = (clock[Prop.P] * bars.size).roundToInt()

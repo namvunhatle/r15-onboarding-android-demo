@@ -13,9 +13,7 @@ import namvunhatle.r15.onboarding.core.Scene.Companion.LX
 import namvunhatle.r15.onboarding.core.Scene.Companion.LY
 import namvunhatle.r15.onboarding.core.Scene.Companion.MINIS
 import namvunhatle.r15.onboarding.core.Scene.Companion.MINI_WALLS
-import namvunhatle.r15.onboarding.core.Scene.Companion.REST_TILES
 import namvunhatle.r15.onboarding.core.Scene.Companion.SRINGS
-import namvunhatle.r15.onboarding.core.Scene.Companion.TILES
 import namvunhatle.r15.onboarding.core.Scene.Companion.WAVE_BARS
 import kotlin.math.hypot
 import kotlin.math.ln
@@ -47,12 +45,13 @@ class A7Times(bpm: Int) {
 }
 
 object A7Script {
-    /** P02 zoom factor; logo scale = exp(zoom.k). */
-    private const val DOT_WX = 16f - 8f + 1f // dot lands on the first wave bar
-    private const val DOT_WY = 62f + 14f - 8f
-
     fun build(tl: Timeline, scene: Scene, times: A7Times, reduced: Boolean, onAd: () -> Unit, onIdle: () -> Unit) {
         val R = reduced
+        val TILES = scene.tiles
+        val REST_TILES = scene.restTiles
+        // the dot lands on the first wave bar
+        val DOT_WX = scene.wave.x - 8f + 1f
+        val DOT_WY = scene.wave.y + 14f - 8f
         val t = tl
         fun b(n: Double) = times.b(n)
         fun one(id: String) = listOf(id)

@@ -130,11 +130,11 @@ xml = f'''<?xml version="1.0" encoding="utf-8"?>
 {full('cam', I2, chr(10).join(cam))}
 
 {sprite('statusbar', I2)}
-        <View {box(167.5, 7.5, 25, 25)} android:background="@drawable/punch" />
+        <View android:id="@+id/punch" {box(167.5, 7.5, 25, 25)} android:background="@drawable/punch" />
 
         <!-- Interstitial — third-party, R15 does not control it -->
         <FrameLayout android:tag="bridge" android:layout_width="360dp" android:layout_height="800dp">
-            <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:src="@drawable/bridge_full" android:scaleType="fitXY" android:importantForAccessibility="no" />
+            <View android:tag="bridge_full" android:layout_width="match_parent" android:layout_height="match_parent" android:importantForAccessibility="no" />
             <View android:id="@+id/hot_skip" {box(248, 12, 110, 44)} android:contentDescription="Skip ads" />
         </FrameLayout>
 

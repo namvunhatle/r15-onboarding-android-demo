@@ -2,16 +2,21 @@ package namvunhatle.r15.onboarding.views
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.view.Choreographer
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import namvunhatle.r15.onboarding.core.A7Art
 import namvunhatle.r15.onboarding.core.A7Native
 import namvunhatle.r15.onboarding.core.A7Player
+import namvunhatle.r15.onboarding.core.Bleed
+import namvunhatle.r15.onboarding.core.Box
 import namvunhatle.r15.onboarding.core.Css
 import namvunhatle.r15.onboarding.core.Dest
 import namvunhatle.r15.onboarding.core.El
@@ -20,6 +25,7 @@ import namvunhatle.r15.onboarding.core.Scene
 import namvunhatle.r15.onboarding.core.dumpExtra
 import namvunhatle.r15.onboarding.core.immersive
 import namvunhatle.r15.onboarding.core.seekExtra
+import namvunhatle.r15.onboarding.core.viewport
 import kotlin.math.exp
 import kotlin.math.roundToInt
 
@@ -30,7 +36,7 @@ import kotlin.math.roundToInt
  */
 class MainActivity : Activity(), Choreographer.FrameCallback {
     private lateinit var player: A7Player
-    private lateinit var frame: ViewGroup
+    private lateinit var frame: DesignFrame
     private lateinit var fab: View
     private lateinit var tc: TextView
     private lateinit var wave: WaveView
@@ -47,12 +53,13 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
         super.onCreate(savedInstanceState)
         immersive()
         setContentView(R.layout.activity_main)
-        val scene = Scene(this)
+        val scene = Scene(this, viewport())
         player = A7Player(this, scene)
         seekExtra()?.let(player::seekFrozen)
         val art = A7Art(this)
 
         frame = findViewById(R.id.frame)
+        if (!scene.vp.isFrame) fill(scene)
         fab = findViewById(R.id.fab)
         wave = findViewById(R.id.wave_bars)
         wave.clock = player.store["clock"]
@@ -66,10 +73,10 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
         // LAYERED ones get a hardware layer: drawn once, then the timeline only moves, scales and fades the layer.
         val native = A7Native(this, scene)
         if (dumpExtra()) native.dump(getExternalFilesDir("dump")!!)
-        A7Native.IDS.forEach { id ->
+        native.ids.forEach { id ->
             frame.findViewWithTag<View>(id).apply {
                 background = native.art(id)
-                if (id in A7Native.LAYERED) setLayerType(View.LAYER_TYPE_HARDWARE, null)
+                if (id in native.layered) setLayerType(View.LAYER_TYPE_HARDWARE, null)
             }
         }
 
@@ -80,7 +87,7 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
 
         prepare(frame)
         val zoom = player.store["zoom"]
-        collect(frame) { v, id -> bound += Bound(v, player.store[id], Scene.origin(id).first, Scene.origin(id).second, if (id == "logo" || id == "logoB") zoom else null) }
+        collect(frame) { v, id -> bound += Bound(v, player.store[id], scene.origin(id).first, scene.origin(id).second, if (id == "logo" || id == "logoB") zoom else null) }
         tc = frame.findViewWithTag("wave_tc")
 
         hot(R.id.hot_skip, null, { player.atAd }) { player.skipAd() }
@@ -92,6 +99,48 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
         fab.setOnClickListener { player.replay() }
         // Long-press = next track — a review tool, not part of the onboarding.
         fab.setOnLongClickListener { Toast.makeText(this, "Nhạc: " + player.nextTrack(), Toast.LENGTH_SHORT).show(); true }
+    }
+
+    /**
+     * Not 20:9: the scene fills the screen around the design frame ([namvunhatle.r15.onboarding.core.Viewport]).
+     * The layout holds the v1.3.3 boxes; this moves the ones [Scene] changed, adds the extra wall tiles, and
+     * surrounds each destination screenshot with its [Bleed].
+     */
+    private fun fill(scene: Scene) {
+        val view = scene.view
+        frame.vp = scene.vp
+        val tiles = frame.findViewWithTag<ViewGroup>("tiles")
+        scene.extraTiles.keys.forEach { id ->
+            tiles.addView(View(this).apply { tag = id; importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }, 0, FrameLayout.LayoutParams(0, 0))
+        }
+        (A7Native.IDS + scene.extraTiles.keys).forEach { id -> place(frame.findViewWithTag(id), scene.pos.getValue(id)) }
+        place(frame.findViewWithTag("wave"), scene.wave)
+        place(frame.findViewWithTag("sp_track"), scene.spTrack)
+        place(findViewById(R.id.punch), scene.punch)
+        place(findViewById(R.id.hot_skip), scene.hotSkip)
+        // full-screen layers take the whole viewport (their touches included); their children shift back to the frame
+        (listOf("bridge") + Dest.entries.map(A7Player::destId)).forEach { id ->
+            val box = frame.findViewWithTag<ViewGroup>(id)
+            place(box, view)
+            for (i in 0 until box.childCount) {
+                val child = box.getChildAt(i)
+                val lp = child.layoutParams as ViewGroup.MarginLayoutParams
+                if (child is ImageView) {
+                    lp.width = px(Scene.W); lp.height = px(Scene.H)
+                    box.background = Bleed((child.drawable as BitmapDrawable).bitmap, scene.vp)
+                }
+                lp.leftMargin += px(-view.x); lp.topMargin += px(-view.y)
+                child.layoutParams = lp
+            }
+        }
+    }
+
+    private fun px(v: Float) = (v * dp).roundToInt()
+
+    private fun place(v: View, b: Box) {
+        val lp = v.layoutParams as ViewGroup.MarginLayoutParams
+        lp.width = px(b.w); lp.height = px(b.h); lp.leftMargin = px(b.x); lp.topMargin = px(b.y)
+        v.layoutParams = lp
     }
 
     private fun nativeSlot(id: Int, tag: String, c0: Int, c1: Int) {

@@ -7,11 +7,11 @@ android {
     namespace = "namvunhatle.r15.onboarding.compose"
     compileSdk = 37
     defaultConfig {
-        applicationId = "namvunhatle.r15.onboarding.compose.vector"
+        applicationId = "namvunhatle.r15.onboarding.compose.responsive"
         minSdk = 28
         targetSdk = 37
         versionCode = 1
-        versionName = "1.3.3-native"
+        versionName = "1.3.3-responsive"
     }
     buildFeatures { compose = true }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }

@@ -8,6 +8,14 @@ import org.json.JSONObject
 data class Box(val x: Float, val y: Float, val w: Float, val h: Float) {
     val cx get() = x + w / 2f
     val cy get() = y + h / 2f
+    val right get() = x + w
+    val bottom get() = y + h
+    fun dy(d: Float) = if (d == 0f) this else copy(y = y + d)
+    fun outset(d: Float) = Box(x - d, y - d, w + 2 * d, h + 2 * d)
+    fun intersect(o: Box): Box {
+        val l = maxOf(x, o.x); val t = maxOf(y, o.y)
+        return Box(l, t, (minOf(right, o.right) - l).coerceAtLeast(0f), (minOf(bottom, o.bottom) - t).coerceAtLeast(0f))
+    }
 }
 
 /** A burst genre tile (P04 keyframe 05). */
@@ -22,11 +30,29 @@ data class Track(val id: String, val title: String, val artist: String, val bpm:
  * Everything both UIs need to lay the scene out: sprite boxes (Figma export of section `15552:115354`,
  * 360×800 frame), the HTML-built parts' geometry, and the element ids the timeline animates.
  * Ported from prototype-a7 v1.3.3 (src/App.tsx + src/index.css).
+ *
+ * [vp] adapts it to the phone's screen ([Viewport]); on a 20:9 screen every box is the v1.3.3 one.
  */
-class Scene(ctx: Context) {
+class Scene(ctx: Context, val vp: Viewport = Viewport.FRAME) {
     val pos: Map<String, Box>
     private val bbox: Map<String, Box>
+    private val pos0: Map<String, Box>
+    private val shift = HashMap<String, Float>()
     val tracks: List<Track>
+
+    /** The visible area, in frame coordinates. */
+    val view = vp.view
+    /** Wall tiles added past the Figma wall's ends when the screen is wider than 20:9: id → the tile it repeats. */
+    val extraTiles: Map<String, String>
+    val tiles: List<String>
+    val restTiles: List<String>
+
+    // anchored HTML-built parts
+    val wave = WAVE.dy(-vp.my)
+    val spTrack = SP_TRACK.dy(vp.my)
+    val punch = PUNCH.dy(-vp.my)
+    /** "Skip ads" pill: holds the top-right corner. */
+    val hotSkip = HOT_SKIP.copy(x = HOT_SKIP.x + vp.mx).dy(-vp.my)
 
     init {
         val m = JSONObject(ctx.assets.open("manifest.json").bufferedReader().readText())
@@ -35,12 +61,57 @@ class Scene(ctx: Context) {
             val e = m.getJSONObject(k)
             p[k] = e.getJSONArray("pos").box(); b[k] = e.getJSONArray("bbox").box()
         }
+        pos0 = HashMap(p)
+        val extra = LinkedHashMap<String, String>()
+        if (!vp.isFrame) {
+            BLEED.forEach { p[it] = view }
+            FULL_WIDTH.forEach { k -> p.getValue(k).let { p[k] = grow(it, Box(view.x, it.y, view.w, it.h)) } }
+            // cut by the frame edge in the v1.3.3 export: grow (about the same centre, so the motion is unchanged)
+            // until the node and its shadow are whole again, as far as the screen shows
+            (REST_TILES + G02_STICKERS + G04_STICKERS + "g01_phone").forEach { k -> p[k] = grow(p.getValue(k), b.getValue(k).outset(24f).intersect(view)) }
+            TOP.forEach { k -> p[k] = p.getValue(k).dy(-vp.my); shift[k] = -vp.my }
+            BOTTOM.forEach { k -> p[k] = p.getValue(k).dy(vp.my); shift[k] = vp.my }
+            // the wall repeats row by row: one more tile at each end of a row, as far as the screen shows
+            val step = b.getValue(TILES[1]).cx - b.getValue(TILES[0]).cx to b.getValue(TILES[1]).cy - b.getValue(TILES[0]).cy
+            WALL_ROWS.forEachIndexed { r, row ->
+                for ((side, from, copy) in listOf(Triple(-1, row.first(), row.last()), Triple(1, row.last(), row.first()))) {
+                    val c = b.getValue(from)
+                    val t = Box(c.cx + side * step.first - c.w / 2, c.cy + side * step.second - c.h / 2, c.w, c.h)
+                    val vis = t.intersect(view)
+                    if (vis.w <= 0f || vis.h <= 0f || (vis.x >= 0f && vis.right <= W && vis.y >= 0f && vis.bottom <= H)) continue
+                    val id = "tile_x$r${if (side < 0) "l" else "r"}"
+                    extra[id] = copy; b[id] = t; p[id] = vis
+                }
+            }
+        }
         pos = p; bbox = b
+        extraTiles = extra
+        tiles = TILES + extra.keys
+        restTiles = REST_TILES + extra.keys
         val t = JSONArray(ctx.assets.open("tracks.json").bufferedReader().readText())
         tracks = (0 until t.length()).map { i ->
             val o = t.getJSONObject(i)
             Track(o.getString("id"), o.getString("title"), o.getString("artist"), o.getInt("bpm"), o.getDouble("preroll"))
         }
+    }
+
+    /** [b] grown symmetrically until it covers [need] on the sides where it touches the 360×800 frame. */
+    private fun grow(b: Box, need: Box): Box {
+        val dx = maxOf(if (b.x <= 0.5f) b.x - need.x else 0f, if (b.right >= W - 0.5f) need.right - b.right else 0f, 0f)
+        val dy = maxOf(if (b.y <= 0.5f) b.y - need.y else 0f, if (b.bottom >= H - 0.5f) need.bottom - b.bottom else 0f, 0f)
+        return Box(b.x - dx, b.y - dy, b.w + 2 * dx, b.h + 2 * dy)
+    }
+
+    /** The box an element's art is drawn for: [pos] before any anchoring move, so the art keeps frame coordinates. */
+    fun artBox(id: String) = pos.getValue(id).dy(-(shift[id] ?: 0f))
+
+    /** Transform origin as fractions of the element's box: the v1.3.3 pivot, carried along if the element moved. */
+    fun origin(id: String): Pair<Float, Float> {
+        val o = ORIGIN[id] ?: (0.5f to 0.5f)
+        val b0 = pos0[id] ?: return o
+        val b = pos.getValue(id)
+        if (b == b0) return o
+        return (b0.x + o.first * b0.w - b.x) / b.w to (b0.y + (shift[id] ?: 0f) + o.second * b0.h - b.y) / b.h
     }
 
     private fun JSONArray.box() = Box(getDouble(0).toFloat(), getDouble(1).toFloat(), getDouble(2).toFloat(), getDouble(3).toFloat())
@@ -65,6 +136,7 @@ class Scene(ctx: Context) {
         const val LY = 298f
 
         val TILES = listOf("tile_hiphop", "tile_rock", "tile_country", "tile_holiday", "tile_alarm", "tile_rnb", "tile_sfx", "tile_baby", "tile_msg")
+        private val WALL_ROWS = TILES.chunked(3)
         val G02_STICKERS = listOf("st_mia", "st_leo", "st_zoe", "st_noah")
         val G04_STICKERS = listOf("g04_sam", "g04_emma", "g04_jake", "g04_mia", "g04_leo", "g04_zoe")
         val HEADS = listOf("g01_head", "g02a_head", "g02b_head", "g03_head")
@@ -126,6 +198,11 @@ class Scene(ctx: Context) {
             "sp_fill" to (0f to 0.5f),
             "bw_hey" to (0.5f to 0.7f), "bw_sam" to (0.5f to 0.7f), "bw_call" to (0.5f to 0.7f),
         )
-        fun origin(id: String) = ORIGIN[id] ?: (0.5f to 0.5f)
+
+        // Viewport responses (see [Viewport])
+        private val BLEED = listOf("splash_bg", "bridge_full") + BGS
+        private val FULL_WIDTH = listOf("sp_strip", "statusbar")
+        private val TOP = listOf("statusbar") + HEADS
+        private val BOTTOM = listOf("sp_note", "sp_strip")
     }
 }

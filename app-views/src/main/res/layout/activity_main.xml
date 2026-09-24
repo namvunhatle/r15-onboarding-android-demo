@@ -101,11 +101,11 @@
         </FrameLayout>
 
         <View android:tag="statusbar" android:layout_width="360dp" android:layout_height="40dp" android:layout_marginLeft="0dp" android:layout_marginTop="0dp" android:importantForAccessibility="no" />
-        <View android:layout_width="25dp" android:layout_height="25dp" android:layout_marginLeft="167.5dp" android:layout_marginTop="7.5dp" android:background="@drawable/punch" />
+        <View android:id="@+id/punch" android:layout_width="25dp" android:layout_height="25dp" android:layout_marginLeft="167.5dp" android:layout_marginTop="7.5dp" android:background="@drawable/punch" />
 
         <!-- Interstitial — third-party, R15 does not control it -->
         <FrameLayout android:tag="bridge" android:layout_width="360dp" android:layout_height="800dp">
-            <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:src="@drawable/bridge_full" android:scaleType="fitXY" android:importantForAccessibility="no" />
+            <View android:tag="bridge_full" android:layout_width="match_parent" android:layout_height="match_parent" android:importantForAccessibility="no" />
             <View android:id="@+id/hot_skip" android:layout_width="110dp" android:layout_height="44dp" android:layout_marginLeft="248dp" android:layout_marginTop="12dp" android:contentDescription="Skip ads" />
         </FrameLayout>
 

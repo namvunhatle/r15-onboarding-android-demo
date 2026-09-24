@@ -8,13 +8,15 @@ Use it to review the experience and discuss implementation. Ads, purchases, AI g
 
 **Native art.** Figma shapes, text, gradients, shadows, and blurs are drawn in code, following the v1.3.3 motion, audio, and fixed 360 × 800 layout. Only Figma image fills and the destination mocks remain bitmaps. See [Native art](docs/IMPLEMENTATION_NOTES.md#native-art-main).
 
+**Any phone screen** (branch `responsive-phone`). The scene fills 16:9 to 23:9 phones instead of showing black bars: backgrounds bleed, the genre wall grows, and chrome holds the screen edges. See [Screen sizes](docs/IMPLEMENTATION_NOTES.md#screen-sizes-responsive-phone).
+
 **Developers:** start with [`FigmaArt.kt`](core/src/main/java/namvunhatle/r15/onboarding/core/FigmaArt.kt), where each Figma component is drawn with its Figma values.
 
 ## Try it
 
 - **[Open the web demo](https://prototype-a7.vercel.app)** to watch the sequence in a browser. The live site may change after this release.
 - **[Download the current native-art version](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.3-native)**. Requires Android 9 / API 28 or later.
-- **[Build from source](#build-locally)** if you want to inspect or change the implementation.
+- **[Build from source](#build-locally)** if you want to inspect or change the implementation. The responsive build has no release APK yet; it installs beside the release as `…compose.responsive` / `…views.responsive`.
 
 | Current native-art build | APK | Application ID |
 | --- | --- | --- |
@@ -55,6 +57,7 @@ The replay button appears on the interstitial and destination screens. Track swi
 | `core/…/FigmaArt.kt` | **Start here for Figma → code:** each Figma component drawn natively, with its Figma values |
 | `core/…/A7Native.kt` | Which element uses which component, and what stays a bitmap |
 | `core/…/A7Glow.kt` | Figma layer blurs, computed at startup |
+| `core/…/Viewport.kt`, `Scene.kt` | Screen size → which elements bleed, grow or hold an edge |
 | `app-compose/` | Compose renderer and activity |
 | `app-views/` | XML layouts, custom views, and activity |
 | `tools/` | Layout generation and optional audio baking |
@@ -67,7 +70,7 @@ The earlier sprite implementation is preserved on [`archive/v1.3.3-sprites`](htt
 
 ## Known limits
 
-- **Fixed 360 × 800 layout.** The whole scene scales to fit. Other aspect ratios show black bars; responsive layouts are not implemented.
+- **Phones only.** Screens from about 16:9 to 23:9 are filled; tablets and landscape are still letterboxed. Destination screens are screenshots, so their margins show edge colour, not layout.
 - **Replay during a transition can leave an old destination visible.** Wait for the destination to settle before replaying. Relaunch the app if it occurs.
 - **Time inspection does not fully freeze the final scene.** Its idle animation can keep running.
 - **Reduced motion is partial.** Some splash movement remains when system animations are disabled.

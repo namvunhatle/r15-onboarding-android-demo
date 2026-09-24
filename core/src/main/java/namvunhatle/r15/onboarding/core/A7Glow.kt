@@ -29,7 +29,13 @@ object A7Glow {
     class Ellipse(val w: Float, val h: Float, val m: FloatArray, val color: Int, val opacity: Float, val blur: Float) {
         constructor(x: Float, y: Float, w: Float, h: Float, color: Int, opacity: Float, blur: Float) :
             this(w, h, floatArrayOf(1f, 0f, x, 0f, 1f, y), color, opacity, blur)
+
+        fun moved(dx: Float, dy: Float) = Ellipse(w, h, floatArrayOf(m[0], m[1], m[2] + dx, m[3], m[4], m[5] + dy), color, opacity, blur)
     }
+
+    /** The [area] of the frame (dp, frame coordinates): [base] fill (or transparent) with the blurred ellipses on top. */
+    fun bake(area: Box, base: Int?, ellipses: List<Ellipse>, pxPerDp: Float = 0.5f): Bitmap =
+        bake(area.w, area.h, base, ellipses.map { it.moved(-area.x, -area.y) }, pxPerDp)
 
     /** A [w]×[h] dp frame: [base] fill (or transparent) with the blurred ellipses on top, in order. */
     fun bake(w: Float, h: Float, base: Int?, ellipses: List<Ellipse>, pxPerDp: Float = 0.5f): Bitmap {

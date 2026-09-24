@@ -18,8 +18,8 @@ import kotlin.math.ceil
  * an element by its timeline id and draw it in the same box the sprite used.
  *
  * What stays a bitmap is what is a bitmap in Figma too: the splash's image fill and smoke photo, and the phone
- * screens (image fills of `A7 / Phone`). The interstitial and the three destination mocks are other products'
- * screens and keep their screenshots.
+ * screens (image fills of `A7 / Phone`), and the interstitial's creative (its SDK chrome is drawn). The three
+ * destination mocks are other products' screens and keep their screenshots.
  */
 class A7Native(private val ctx: Context, private val scene: Scene) {
     private fun font(id: Int): Typeface = ResourcesCompat.getFont(ctx, id)!!
@@ -37,14 +37,18 @@ class A7Native(private val ctx: Context, private val scene: Scene) {
     private val screens by lazy { mapOf("g01_phone" to bitmap(R.drawable.screen_g01), "g02_phone" to bitmap(R.drawable.screen_g02), "g03_phone" to bitmap(R.drawable.screen_g03)) }
     private val spots = HashMap<String, Bitmap>()
 
+    /** Ids drawn by [art]: [IDS] plus the wall tiles this screen adds ([Scene.extraTiles]). */
+    val ids: List<String> = IDS + scene.extraTiles.keys
+    val layered: Set<String> = LAYERED + scene.extraTiles.keys
+
     fun art(id: String): Drawable {
-        val box = scene.pos.getValue(id)
+        val box = scene.artBox(id)
         return when (id) {
             "splash_bg" -> SplashBg(
-                box, bitmap(R.drawable.splash_base), A7Glow.bake(Scene.W, Scene.H, null, SplashBg.GLOWS), bitmap(R.drawable.splash_wisps),
+                box, bitmap(R.drawable.splash_base), A7Glow.bake(box, null, SplashBg.GLOWS), bitmap(R.drawable.splash_wisps),
                 PathParser.createPathFromPathData(FigmaPaths.SPLASH_GRID),
             )
-            in Spotlight.SPOTS -> Spotlight(box, spots.getOrPut(id) { Spotlight.bake(id) })
+            in Spotlight.SPOTS -> Spotlight(box, spots.getOrPut(id) { Spotlight.bake(id, box) })
             // P01's text sits where the v1.3.3 sprites put it: 1.5 / 0.5 dp above the current Figma boxes (446 / 660).
             "tagline" -> TextArt(box, name20, argb(0.96f), listOf(Line("A world of ringtones.", 180.5f, 444.5f, true), Line("Personalized for you.", 180.5f, 472.5f, true)))
             "sp_note" -> TextArt(box, Type(be400, 10f, 16f, -0.12f), argb(0.8f), listOf(Line("This action may contain ads.", 179.5f, 659.5f, true)))
@@ -53,7 +57,7 @@ class A7Native(private val ctx: Context, private val scene: Scene) {
                 box, Type(Typeface.create("sans-serif", Typeface.NORMAL), 14f, 20f, 0.25f),
                 vector(R.drawable.ic_sb_wifi), vector(R.drawable.ic_sb_signal), vector(R.drawable.ic_sb_battery),
             )
-            in TILES -> TILES.getValue(id).let { (title, colors) ->
+            in TILES, in scene.extraTiles -> tile(scene.extraTiles[id] ?: id).let { (title, colors) ->
                 val (cx, cy) = scene.wallCenter(id)
                 GenreTile(box, cx, cy, colors.first, colors.second, tile32, title)
             }
@@ -64,10 +68,14 @@ class A7Native(private val ctx: Context, private val scene: Scene) {
             in STICKERS -> STICKERS.getValue(id).let { s -> Sticker(box, name20, s.name, s.w, s.cx, s.cy, s.rot, s.stroke) }
             "g04_center" -> NameCenter(box, anton, name20)
             "g04_cta" -> CtaButton(box, Type(be600, 16f, 24f, -0.4f), "Explore AI Ringtones")
+            "bridge_full" -> Interstitial(box, bitmap(R.drawable.inter_fill), Type(font(R.font.mona_sans_medium), 12f, 16f, 0.48f), PathParser.createPathFromPathData(Interstitial.CLOSE))
             "g04_secondary" -> FlatButton(box, Type(be600, 14f, 20f, -0.32f), "Browse ringtones", 421f, argb(0.8f))
             else -> error("no native art for $id")
         }
     }
+
+    /** Title + colours of a wall tile, the burst four included (an added tile may repeat one of them). */
+    private fun tile(id: String) = TILES[id] ?: Scene.MINIS.first { it.wall == id }.let { listOf(it.label) to (it.c0 to it.c1) }
 
     private fun vector(id: Int) = ResourcesCompat.getDrawable(ctx.resources, id, null)!!
 
@@ -77,7 +85,7 @@ class A7Native(private val ctx: Context, private val scene: Scene) {
      */
     fun dump(dir: File) {
         dir.mkdirs()
-        for (id in IDS) {
+        for (id in ids) {
             val b = scene.pos.getValue(id)
             val bmp = createBitmap(ceil(b.w * 2).toInt(), ceil(b.h * 2).toInt())
             art(id).apply { setBounds(0, 0, bmp.width, bmp.height) }.draw(Canvas(bmp))
@@ -147,10 +155,10 @@ class A7Native(private val ctx: Context, private val scene: Scene) {
          * per frame of a bitmap sprite, with the content still drawn by code. The spotlights are a single bitmap draw
          * already and skip the layer (six full-screen layers would cost ~60 MB of GPU memory for nothing).
          */
-        val LAYERED: Set<String> by lazy { (IDS - Scene.BGS.toSet()).toSet() }
+        val LAYERED: Set<String> by lazy { (IDS - Scene.BGS.toSet() - "bridge_full").toSet() }
 
         /** Ids drawn by [art] — every other sprite id is still a bitmap. */
         val IDS: List<String> = listOf("splash_bg", "tagline", "sp_note", "sp_strip", "statusbar") + Scene.BGS + TILES.keys +
-            Scene.HEADS + listOf("g01_phone", "g02_phone", "g03_phone") + STICKERS.keys + listOf("g04_center", "g04_cta", "g04_secondary")
+            Scene.HEADS + listOf("g01_phone", "g02_phone", "g03_phone") + STICKERS.keys + listOf("g04_center", "g04_cta", "g04_secondary", "bridge_full")
     }
 }

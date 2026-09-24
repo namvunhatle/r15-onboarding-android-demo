@@ -15,6 +15,7 @@ import namvunhatle.r15.onboarding.core.Css
 import namvunhatle.r15.onboarding.core.El
 import namvunhatle.r15.onboarding.core.Prop
 import namvunhatle.r15.onboarding.core.Scene
+import namvunhatle.r15.onboarding.core.Viewport
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -23,10 +24,21 @@ private fun View.dp(v: Float) = v * resources.displayMetrics.density
 /**
  * Holds the 360×800 design frame at its design size (dp) and scales itself to fit the screen — the XML twin of the
  * web's `transform: scale(s)` and of the Compose build's scaled Density. Children lay out in design dp.
+ *
+ * With a [vp] margin the view is the whole visible screen (so it draws and takes touches there too) and the frame
+ * sits inside it at padding = the margin: children still lay out in frame coordinates.
  */
 class DesignFrame(ctx: Context, attrs: AttributeSet?) : FrameLayout(ctx, attrs) {
+    var vp = Viewport.FRAME
+        set(v) {
+            field = v
+            // the padding is screen the scene fills, not a gutter; the root still clips this view to its bounds
+            clipToPadding = false; clipChildren = v.isFrame
+            setPadding(dp(v.mx).roundToInt(), dp(v.my).roundToInt(), dp(v.mx).roundToInt(), dp(v.my).roundToInt())
+        }
+
     override fun onMeasure(w: Int, h: Int) {
-        super.onMeasure(MeasureSpec.makeMeasureSpec(dp(Scene.W).roundToInt(), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(dp(Scene.H).roundToInt(), MeasureSpec.EXACTLY))
+        super.onMeasure(MeasureSpec.makeMeasureSpec(dp(vp.view.w).roundToInt(), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(dp(vp.view.h).roundToInt(), MeasureSpec.EXACTLY))
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
@@ -35,8 +47,8 @@ class DesignFrame(ctx: Context, attrs: AttributeSet?) : FrameLayout(ctx, attrs) 
         val s = min(p.width / dp(Scene.W), p.height / dp(Scene.H))
         pivotX = 0f; pivotY = 0f
         scaleX = s; scaleY = s
-        translationX = (p.width - dp(Scene.W) * s) / 2 - left
-        translationY = (p.height - dp(Scene.H) * s) / 2 - top
+        translationX = (p.width - measuredWidth * s) / 2 - left
+        translationY = (p.height - measuredHeight * s) / 2 - top
     }
 }
 

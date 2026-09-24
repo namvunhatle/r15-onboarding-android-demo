@@ -32,6 +32,11 @@ The demo uses processed excerpts mixed with synthesized sound cues. The bundled 
 - [Project](https://github.com/googlefonts/AntonFont)
 - [SIL Open Font License 1.1 and copyright notice](licenses/Anton-OFL.txt)
 
+**Mona Sans** — The Mona Sans Project Authors. Used for the interstitial's "Skip ads" (static Medium instance, ASCII subset).
+
+- [Project](https://github.com/github/mona-sans)
+- [SIL Open Font License 1.1 and copyright notice](licenses/MonaSans-OFL.txt)
+
 ## Replay icon
 
 **Lucide** — Lucide Icons and Contributors.

@@ -91,7 +91,7 @@ class A7Player(ctx: Context, val scene: Scene) {
         dest = d; destOrder.remove(d); destOrder.add(d); uiVersion++
         val id = destId(d)
         val r = reduced
-        fx.fromTo(listOf(id), v("x" to if (r) 0 else 360, "autoAlpha" to if (r) 0 else 1), v("x" to 0, "autoAlpha" to 1), fxTime, if (r) 0.2 else 0.4, Ease.power3Out)
+        fx.fromTo(listOf(id), v("x" to if (r) 0f else scene.view.w, "autoAlpha" to if (r) 0 else 1), v("x" to 0, "autoAlpha" to 1), fxTime, if (r) 0.2 else 0.4, Ease.power3Out)
         audio.stop(fade = 0.8)
     }
 

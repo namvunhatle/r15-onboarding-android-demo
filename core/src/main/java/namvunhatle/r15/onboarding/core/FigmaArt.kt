@@ -88,6 +88,8 @@ fun figmaLinear(t: FloatArray, w: Float, h: Float, colors: IntArray, stops: Floa
 /** A Figma `DROP_SHADOW` (offset, blur, colour) on a paint: CSS semantics, σ = blur / 2. Units follow the canvas. */
 fun Paint.dropShadow(dy: Float, blur: Float, color: Int) = apply { setShadowLayer(Css.shadowRadius(blur), 0f, dy, color) }
 
+fun Box.rect() = RectF(x, y, right, bottom)
+
 private fun argb(a: Float, rgb: Int) = ((a * 255f + .5f).toInt() shl 24) or (rgb and 0xFFFFFF)
 private val FILTER = Paint(Paint.FILTER_BITMAP_FLAG or Paint.ANTI_ALIAS_FLAG)
 
@@ -97,10 +99,19 @@ private val FILTER = Paint(Paint.FILTER_BITMAP_FLAG or Paint.ANTI_ALIAS_FLAG)
  * P01 · Splash › BG › R15 (`15552:118420`). Frame fills: an image (smooth mesh, kept as a bitmap) under a black 0→100 %
  * ramp at 52 %; children: the grid (vector union), two blurred #51208D ellipses (baked, [A7Glow]), and a 40 % smoke
  * image (kept as a bitmap — it is a photo in Figma too).
+ *
+ * [box] is the whole visible screen: on a 20:9 phone the 360×800 frame, elsewhere the frame grown like a resized
+ * Figma frame — image fill covers it, the ramp spans it, the smoke keeps to its top edge, and the grid and the glows
+ * (larger than the frame already) just show more of themselves.
  */
 class SplashBg(box: Box, private val base: Bitmap, private val glow: Bitmap, private val wisps: Bitmap, private val grid: Path) : FigmaArt(box) {
+    private val full = box.rect()
+    private val cover = (maxOf(box.w / Scene.W, box.h / Scene.H)).let { k ->
+        RectF(box.cx - Scene.W * k / 2, box.cy - Scene.H * k / 2, box.cx + Scene.W * k / 2, box.cy + Scene.H * k / 2)
+    }
+    private val smoke = RectF(box.x, box.y, box.right, box.y + 139f * box.w / Scene.W)
     private val shade = Paint().apply {
-        shader = LinearGradient(0f, 0f, 0f, 800f, 0x00000000, 0xFF000000.toInt(), Shader.TileMode.CLAMP); alpha = (0.52f * 255).toInt()
+        shader = LinearGradient(0f, box.y, 0f, box.bottom, 0x00000000, 0xFF000000.toInt(), Shader.TileMode.CLAMP); alpha = (0.52f * 255).toInt()
     }
     private val gridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         shader = figmaLinear(
@@ -111,17 +122,16 @@ class SplashBg(box: Box, private val base: Bitmap, private val glow: Bitmap, pri
     }
 
     override fun paint(c: Canvas) {
-        c.drawBitmap(base, null, FULL, FILTER)
-        c.drawRect(FULL, shade)
+        c.drawBitmap(base, null, cover, FILTER)
+        c.drawRect(full, shade)
         c.withTranslation(-417.79883f, -358.01758f) { drawPath(grid, gridPaint) }
-        c.drawBitmap(glow, null, FULL, FILTER)
-        c.drawBitmap(wisps, null, RectF(0f, 0f, 360f, 139f), FILTER)
+        c.drawBitmap(glow, null, full, FILTER)
+        c.drawBitmap(wisps, null, smoke, FILTER)
     }
 
     companion object {
         const val GRID_W = 1123.4404f
         const val GRID_H = 1267.0859f
-        val FULL = RectF(0f, 0f, Scene.W, Scene.H)
         /** Ellipse 182 / 183: #51208D, layer blur 121.1. */
         val GLOWS = listOf(
             A7Glow.Ellipse(199f, 427f, floatArrayOf(0.98277295f, 0.18481699f, 275.25586f, -0.18481699f, 0.98277295f, -111.93274f), 0xFF51208D.toInt(), 1f, 121.1f),
@@ -132,7 +142,8 @@ class SplashBg(box: Box, private val base: Bitmap, private val glow: Bitmap, pri
 
 /** G01–G04 › BG › Spotlight BG: #0D0D0D + "Glow · main" (520×420, 70 %, blur 170) + "Glow · rim" (240×200, 35 %, blur 110). */
 class Spotlight(box: Box, private val baked: Bitmap) : FigmaArt(box) {
-    override fun paint(c: Canvas) = c.drawBitmap(baked, null, SplashBg.FULL, FILTER)
+    private val full = box.rect()
+    override fun paint(c: Canvas) = c.drawBitmap(baked, null, full, FILTER)
 
     companion object {
         /** Main glow top (rim sits 20 dp higher), main colour, rim colour — per screen. */
@@ -142,10 +153,11 @@ class Spotlight(box: Box, private val baked: Bitmap) : FigmaArt(box) {
             "bg_G03" to Triple(194f, 0xFF7755E7, 0xFFE854B2), "bg_G04" to Triple(72f, 0xFFBB4ABF, 0xFFE854B2),
         )
 
-        fun bake(id: String): Bitmap {
+        /** The spotlight over [box] (the visible screen, frame coordinates). */
+        fun bake(id: String, box: Box): Bitmap {
             val (y, main, rim) = SPOTS.getValue(id)
             return A7Glow.bake(
-                Scene.W, Scene.H, 0xFF0D0D0D.toInt(),
+                box, 0xFF0D0D0D.toInt(),
                 listOf(A7Glow.Ellipse(-80f, y, 520f, 420f, main.toInt(), 0.7f, 170f), A7Glow.Ellipse(60f, y - 20f, 240f, 200f, rim.toInt(), 0.35f, 110f)),
             )
         }
@@ -327,7 +339,7 @@ class BannerAd(box: Box, private val semi12: Type, private val reg10: Type, priv
     private val ad = med10.paint(argb(0.86f, 0))
 
     override fun paint(c: Canvas) {
-        c.drawRect(0f, 692f, 360f, 752f, white)
+        c.drawRect(box.x, 692f, box.right, 752f, white) // full width of the screen
         c.drawRoundRect(12f, 704f, 48f, 740f, 8f, 8f, icon)
         c.text(Line("Advertiser headline", 60f, 706f), semi12, head)
         c.text(Line("One line from the ad network", 60f, 722f), reg10, body)
@@ -342,10 +354,12 @@ class StatusBar(box: Box, private val time: Type, private val wifi: Drawable, pr
     private val cam = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xFFFFFFFF.toInt() }
 
     override fun paint(c: Canvas) {
-        c.text(Line("9:30", 16f, 10f), time, ink)
-        icon(c, wifi, 298.66669f, 14.960938f, 14.6667f, 10.3733f)
-        icon(c, signal, 313.33334f, 13.333984f, 13.3333f, 13.3333f)
-        icon(c, battery, 331.75f, 12.916016f, 8.5f, 14.1667f)
+        // spans the screen: the time holds the left edge, the icons the right one
+        val r = box.right - Scene.W
+        c.text(Line("9:30", box.x + 16f, 10f), time, ink)
+        icon(c, wifi, r + 298.66669f, 14.960938f, 14.6667f, 10.3733f)
+        icon(c, signal, r + 313.33334f, 13.333984f, 13.3333f, 13.3333f)
+        icon(c, battery, r + 331.75f, 12.916016f, 8.5f, 14.1667f)
         c.drawCircle(180f, 20f, 12f, cam)
     }
 
@@ -355,5 +369,48 @@ class StatusBar(box: Box, private val time: Type, private val wifi: Drawable, pr
             scale(1 / 16f, 1 / 16f)
             d.setBounds(0, 0, (w * 16).roundToInt(), (h * 16).roundToInt()); d.draw(this)
         }
+    }
+}
+
+/**
+ * 03 · Interstitial (SDK) (`15560:138551`): the ad creative is the frame's image fill (FILL = cover, radius 24), with
+ * the SDK chrome on top — "Ads progress" (two 4 px round-capped lines, 70 px played + the rest at 25 %) and the
+ * "Skip ads" pill (white 17 %, Mona Sans Medium 12/16 +4 %, close-circle-fill). The creative is a bitmap in Figma too.
+ *
+ * [box] is the visible screen: the creative covers it and the chrome holds the top edge (the pill the right side,
+ * the progress spans the width). Past the rounded corners is black — a real SDK activity's window.
+ */
+class Interstitial(box: Box, private val creative: Bitmap, type: Type, private val closeIcon: Path) : FigmaArt(box) {
+    private val t = type
+    private val black = Paint().apply { color = 0xFF000000.toInt() }
+    private val frame = Path().apply { addRoundRect(box.rect(), 24f, 24f, Path.Direction.CW) }
+    private val cover = (maxOf(box.w / creative.width, box.h / creative.height)).let { k ->
+        RectF(box.cx - creative.width * k / 2, box.cy - creative.height * k / 2, box.cx + creative.width * k / 2, box.cy + creative.height * k / 2)
+    }
+    // as exported: the round caps sit inside each line's length, centred 6 dp down (not on the frame's 8 dp padding)
+    private val top = box.y + 6f
+    private val played = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 4f; strokeCap = Paint.Cap.ROUND; color = 0xFFFFFF00.toInt() }
+    private val rest = Paint(played).apply {
+        val x0 = box.x + 16f + 74f; val x1 = box.right - 16f
+        shader = LinearGradient(x0, 0f, x1, 0f, intArrayOf(0xFFFFFF00.toInt(), 0xFFFFFF00.toInt(), argb(0.3f, 0xFFFFFF), argb(0.3f, 0xFFFFFF)), floatArrayOf(0f, 0.25f, 0.25f, 1f), Shader.TileMode.CLAMP)
+    }
+    private val pill = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = argb(0.17f, 0xFFFFFF) }
+    private val ink = t.paint(0xFFF8FAFC.toInt())
+    private val icon = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xFFE2E8F0.toInt() }
+
+    override fun paint(c: Canvas) {
+        c.drawRect(box.rect(), black)
+        c.withClip(frame) { drawBitmap(creative, null, cover, FILTER) }
+        c.drawLine(box.x + 16f + 2f, top, box.x + 16f + 70f - 2f, top, played)
+        c.drawLine(box.x + 16f + 74f + 2f, top, box.right - 16f - 2f, top, rest)
+        val px = box.right - 16f - 89f; val py = box.y + 16f
+        c.drawRoundRect(px, py, px + 89f, py + 27f, 13.5f, 13.5f, pill)
+        c.text(Line("Skip ads", px + 8f, py + 5.5f), t, ink)
+        c.withTranslation(px + 67f + 4f / 3f, py + 5.5f + 4f / 3f) { drawPath(closeIcon, icon) }
+    }
+
+    companion object {
+        /** close-circle-fill (13.33 × 13.33). */
+        const val CLOSE = "M6.66667 13.3333 C2.98477 13.3333 0 10.3485 0 6.66667 C0 2.98477 2.98477 0 6.66667 0 C10.3485 0 13.3333 2.98477 13.3333 6.66667 C13.3333 10.3485 10.3485 13.3333 6.66667 13.3333 Z M6.66667 5.72387 L4.78105 3.83824 L3.83824 4.78105 L5.72387 6.66667 L3.83824 8.55227 L4.78105 9.49507 L6.66667 7.60947 L8.55227 9.49507 L9.49507 8.55227 L7.60947 6.66667 L9.49507 4.78105 L8.55227 3.83824 L6.66667 5.72387 Z"
     }
 }
