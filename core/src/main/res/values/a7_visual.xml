@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Visual-only colours for XML layouts: the same values as A7Visual.kt (keep the two in step). Everything else in the
+     layouts comes from zen_tokens.xml, generated from Figma. See docs/DESIGN_TOKENS.md. -->
+<resources>
+    <!-- no token -->
+    <color name="a7_shadow">#59000000</color>                  <!-- drop shadow, black 35 % -->
+    <color name="a7_ring">#FFFFFFFF</color>                    <!-- rings; opacity per ring -->
+    <color name="a7_flash_core">#F2FFFFFF</color>              <!-- ring burst flash, radial -->
+    <color name="a7_flash_mid">#8CE7AAFF</color>
+    <color name="a7_flash_edge">#00BB4ABF</color>
+    <color name="a7_punch">#FF000000</color>                   <!-- status-bar punch hole -->
+    <color name="a7_punch_light">#FF1D2230</color>
+    <color name="a7_punch_mid">#FF07080C</color>
+    <color name="a7_bubble_glow_under">#E6FFD6FF</color>       <!-- G03 bubble: lit-word glow -->
+    <color name="a7_bubble_glow_top">#F2FFFFFF</color>
+    <color name="a7_bubble_chip">#FFFFFFFF</color>
+    <color name="a7_native_skeleton">#FFEEF0F3</color>         <!-- native ad loading state -->
+    <color name="a7_letterbox">#FF050507</color>               <!-- demo chrome -->
+    <color name="a7_fab">#990A0A0E</color>
+    <color name="a7_fab_rim">#33FFFFFF</color>
+
+    <!-- kept from v1.3.3 (Figma binds a token; A7Visual.kt names it) -->
+    <color name="a7_card_top">#FF221C2C</color>                <!-- lyric card, opaque on purpose -->
+    <color name="a7_card_bottom">#FF121018</color>
+    <color name="a7_divider">#14FFFFFF</color>
+    <color name="a7_native_body">#FF666666</color>
+    <color name="a7_native_badge">#FFFBBD23</color>
+    <color name="a7_native_badge_text">#FF0D0D0D</color>
+    <color name="a7_native_install">#FFFDE8F5</color>
+    <color name="a7_native_install_text">#FF7A1F84</color>
+</resources>

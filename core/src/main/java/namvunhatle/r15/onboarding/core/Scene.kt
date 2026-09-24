@@ -3,6 +3,7 @@ package namvunhatle.r15.onboarding.core
 import android.content.Context
 import org.json.JSONArray
 import org.json.JSONObject
+import namvunhatle.r15.onboarding.core.Zen.Color.Background.Support
 
 /** A box in the 360×800 design frame, in dp. */
 data class Box(val x: Float, val y: Float, val w: Float, val h: Float) {
@@ -129,7 +130,8 @@ class Scene(ctx: Context, val vp: Viewport = Viewport.FRAME) {
     companion object {
         const val W = 360f
         const val H = 800f
-        const val ACCENT = 0xFFBB4ABF.toInt()
+        /** The brand accent: Color/Background/Accent/Solid/Default (wave, progress, glows, pills). */
+        val ACCENT = Zen.Color.Background.Accent.Solid.Default
 
         // Splash logo centre — the camera flies through this point into G01.
         const val LX = 180f
@@ -144,10 +146,10 @@ class Scene(ctx: Context, val vp: Viewport = Viewport.FRAME) {
 
         // P04 keyframe 05 (`15560:138820`): dx/dy = offset from the burst centre, rot = keyframe rotation; wall tiles sit at 12°.
         val MINIS = listOf(
-            Mini("tile_hiphop", "Hip-Hop", 0xFFED8002.toInt(), 0xFF590023.toInt(), -62.3f, -45.2f, 18f, 70.56f),
-            Mini("tile_rock", "Rock", 0xFFE94E75.toInt(), 0xFF46004E.toInt(), 58.9f, -79.5f, -10f, 77.28f),
-            Mini("tile_holiday", "Holiday", 0xFF3FAB53.toInt(), 0xFF003932.toInt(), -35.2f, 48.1f, -8f, 63.84f),
-            Mini("tile_country", "Country", 0xFFC99A2C.toInt(), 0xFF571400.toInt(), 56.7f, 71.5f, 12f, 73.92f),
+            Mini("tile_hiphop", "Hip-Hop", Support.Orange.Solid, Support.Crimson.Deep, -62.3f, -45.2f, 18f, 70.56f),
+            Mini("tile_rock", "Rock", Support.Crimson.Solid, Support.Plum.Deep, 58.9f, -79.5f, -10f, 77.28f),
+            Mini("tile_holiday", "Holiday", Support.Green.Solid, Support.Teal.Deep, -35.2f, 48.1f, -8f, 63.84f),
+            Mini("tile_country", "Country", Support.Golden.Solid, Support.Bronze.Deep, 56.7f, 71.5f, 12f, 73.92f),
         )
         val MINI_WALLS = MINIS.map { it.wall }
         val REST_TILES = TILES.filter { it !in MINI_WALLS }
@@ -158,7 +160,7 @@ class Scene(ctx: Context, val vp: Viewport = Viewport.FRAME) {
 
         // Logo rings (P01): id, diameter, stroke, white alpha
         val EMITS = listOf(Ring("emit0", 136f, 1.5f, 0.45f), Ring("emit1", 136f, 1.5f, 0.45f))
-        val SRINGS = listOf(Ring("sring0", 136f, 1f, 0.18f), Ring("sring1", 184f, 1f, 0.18f), Ring("sring2", 232f, 1f, 0.18f))
+        val SRINGS = listOf(136f, 184f, 232f).mapIndexed { i, d -> Ring("sring$i", d, 1f, A7Visual.SPLASH_RING_OPACITY) }
         // P04 keyframe 05: ring strokes 55 / 30 / 14 % white, 2 / 2 / 1.5 px, centred on the logo
         val BRINGS = listOf(Ring("bring0", 300f, 2f, 0.55f), Ring("bring1", 520f, 2f, 0.30f), Ring("bring2", 800f, 1.5f, 0.14f))
         // G03 rings under the phone, centred (180, 318)

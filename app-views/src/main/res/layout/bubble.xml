@@ -12,14 +12,14 @@
     <namvunhatle.r15.onboarding.views.CssBox
         android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center"
         android:rotation="4" android:paddingLeft="16dp" android:paddingRight="16dp" android:paddingTop="7dp" android:paddingBottom="8dp"
-        app:fill="#BB4ABF" app:cornerRadius="999dp" app:shadowY="12dp" app:shadowBlur="24dp" app:shadowColor="#59000000">
+        app:fill="@color/zen_color_background_accent_solid_default" app:cornerRadius="@dimen/zen_corner_radius_rounded" app:shadowY="12dp" app:shadowBlur="24dp" app:shadowColor="@color/a7_shadow">
 
         <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
             <FrameLayout android:tag="bw_hey" android:layout_width="wrap_content" android:layout_height="wrap_content">
                 <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text="“Hey" />
                 <namvunhatle.r15.onboarding.views.GlowFrame android:tag="bw_hey_g" android:layout_width="wrap_content" android:layout_height="wrap_content">
-                    <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text="“Hey" android:shadowColor="#E6FFD6FF" android:shadowRadius="22" />
-                    <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text="“Hey" android:shadowColor="#F2FFFFFF" android:shadowRadius="10" />
+                    <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text="“Hey" android:shadowColor="@color/a7_bubble_glow_under" android:shadowRadius="22" />
+                    <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text="“Hey" android:shadowColor="@color/a7_bubble_glow_top" android:shadowRadius="10" />
                 </namvunhatle.r15.onboarding.views.GlowFrame>
             </FrameLayout>
             <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text=" " />
@@ -29,13 +29,13 @@
                 <TextView android:tag="chip" style="@style/T.Bubble" android:layout_width="wrap_content" android:layout_height="26dp"
                     android:layout_marginLeft="-6dp" android:layout_marginRight="-6dp" android:layout_marginTop="-1dp"
                     android:paddingLeft="6dp" android:paddingRight="6dp"
-                    android:background="@drawable/chip" android:gravity="center" android:textColor="#BB4ABF" android:text="Sam" />
+                    android:background="@drawable/chip" android:gravity="center" android:textColor="@color/zen_color_background_accent_solid_default" android:text="Sam" />
             </FrameLayout>
             <FrameLayout android:tag="bw_call" android:layout_width="wrap_content" android:layout_height="wrap_content">
                 <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text=", calling…”" />
                 <namvunhatle.r15.onboarding.views.GlowFrame android:tag="bw_call_g" android:layout_width="wrap_content" android:layout_height="wrap_content">
-                    <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text=", calling…”" android:shadowColor="#E6FFD6FF" android:shadowRadius="22" />
-                    <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text=", calling…”" android:shadowColor="#F2FFFFFF" android:shadowRadius="10" />
+                    <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text=", calling…”" android:shadowColor="@color/a7_bubble_glow_under" android:shadowRadius="22" />
+                    <TextView style="@style/T.Bubble" android:layout_width="wrap_content" android:text=", calling…”" android:shadowColor="@color/a7_bubble_glow_top" android:shadowRadius="10" />
                 </namvunhatle.r15.onboarding.views.GlowFrame>
             </FrameLayout>
         </LinearLayout>

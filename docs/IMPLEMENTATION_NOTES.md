@@ -93,7 +93,7 @@ adb pull /sdcard/Android/data/namvunhatle.r15.onboarding.compose.responsive/file
 
 **Interstitial vs. the v1.3.3 screenshot.** Mean difference 1.1/255 at 1080 × 2400. The screenshot's corners were white (its rounded corners exported onto a JPEG); the native version is black behind the radius, like an SDK window.
 
-**Changing the art.** Edit the numbers in `FigmaArt.kt` or `A7Native.kt`; they are written in Figma's frame coordinates. If an element's footprint changes, update its box in `manifest.json` and rerun `tools/gen_layout.py`, as on `main`.
+**Changing the art.** Colours, type, radii and spacing are design tokens: change the variable in Figma, re-export and run `tools/gen_tokens.py` ([Design tokens](DESIGN_TOKENS.md)). Visual-only colours are in `A7Visual.kt`. Geometry is in `FigmaArt.kt` or `A7Native.kt`, in Figma's frame coordinates. If an element's footprint changes, update its box in `manifest.json` and rerun `tools/gen_layout.py`, as on `main`.
 
 ## Screen sizes
 

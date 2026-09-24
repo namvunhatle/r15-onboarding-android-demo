@@ -3,5 +3,5 @@
      CSS "circle" = farthest-corner = 212px, so 70% = 148px; 35% = half of that = the centre colour. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
     <gradient android:type="radial" android:gradientRadius="148dp"
-        android:startColor="#F2FFFFFF" android:centerColor="#8CE7AAFF" android:endColor="#00BB4ABF" />
+        android:startColor="@color/a7_flash_core" android:centerColor="@color/a7_flash_mid" android:endColor="@color/a7_flash_edge" />
 </shape>

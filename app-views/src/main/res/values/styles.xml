@@ -7,30 +7,30 @@
         <item name="android:gravity">center_vertical</item>
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
-        <item name="android:textColor">#FFFFFFFF</item>
+        <item name="android:textColor">@color/zen_color_content_on_accent_default</item>
     </style>
     <style name="T.W400"><item name="android:fontFamily">@font/bevietnampro_regular</item></style>
     <style name="T.W500"><item name="android:fontFamily">@font/bevietnampro_medium</item></style>
     <style name="T.W600"><item name="android:fontFamily">@font/bevietnampro_semibold</item></style>
-    <!-- 28/36 · -0.96px -->
+    <!-- ZEN Heading-2: 28/36 · -0.96px (letter spacing in em = px / size) -->
     <style name="T.Lyric" parent="T.W600">
-        <item name="android:textSize">28dp</item>
-        <item name="android:layout_height">36dp</item>
+        <item name="android:textSize">@dimen/zen_typography_font_size_heading_2</item>
+        <item name="android:layout_height">@dimen/zen_typography_line_height_heading_2</item>
         <item name="android:letterSpacing">-0.0343</item>
     </style>
-    <!-- 20/28 · -0.72px -->
+    <!-- ZEN Heading-4: 20/28 · -0.72px -->
     <style name="T.Line" parent="T.W600">
-        <item name="android:textSize">20dp</item>
-        <item name="android:layout_height">28dp</item>
+        <item name="android:textSize">@dimen/zen_typography_font_size_heading_4</item>
+        <item name="android:layout_height">@dimen/zen_typography_line_height_heading_4</item>
         <item name="android:letterSpacing">-0.036</item>
     </style>
-    <!-- 14/20 · -0.32px -->
+    <!-- ZEN Body-Base: 14/20 · -0.32px -->
     <style name="T.Meta" parent="T.W600">
-        <item name="android:textSize">14dp</item>
-        <item name="android:layout_height">20dp</item>
+        <item name="android:textSize">@dimen/zen_typography_font_size_body_base</item>
+        <item name="android:layout_height">@dimen/zen_typography_line_height_body_base</item>
         <item name="android:letterSpacing">-0.0229</item>
     </style>
-    <!-- 18/24 · -0.4px -->
+    <!-- 18/24 · -0.4px — v1.3.3's bubble; Figma binds Body-Base 14/20 -->
     <style name="T.Bubble" parent="T.W600">
         <item name="android:textSize">18dp</item>
         <item name="android:layout_height">24dp</item>

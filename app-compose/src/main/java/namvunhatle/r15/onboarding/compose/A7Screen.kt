@@ -80,6 +80,7 @@ import androidx.compose.foundation.text.BasicText
 import namvunhatle.r15.onboarding.core.A7Art
 import namvunhatle.r15.onboarding.core.A7Native
 import namvunhatle.r15.onboarding.core.A7Player
+import namvunhatle.r15.onboarding.core.A7Visual
 import namvunhatle.r15.onboarding.core.Bleed
 import namvunhatle.r15.onboarding.core.Box as DBox
 import namvunhatle.r15.onboarding.core.Css
@@ -90,6 +91,9 @@ import namvunhatle.r15.onboarding.core.R
 import namvunhatle.r15.onboarding.core.Ring
 import namvunhatle.r15.onboarding.core.Scene
 import namvunhatle.r15.onboarding.core.Scene.Companion.ACCENT
+import namvunhatle.r15.onboarding.core.TextToken
+import namvunhatle.r15.onboarding.core.Zen
+import namvunhatle.r15.onboarding.core.ZenText
 import kotlin.math.exp
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -102,6 +106,8 @@ private val Be = FontFamily(
 private val Accent = Color(ACCENT)
 
 /** CSS-like text: fixed line box, half-leading centred, no font padding. Sizes are design px (fontScale locked to 1). */
+private fun ts(t: TextToken, weight: Float, color: Int) = ts(t.size, t.line, weight.toInt(), Color(color), t.tracking)
+
 private fun ts(size: Float, line: Float, weight: Int, color: Color, ls: Float = 0f) = TextStyle(
     fontFamily = Be, fontSize = size.sp, lineHeight = line.sp, fontWeight = FontWeight(weight), color = color,
     letterSpacing = if (ls == 0f) TextUnit.Unspecified else ls.sp,
@@ -164,7 +170,7 @@ fun A7Screen(player: A7Player, art: A7Art, native: A7Native) {
         }
     }
     val c = remember(player) { Ctx(player, art, native, tick) }
-    BoxWithConstraints(Modifier.fillMaxSize().background(Color(0xFF050507))) {
+    BoxWithConstraints(Modifier.fillMaxSize().background(Color(A7Visual.LETTERBOX))) {
         // Fit the 360×800 design frame (20:9) to the screen, never distort; the design dp becomes s × a real dp.
         // The scene fills the screen around the frame up to the viewport ([Scene.vp]); only past that is it cut.
         val s = min(maxWidth.value / Scene.W, maxHeight.value / Scene.H)
@@ -197,7 +203,7 @@ private fun Device(c: Ctx, ui: Int) {
             Box(Modifier.at(Scene.FLASH).anim(c, "flash", leaf = true).drawBehind {
                 drawCircle(
                     Brush.radialGradient(
-                        0f to Color(1f, 1f, 1f, .95f), .35f to Color(231, 170, 255, 140), .7f to Color(187, 74, 191, 0),
+                        0f to Color(A7Visual.FLASH_CORE), .35f to Color(A7Visual.FLASH_MID), .7f to Color(A7Visual.FLASH_EDGE),
                         center = center, radius = size.width / 2 * 1.41421f, // circle, farthest-corner
                     ),
                     radius = size.width / 2,
@@ -210,12 +216,15 @@ private fun Device(c: Ctx, ui: Int) {
                     val b = scene.gtileBox(m)
                     val (x0, y0, x1, y1) = Css.linear(118f, 168f, 120f).toList()
                     Box(
-                        Modifier.at(b).anim(c, m.wall).clip(RoundedCornerShape(16.dp)).drawBehind {
+                        Modifier.at(b).anim(c, m.wall).clip(RoundedCornerShape(Zen.CornerRadius.Large.dp)).drawBehind {
                             val px = size.width / 168f
                             drawRect(Brush.linearGradient(.128f to Color(m.c0), .872f to Color(m.c1), start = Offset(x0 * px, y0 * px), end = Offset(x1 * px, y1 * px)))
                         },
                     ) {
-                        Text(m.label, Modifier.padding(start = 16.dp, top = 64.dp), style = ts(32f, 40f, 600, Color(1f, 1f, 1f, .957f), -1.44f), maxLines = 1, softWrap = false)
+                        Text(
+                            m.label, Modifier.padding(start = Zen.Spacing.Padding.Medium.dp, top = 64.dp),
+                            style = ts(ZenText.Heading1, Zen.Emphasis.FontWeight.Bold, Zen.Color.Content.OnDarkOverlay.Strongest), maxLines = 1, softWrap = false,
+                        )
                     }
                 }
             }
@@ -226,9 +235,9 @@ private fun Device(c: Ctx, ui: Int) {
             Bubble(c)
             Scene.HEADS.forEach { Sprite(c, it) }
             Wave(c)
-            Box(Modifier.at(Scene.DIVIDER).anim(c, "divider", leaf = true).background(Color(1f, 1f, 1f, .08f)))
-            NativeAd(c, "nat1", 135f, Color(0xFFE8ECFF), Color(0xFFD9E2FF))
-            NativeAd(c, "nat2", 135f, Color(0xFFFFF1E3), Color(0xFFFFE2C7))
+            Box(Modifier.at(Scene.DIVIDER).anim(c, "divider", leaf = true).background(Color(A7Visual.DIVIDER)))
+            NativeAd(c, "nat1", 135f, A7Visual.NATIVE_TINT_1)
+            NativeAd(c, "nat2", 135f, A7Visual.NATIVE_TINT_2)
             Scene.G04_STICKERS.forEach { Sprite(c, it) }
             Sprite(c, "g04_center"); Sprite(c, "g04_cta"); Sprite(c, "g04_secondary")
             Hot(c, Scene.HOT_CTA, pressId = "g04_cta", enabled = { c.player.ctaEnabled() && c.player.dest == null }) { c.player.go(Dest.PAYWALL) }
@@ -239,10 +248,10 @@ private fun Device(c: Ctx, ui: Int) {
         Sprite(c, "statusbar")
         // the Figma status bar marks the camera as a white dot — a real punch-hole is black
         Box(Modifier.at(scene.punch).drawBehind {
-            drawCircle(Color.Black)
+            drawCircle(Color(A7Visual.PUNCH))
             val u = size.width / 25f
             drawCircle(
-                Brush.radialGradient(0f to Color(0xFF1D2230), .55f to Color(0xFF07080C), 1f to Color.Black, center = Offset((1.5f + 22f * .38f) * u, (1.5f + 22f * .35f) * u), radius = 19.8f * u),
+                Brush.radialGradient(0f to Color(A7Visual.PUNCH_LIGHT), .55f to Color(A7Visual.PUNCH_MID), 1f to Color(A7Visual.PUNCH), center = Offset((1.5f + 22f * .38f) * u, (1.5f + 22f * .35f) * u), radius = 19.8f * u),
                 radius = 11f * u,
             )
         })
@@ -332,7 +341,7 @@ private fun Baked(c: Ctx, id: String, b: A7Art.Baked) {
 private fun RingEl(c: Ctx, r: Ring, cx: Float, cy: Float) {
     Box(Modifier.at(DBox(cx - r.d / 2, cy - r.d / 2, r.d, r.d)).anim(c, r.id, leaf = true).drawBehind {
         val w = r.stroke.dp.toPx()
-        drawCircle(Color(1f, 1f, 1f, r.alpha), radius = size.width / 2 - w / 2, style = Stroke(w))
+        drawCircle(Color(A7Visual.RING).copy(alpha = r.alpha), radius = size.width / 2 - w / 2, style = Stroke(w))
     })
 }
 
@@ -358,7 +367,7 @@ private fun Logo(c: Ctx) {
 
 @Composable
 private fun SplashTrack(c: Ctx) {
-    Box(Modifier.at(c.player.scene.spTrack).anim(c, "sp_track").clip(CircleShape).background(Color(1, 1, 1, 15))) {
+    Box(Modifier.at(c.player.scene.spTrack).anim(c, "sp_track").clip(CircleShape).background(Color(Zen.Color.Background.Neutral.Subtle.Default))) {
         Box(Modifier.fillMaxSize().anim(c, "sp_fill").background(Accent, CircleShape))
     }
 }
@@ -366,42 +375,47 @@ private fun SplashTrack(c: Ctx) {
 /** A7 / Lyric Card. Opaque on purpose: any see-through lets the phone's own "SAM" ghost through. */
 @Composable
 private fun LyricCard(c: Ctx) {
-    val shape = RoundedCornerShape(24.dp)
+    val shape = RoundedCornerShape(Zen.CornerRadius._2XLarge.dp)
+    val bold = Zen.Emphasis.FontWeight.Bold
+    val text = Zen.Color.Content.OnDarkOverlay
     Box(
         Modifier.at(Scene.CARD).anim(c, "card")
-            .drawBehind { cssShadow(0f, 20f, 40f, Color(0f, 0f, 0f, .35f), 24f) }
-            .background(Brush.verticalGradient(listOf(Color(34, 28, 44), Color(18, 16, 24))), shape)
-            .border(1.dp, Color(1f, 1f, 1f, .1f), shape),
+            .drawBehind { cssShadow(0f, 20f, 40f, Color(A7Visual.SHADOW), Zen.CornerRadius._2XLarge) }
+            .background(Brush.verticalGradient(listOf(Color(A7Visual.CARD_TOP), Color(A7Visual.CARD_BOTTOM))), shape)
+            .border(1.dp, Color(Zen.Color.Border.Overlay.Subtle.Default), shape),
     ) {
-        Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Row(Modifier.height(28.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Morning Glow", style = ts(14f, 20f, 600, Color(1f, 1f, 1f, .96f), -.32f))
-                Text("· Pop", style = ts(14f, 20f, 400, Color(1f, 1f, 1f, .8f), -.32f))
+        Column(Modifier.padding(Zen.Spacing.Padding.XLarge.dp), verticalArrangement = Arrangement.spacedBy(Zen.Spacing.Gap.Medium.dp)) {
+            Row(Modifier.height(Zen.Tag.Size.Medium.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Zen.Spacing.Gap.XSmall.dp)) {
+                Text("Morning Glow", style = ts(ZenText.BodyBase, bold, text.Strongest))
+                Text("· Pop", style = ts(ZenText.BodyBase, Zen.Emphasis.FontWeight.Regular, text.Base))
+                val tagPad = Zen.Tag.Spacing.Medium.HorizontalPadding + Zen.Tag.Spacing.Medium.TextWrapperPadding
                 Text(
                     "Made by AI",
-                    Modifier.background(Color(0xFFFCFCFC), CircleShape).border(1.dp, Color(1, 1, 1, 28), CircleShape).padding(horizontal = 10.dp, vertical = 4.dp),
-                    style = ts(14f, 20f, 500, Color(0xFF0D0D0D), -.32f),
+                    Modifier.background(Color(Zen.Tag.Background.Default), CircleShape).border(1.dp, Color(Zen.Tag.Border.Default), CircleShape)
+                        .padding(horizontal = tagPad.dp, vertical = Zen.Tag.Spacing.Medium.VerticalPadding.dp),
+                    style = ts(ZenText.BodyBase, Zen.Emphasis.FontWeight.Medium, Zen.Color.Content.Neutral.Strongest),
                 )
             }
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(Zen.Spacing.Gap.XSmall.dp)) {
                 Row(Modifier.height(40.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text("Hey", style = ts(28f, 36f, 600, Color(1f, 1f, 1f, .96f), -.96f))
-                    Spacer(Modifier.width(8.dp))
+                    Text("Hey", style = ts(ZenText.Heading2, bold, text.Strongest))
+                    Spacer(Modifier.width(Zen.Spacing.Gap.XSmall.dp))
                     Box(Modifier.height(40.dp).fillMaxWidth()) {
                         for ((id, name) in listOf("pill_sam" to "Sam", "pill_emma" to "Emma", "pill_jake" to "Jake")) {
                             Text(
                                 name,
-                                Modifier.anim(c, id).height(40.dp).background(Accent, RoundedCornerShape(12.dp)).padding(horizontal = 12.dp, vertical = 2.dp),
-                                style = ts(28f, 36f, 600, Color.White, -.96f), maxLines = 1, softWrap = false,
+                                Modifier.anim(c, id).height(40.dp).background(Accent, RoundedCornerShape(Zen.CornerRadius.Base.dp))
+                                    .padding(horizontal = Zen.Spacing.Padding.Small.dp, vertical = Zen.Spacing.Padding._3XSmall.dp),
+                                style = ts(ZenText.Heading2, bold, Zen.Color.Content.OnAccent.Default), maxLines = 1, softWrap = false,
                             )
                         }
                     }
                 }
-                Text("calling, lighting up", style = ts(20f, 28f, 600, Color(1f, 1f, 1f, .8f), -.72f))
-                Text("your phone, don’t act busy", style = ts(20f, 28f, 600, Color(1f, 1f, 1f, .36f), -.72f))
+                Text("calling, lighting up", style = ts(ZenText.Heading4, bold, text.Base))
+                Text("your phone, don’t act busy", style = ts(ZenText.Heading4, bold, text.Light))
             }
-            Box(Modifier.size(120.dp, 8.dp).background(Color(1, 1, 1, 15), CircleShape)) {
-                Box(Modifier.size(48.dp, 8.dp).background(Accent))
+            Box(Modifier.size(120.dp, 8.dp).background(Color(Zen.Color.Background.Neutral.Subtle.Default), CircleShape)) {
+                Box(Modifier.size(48.dp, 8.dp).background(Color(Zen.Color.Background.Active.Accent.Solid)))
             }
         }
     }
@@ -422,9 +436,10 @@ private fun DrawScope.cssShadow(dx: Float, dy: Float, blur: Float, color: Color,
 /** G03 bubble: “Hey · Sam · calling…” lit word by word; the glow is a static copy whose opacity animates. */
 @Composable
 private fun Bubble(c: Ctx) {
-    val word = ts(18f, 24f, 600, Color.White, -.4f)
-    val glowTop = word.copy(shadow = Shadow(Color(1f, 1f, 1f, .95f), Offset.Zero, Css.shadowRadius(10f)))
-    val glowUnder = word.copy(shadow = Shadow(Color(1f, 214 / 255f, 1f, .9f), Offset.Zero, Css.shadowRadius(22f)))
+    // On-Accent text on the Accent pill (tokens); 18/24 −0.4 is v1.3.3's — Figma's bubble binds Body-Base 14/20
+    val word = ts(18f, 24f, 600, Color(Zen.Color.Content.OnAccent.Default), -.4f)
+    val glowTop = word.copy(shadow = Shadow(Color(A7Visual.BUBBLE_GLOW_TOP), Offset.Zero, Css.shadowRadius(10f)))
+    val glowUnder = word.copy(shadow = Shadow(Color(A7Visual.BUBBLE_GLOW_UNDER), Offset.Zero, Css.shadowRadius(22f)))
 
     @Composable
     fun Word(id: String, text: String, modifier: Modifier = Modifier, lit: Boolean = true, chip: Boolean = false) {
@@ -435,7 +450,7 @@ private fun Bubble(c: Ctx) {
                 Text(text, style = glowTop, maxLines = 1, softWrap = false)
             }
             if (chip) Box(
-                Modifier.matchParentSize().outset(6f, 1f).anim(c, "chip").background(Color.White, RoundedCornerShape(8.dp)),
+                Modifier.matchParentSize().outset(6f, 1f).anim(c, "chip").background(Color(A7Visual.BUBBLE_CHIP), RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center,
             ) { Text(text, style = word.copy(color = Accent), maxLines = 1, softWrap = false) }
         }
@@ -444,7 +459,7 @@ private fun Bubble(c: Ctx) {
     Box(Modifier.at(Scene.BUBBLE).anim(c, "g03_bubble"), contentAlignment = Alignment.Center) {
         Box(
             Modifier.graphicsLayer { rotationZ = 4f }
-                .drawBehind { cssShadow(0f, 12f, 24f, Color(0f, 0f, 0f, .35f), size.height / 2 / density) }
+                .drawBehind { cssShadow(0f, 12f, 24f, Color(A7Visual.SHADOW), size.height / 2 / density) }
                 .background(Accent, CircleShape)
                 .padding(start = 16.dp, end = 16.dp, top = 7.dp, bottom = 8.dp),
         ) {
@@ -486,9 +501,9 @@ private fun Wave(c: Ctx) {
                 val top = 14f * u - h / 2
                 val r = min(1.5f * u, h / 2)
                 val col = when {
-                    i == played - 1 -> Color(1f, 1f, 1f, .96f)
-                    i < played - 1 -> Accent
-                    else -> Color(1f, 1f, 1f, .22f)
+                    i == played - 1 -> Color(Zen.Color.Content.OnDarkOverlay.Strongest)
+                    i < played - 1 -> Color(Zen.Color.Background.Active.Accent.Solid)
+                    else -> Color(Zen.Color.Content.OnDarkOverlay.Disabled)
                 }
                 if (i == played - 1) drawIntoCanvas { cv ->
                     val p = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
@@ -505,7 +520,8 @@ private fun Wave(c: Ctx) {
                 c.tick.longValue
                 translationX = tc.x.dp.toPx(); alpha = tc.alpha
             },
-            style = ts(14f, 20f, 400, Color(1f, 1f, 1f, .8f)).copy(textAlign = TextAlign.End, fontFeatureSettings = "tnum"),
+            // Body-Base size / line and On-Dark-Overlay/Base; v1.3.3 sets no letter spacing (Figma: Body-Base −0.32)
+            style = ts(ZenText.BodyBase.size, ZenText.BodyBase.line, 400, Color(Zen.Color.Content.OnDarkOverlay.Base)).copy(textAlign = TextAlign.End, fontFeatureSettings = "tnum"),
             maxLines = 1, softWrap = false,
         )
     }
@@ -513,30 +529,31 @@ private fun Wave(c: Ctx) {
 
 /** Native ad mock (A7 / Ad Slot). Two slots, two requests, two tints — the demo shows they are different ads. */
 @Composable
-private fun NativeAd(c: Ctx, id: String, angle: Float, t0: Color, t1: Color) {
+private fun NativeAd(c: Ctx, id: String, angle: Float, tint: IntArray) {
+    val t0 = Color(tint[0]); val t1 = Color(tint[1])
     val (x0, y0, x1, y1) = Css.linear(angle, 40f, 40f).toList()
     fun tint(w: Float, h: Float) = Css.linear(angle, w, h).let { g -> { px: Float -> Brush.linearGradient(listOf(t0, t1), Offset(g[0] * px, g[1] * px), Offset(g[2] * px, g[3] * px)) } }
     val media = tint(304f, 128f)
-    Box(Modifier.at(Scene.NATIVE).anim(c, id).clip(RoundedCornerShape(16.dp)).background(Color.White)) {
-        Box(Modifier.at(DBox(12f, 12f, 40f, 40f)).clip(RoundedCornerShape(8.dp)).drawBehind {
+    Box(Modifier.at(Scene.NATIVE).anim(c, id).clip(RoundedCornerShape(Zen.CornerRadius.Large.dp)).background(Color(Zen.Color.Background.WhiteSolid.Default))) {
+        Box(Modifier.at(DBox(12f, 12f, 40f, 40f)).clip(RoundedCornerShape(Zen.CornerRadius.Small.dp)).drawBehind {
             val px = size.width / 40f
             drawRect(Brush.linearGradient(listOf(t0, t1), Offset(x0 * px, y0 * px), Offset(x1 * px, y1 * px)))
         })
         Column(Modifier.at(DBox(64f, 14f, 252f, 36f))) {
-            Text("Advertiser headline", style = ts(14f, 18f, 600, Color(0xFF0D0D0D)))
-            Text("Body text from the ad network, up to…", style = ts(12f, 16f, 400, Color(0xFF666666)), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("Advertiser headline", style = ts(14f, 18f, 600, Color(Zen.Color.Content.OnWhiteOverlay.Strongest)))
+            Text("Body text from the ad network, up to…", style = ts(12f, 16f, 400, Color(A7Visual.NATIVE_BODY)), maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         Text(
             "Ad", Modifier.absoluteOffset(x = (328f - 12f).dp, y = 12.dp).layout { m, cons -> val p = m.measure(cons); layout(p.width, p.height) { p.place(-p.width, 0) } }
-                .background(Color(0xFFFBBD23), CircleShape).padding(horizontal = 6.dp),
-            style = ts(11f, 16f, 500, Color(0xFF0D0D0D)),
+                .background(Color(A7Visual.NATIVE_BADGE), CircleShape).padding(horizontal = 6.dp),
+            style = ts(11f, 16f, 500, Color(A7Visual.NATIVE_BADGE_TEXT)),
         )
         Box(Modifier.at(DBox(12f, 60f, 304f, 128f)).clip(RoundedCornerShape(8.dp)).drawBehind { drawRect(media(size.width / 304f)) })
-        Box(Modifier.at(DBox(12f, 196f, 304f, 48f)).background(Color(0xFFFDE8F5), CircleShape), contentAlignment = Alignment.Center) {
-            Text("Install", style = ts(16f, 24f, 600, Color(0xFF7A1F84)))
+        Box(Modifier.at(DBox(12f, 196f, 304f, 48f)).background(Color(A7Visual.NATIVE_INSTALL), CircleShape), contentAlignment = Alignment.Center) {
+            Text("Install", style = ts(16f, 24f, 600, Color(A7Visual.NATIVE_INSTALL_TEXT)))
         }
-        if (id == "nat2") Box(Modifier.fillMaxSize().anim(c, "nat2_skel").background(Color.White)) {
-            val skel = Color(0xFFEEF0F3)
+        if (id == "nat2") Box(Modifier.fillMaxSize().anim(c, "nat2_skel").background(Color(Zen.Color.Background.WhiteSolid.Default))) {
+            val skel = Color(A7Visual.NATIVE_SKELETON)
             listOf(
                 DBox(12f, 12f, 40f, 40f) to 8f, DBox(64f, 16f, 150f, 12f) to 6f,
                 DBox(12f, 60f, 304f, 128f) to 8f, DBox(12f, 196f, 304f, 48f) to 24f,
@@ -569,7 +586,7 @@ private fun Hot(c: Ctx, b: DBox, pressId: String? = null, enabled: () -> Boolean
 private fun ReplayFab(c: Ctx, modifier: Modifier) {
     val ctx = LocalContext.current
     Box(
-        modifier.padding(16.dp).size(44.dp).clip(CircleShape).background(Color(10, 10, 14, 153)).border(1.dp, Color(1f, 1f, 1f, .2f), CircleShape)
+        modifier.padding(16.dp).size(44.dp).clip(CircleShape).background(Color(A7Visual.FAB)).border(1.dp, Color(A7Visual.FAB_RIM), CircleShape)
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = { c.player.replay() },

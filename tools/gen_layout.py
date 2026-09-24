@@ -14,8 +14,10 @@ OUT = os.path.join(ROOT, 'app-views/src/main/res/layout/activity_main.xml')
 
 LX, LY = 180, 298
 TILES = ['tile_hiphop', 'tile_rock', 'tile_country', 'tile_holiday', 'tile_alarm', 'tile_rnb', 'tile_sfx', 'tile_baby', 'tile_msg']
-MINIS = [('tile_hiphop', 'Hip-Hop', '#ED8002', '#590023'), ('tile_rock', 'Rock', '#E94E75', '#46004E'),
-         ('tile_holiday', 'Holiday', '#3FAB53', '#003932'), ('tile_country', 'Country', '#C99A2C', '#571400')]
+# burst tiles: gradient from a Support/*/Solid to a Support/*/Deep token (zen_tokens.xml, generated from Figma)
+S = '@color/zen_color_background_support_'
+MINIS = [('tile_hiphop', 'Hip-Hop', S + 'orange_solid', S + 'crimson_deep'), ('tile_rock', 'Rock', S + 'crimson_solid', S + 'plum_deep'),
+         ('tile_holiday', 'Holiday', S + 'green_solid', S + 'teal_deep'), ('tile_country', 'Country', S + 'golden_solid', S + 'bronze_deep')]
 MINI_WALLS = [m[0] for m in MINIS]
 BGS = ['bg_G01', 'bg_G02a', 'bg_G02b', 'bg_G02c', 'bg_G03', 'bg_G04']
 HEADS = ['g01_head', 'g02a_head', 'g02b_head', 'g03_head']
@@ -72,8 +74,8 @@ logo.append(f'{I4}<namvunhatle.r15.onboarding.views.BakedView android:tag="icon"
 cam.append(f'{I3}<FrameLayout android:tag="logo" {box(LX - g / 2, LY - g / 2, g, g)}>\n' + '\n'.join(logo) + f'\n{I3}</FrameLayout>')
 cam.append(f'{I3}<namvunhatle.r15.onboarding.views.BakedView android:tag="logoB" {box(LX - g / 2, LY - g / 2, g, g)} />')
 cam.append(sprite('tagline', I3))
-cam.append(f'{I3}<namvunhatle.r15.onboarding.views.CssBox android:tag="sp_track" {box(24, 644, 312, 8)} app:fill="#0F010101" app:cornerRadius="4dp">\n'
-           f'{I4}<namvunhatle.r15.onboarding.views.CssBox android:tag="sp_fill" android:layout_width="match_parent" android:layout_height="match_parent" app:fill="#BB4ABF" app:cornerRadius="4dp" />\n{I3}</namvunhatle.r15.onboarding.views.CssBox>')
+cam.append(f'{I3}<namvunhatle.r15.onboarding.views.CssBox android:tag="sp_track" {box(24, 644, 312, 8)} app:fill="@color/zen_color_background_neutral_subtle_default" app:cornerRadius="4dp">\n'
+           f'{I4}<namvunhatle.r15.onboarding.views.CssBox android:tag="sp_fill" android:layout_width="match_parent" android:layout_height="match_parent" app:fill="@color/zen_color_background_active_accent_solid" app:cornerRadius="4dp" />\n{I3}</namvunhatle.r15.onboarding.views.CssBox>')
 cam.append(sprite('sp_note', I3))
 cam.append(sprite('sp_strip', I3))
 cam += [ring(t, d, LX, LY, s, a, I3) for t, d, s, a in [('bring0', 300, 2, .55), ('bring1', 520, 2, .30), ('bring2', 800, 1.5, .14)]]
@@ -82,8 +84,8 @@ tiles = [sprite(k, I4) for k in TILES if k not in MINI_WALLS]
 for k, label, c0, c1 in MINIS:
     cx, cy = wall_center(k)
     tiles.append(
-        f'{I4}<namvunhatle.r15.onboarding.views.CssBox android:tag="{k}" {box(cx - 84, cy - 60, 168, 120)} app:fill="{c0}" app:fill2="{c1}" app:fillAngle="118" app:fillStop0="0.128" app:fillStop1="0.872" app:cornerRadius="16dp">\n'
-        f'{I4}    <TextView style="@style/T.W600" android:layout_width="wrap_content" android:layout_height="40dp" android:layout_marginLeft="16dp" android:layout_marginTop="64dp" android:textSize="32dp" android:letterSpacing="-0.045" android:textColor="#F4FFFFFF" android:text="{label}" />\n'
+        f'{I4}<namvunhatle.r15.onboarding.views.CssBox android:tag="{k}" {box(cx - 84, cy - 60, 168, 120)} app:fill="{c0}" app:fill2="{c1}" app:fillAngle="118" app:fillStop0="0.128" app:fillStop1="0.872" app:cornerRadius="@dimen/zen_corner_radius_large">\n'
+        f'{I4}    <TextView style="@style/T.W600" android:layout_width="wrap_content" android:layout_height="@dimen/zen_typography_line_height_heading_1" android:layout_marginLeft="@dimen/zen_spacing_padding_medium" android:layout_marginTop="64dp" android:textSize="@dimen/zen_typography_font_size_heading_1" android:letterSpacing="-0.045" android:textColor="@color/zen_color_content_on_dark_overlay_strongest" android:text="{label}" />\n'
         f'{I4}</namvunhatle.r15.onboarding.views.CssBox>')
 cam.append(full('tiles', I3, '\n'.join(tiles)))
 cam += [ring(t, d, 180, 318, 1.5, .28, I3) for t, d in [('g3ring0', 224), ('g3ring1', 300), ('g3ring2', 380)]]
@@ -94,8 +96,8 @@ cam += [sprite(k, I3) for k in HEADS]
 cam.append(f'{I3}<FrameLayout android:tag="wave" {box(16, 62, 328, 28)}>\n'
            f'{I4}<namvunhatle.r15.onboarding.views.WaveView android:id="@+id/wave_bars" android:layout_width="282dp" android:layout_height="28dp" />\n'
            f'{I4}<TextView android:tag="wave_tc" style="@style/T.W400" android:layout_width="44dp" android:layout_height="20dp" android:layout_marginLeft="284dp" android:layout_marginTop="4dp" '
-           f'android:gravity="end|center_vertical" android:ellipsize="none" android:textSize="14dp" android:textColor="#CCFFFFFF" android:fontFeatureSettings="tnum" android:text="-0:11" />\n{I3}</FrameLayout>')
-cam.append(f'{I3}<View android:tag="divider" {box(16, 463, 328, 1)} android:background="#14FFFFFF" />')
+           f'android:gravity="end|center_vertical" android:ellipsize="none" android:textSize="@dimen/zen_typography_font_size_body_base" android:textColor="@color/zen_color_content_on_dark_overlay_base" android:fontFeatureSettings="tnum" android:text="-0:11" />\n{I3}</FrameLayout>')
+cam.append(f'{I3}<View android:tag="divider" {box(16, 463, 328, 1)} android:background="@color/a7_divider" />')
 cam.append(f'{I3}<include android:id="@+id/nat1" layout="@layout/native_ad" />')
 cam.append(f'{I3}<include android:id="@+id/nat2" layout="@layout/native_ad" />')
 cam += [sprite(k, I3) for k in ['g04_sam', 'g04_emma', 'g04_jake', 'g04_mia', 'g04_leo', 'g04_zoe', 'g04_center', 'g04_cta', 'g04_secondary']]
@@ -120,7 +122,7 @@ xml = f'''<?xml version="1.0" encoding="utf-8"?>
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#050507">
+    android:background="@color/a7_letterbox">
 
     <namvunhatle.r15.onboarding.views.DesignFrame
         android:id="@+id/frame"

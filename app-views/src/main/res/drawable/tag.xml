@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#FCFCFC" />
-    <stroke android:width="1dp" android:color="#1C010101" />
-    <corners android:radius="999dp" />
+    <solid android:color="@color/zen_tag_background_default" />
+    <stroke android:width="1dp" android:color="@color/zen_tag_border_default" />
+    <corners android:radius="@dimen/zen_corner_radius_rounded" />
 </shape>

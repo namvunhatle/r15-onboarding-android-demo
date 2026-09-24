@@ -1,0 +1,1367 @@
+{
+ "source": {
+  "file": "R15 2024 Update (2ckF7fXzWpx8fBkOImitb4)",
+  "nodes": [
+   "15552:115354 A7 · UI (ZEN) v2 · Phone Hero · 1.3.3",
+   "15560:138551 03 · Interstitial (SDK)"
+  ],
+  "modes": "as the nodes resolve them: ZEN Light · Global - Base 14 · Brand Emphasis - S1 · Base Colors Zen",
+  "exported": "2026-09-24",
+  "note": "Every variable bound to a node in those frames, with the value it resolves to there. Colors are [r, g, b, a] in 0..1. Regenerate code with tools/gen_tokens.py."
+ },
+ "variables": [
+  {
+   "collection": "1 - Primitive: Typography",
+   "name": "family/content",
+   "type": "STRING",
+   "value": "Mona Sans",
+   "bindings": 1
+  },
+  {
+   "collection": "1 - Primitive: Typography",
+   "name": "weight/default",
+   "type": "FLOAT",
+   "value": 500,
+   "bindings": 1
+  },
+  {
+   "collection": "2 - Semantic: Scale",
+   "name": "gap/lg/lg-4",
+   "type": "FLOAT",
+   "value": 48,
+   "bindings": 1
+  },
+  {
+   "collection": "2 - Semantic: Scale",
+   "name": "gap/md/md-2",
+   "type": "FLOAT",
+   "value": 16,
+   "bindings": 2
+  },
+  {
+   "collection": "2 - Semantic: Scale",
+   "name": "gap/sm/sm-3",
+   "type": "FLOAT",
+   "value": 6,
+   "bindings": 1
+  },
+  {
+   "collection": "2 - Semantic: Scale",
+   "name": "gap/sm/sm-4",
+   "type": "FLOAT",
+   "value": 8,
+   "bindings": 3
+  },
+  {
+   "collection": "2 - Semantic: Typography",
+   "name": "height/height-label-md",
+   "type": "FLOAT",
+   "value": 16,
+   "bindings": 1
+  },
+  {
+   "collection": "2 - Semantic: Typography",
+   "name": "size/size-label-md",
+   "type": "FLOAT",
+   "value": 12,
+   "bindings": 1
+  },
+  {
+   "collection": "3 - Theming - Colors",
+   "name": "background/bg-overlay",
+   "type": "COLOR",
+   "value": [
+    1,
+    1,
+    1,
+    0.17
+   ],
+   "bindings": 1
+  },
+  {
+   "collection": "3 - Theming - Colors",
+   "name": "content/ct-emphasis",
+   "type": "COLOR",
+   "value": [
+    0.973,
+    0.98,
+    0.988,
+    1
+   ],
+   "bindings": 1
+  },
+  {
+   "collection": "3 - Theming - Colors",
+   "name": "content/ct-medium",
+   "type": "COLOR",
+   "value": [
+    0.886,
+    0.91,
+    0.941,
+    1
+   ],
+   "bindings": 1
+  },
+  {
+   "collection": "AOSP",
+   "name": "Schemes/On Surface",
+   "type": "COLOR",
+   "value": [
+    0.09,
+    0.114,
+    0.106,
+    1
+   ],
+   "bindings": 3
+  },
+  {
+   "collection": "Base Colors (Project)",
+   "name": "White",
+   "type": "COLOR",
+   "value": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "bindings": 103
+  },
+  {
+   "collection": "Component Colors (Theme)",
+   "name": "Button-Primary/Background/Default",
+   "type": "COLOR",
+   "value": [
+    0.733,
+    0.29,
+    0.749,
+    1
+   ],
+   "bindings": 1
+  },
+  {
+   "collection": "Component Colors (Theme)",
+   "name": "Button-Primary/Content/Default",
+   "type": "COLOR",
+   "value": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "bindings": 3
+  },
+  {
+   "collection": "Component Colors (Theme)",
+   "name": "Button-Tertiary/Shadow/Default",
+   "type": "COLOR",
+   "value": [
+    0,
+    0,
+    0,
+    0.04
+   ],
+   "bindings": 6
+  },
+  {
+   "collection": "Component Colors (Theme)",
+   "name": "Tag/Background/Default",
+   "type": "COLOR",
+   "value": [
+    0.988,
+    0.988,
+    0.988,
+    1
+   ],
+   "bindings": 6
+  },
+  {
+   "collection": "Component Colors (Theme)",
+   "name": "Tag/Border/Default",
+   "type": "COLOR",
+   "value": [
+    0.004,
+    0.004,
+    0.004,
+    0.114
+   ],
+   "bindings": 6
+  },
+  {
+   "collection": "Component Size",
+   "name": "Badge/Size/XSmall",
+   "type": "FLOAT",
+   "value": 16,
+   "bindings": 20
+  },
+  {
+   "collection": "Component Size",
+   "name": "Badge/Spacing/XSmall/Gap",
+   "type": "FLOAT",
+   "value": 2,
+   "bindings": 10
+  },
+  {
+   "collection": "Component Size",
+   "name": "Badge/Spacing/XSmall/Horizontal-Padding",
+   "type": "FLOAT",
+   "value": 2,
+   "bindings": 20
+  },
+  {
+   "collection": "Component Size",
+   "name": "Badge/Spacing/XSmall/Text-Wrapper-Padding",
+   "type": "FLOAT",
+   "value": 4,
+   "bindings": 20
+  },
+  {
+   "collection": "Component Size",
+   "name": "Badge/Spacing/XSmall/Vertical-Padding",
+   "type": "FLOAT",
+   "value": 2,
+   "bindings": 20
+  },
+  {
+   "collection": "Component Size",
+   "name": "Button/Size/Large",
+   "type": "FLOAT",
+   "value": 48,
+   "bindings": 9
+  },
+  {
+   "collection": "Component Size",
+   "name": "Button/Size/XLarge",
+   "type": "FLOAT",
+   "value": 56,
+   "bindings": 1
+  },
+  {
+   "collection": "Component Size",
+   "name": "Button/Spacing/Large/Gap",
+   "type": "FLOAT",
+   "value": 2,
+   "bindings": 9
+  },
+  {
+   "collection": "Component Size",
+   "name": "Button/Spacing/Large/Horizontal-Padding",
+   "type": "FLOAT",
+   "value": 16,
+   "bindings": 18
+  },
+  {
+   "collection": "Component Size",
+   "name": "Button/Spacing/Large/Text-Wrapper-Padding",
+   "type": "FLOAT",
+   "value": 4,
+   "bindings": 18
+  },
+  {
+   "collection": "Component Size",
+   "name": "Button/Spacing/Large/Vertical-Padding",
+   "type": "FLOAT",
+   "value": 16,
+   "bindings": 18
+  },
+  {
+   "collection": "Component Size",
+   "name": "Button/Spacing/XLarge/Gap",
+   "type": "FLOAT",
+   "value": 4,
+   "bindings": 1
+  },
+  {
+   "collection": "Component Size",
+   "name": "Button/Spacing/XLarge/Horizontal-Padding",
+   "type": "FLOAT",
+   "value": 16,
+   "bindings": 2
+  },
+  {
+   "collection": "Component Size",
+   "name": "Button/Spacing/XLarge/Text-Wrapper-Padding",
+   "type": "FLOAT",
+   "value": 4,
+   "bindings": 2
+  },
+  {
+   "collection": "Component Size",
+   "name": "Button/Spacing/XLarge/Vertical-Padding",
+   "type": "FLOAT",
+   "value": 16,
+   "bindings": 2
+  },
+  {
+   "collection": "Component Size",
+   "name": "Element-Size/Popular/Base",
+   "type": "FLOAT",
+   "value": 20,
+   "bindings": 42
+  },
+  {
+   "collection": "Component Size",
+   "name": "Element-Size/Popular/Large",
+   "type": "FLOAT",
+   "value": 28,
+   "bindings": 4
+  },
+  {
+   "collection": "Component Size",
+   "name": "Element-Size/Popular/XSmall",
+   "type": "FLOAT",
+   "value": 12,
+   "bindings": 20
+  },
+  {
+   "collection": "Component Size",
+   "name": "Tag/Size/Medium",
+   "type": "FLOAT",
+   "value": 28,
+   "bindings": 6
+  },
+  {
+   "collection": "Component Size",
+   "name": "Tag/Spacing/Medium/Gap",
+   "type": "FLOAT",
+   "value": 2,
+   "bindings": 6
+  },
+  {
+   "collection": "Component Size",
+   "name": "Tag/Spacing/Medium/Horizontal-Padding",
+   "type": "FLOAT",
+   "value": 6,
+   "bindings": 12
+  },
+  {
+   "collection": "Component Size",
+   "name": "Tag/Spacing/Medium/Text-Wrapper-Padding",
+   "type": "FLOAT",
+   "value": 4,
+   "bindings": 12
+  },
+  {
+   "collection": "Component Size",
+   "name": "Tag/Spacing/Medium/Vertical-Padding",
+   "type": "FLOAT",
+   "value": 4,
+   "bindings": 12
+  },
+  {
+   "collection": "Component Size",
+   "name": "Typography/Font-Size/Body-Base",
+   "type": "FLOAT",
+   "value": 14,
+   "bindings": 48
+  },
+  {
+   "collection": "Component Size",
+   "name": "Typography/Font-Size/Body-Small",
+   "type": "FLOAT",
+   "value": 12,
+   "bindings": 10
+  },
+  {
+   "collection": "Component Size",
+   "name": "Typography/Font-Size/Caption",
+   "type": "FLOAT",
+   "value": 10,
+   "bindings": 43
+  },
+  {
+   "collection": "Component Size",
+   "name": "Typography/Font-Size/Heading-2",
+   "type": "FLOAT",
+   "value": 28,
+   "bindings": 11
+  },
+  {
+   "collection": "Component Size",
+   "name": "Typography/Font-Size/Heading-3",
+   "type": "FLOAT",
+   "value": 24,
+   "bindings": 1
+  },
+  {
+   "collection": "Component Size",
+   "name": "Typography/Font-Size/Heading-4",
+   "type": "FLOAT",
+   "value": 20,
+   "bindings": 28
+  },
+  {
+   "collection": "Corner Radius",
+   "name": "Corner-Radius/2XLarge",
+   "type": "FLOAT",
+   "value": 24,
+   "bindings": 116
+  },
+  {
+   "collection": "Corner Radius",
+   "name": "Corner-Radius/Action/Large",
+   "type": "FLOAT",
+   "value": 1000,
+   "bindings": 36
+  },
+  {
+   "collection": "Corner Radius",
+   "name": "Corner-Radius/Action/XLarge",
+   "type": "FLOAT",
+   "value": 1000,
+   "bindings": 4
+  },
+  {
+   "collection": "Corner Radius",
+   "name": "Corner-Radius/Base",
+   "type": "FLOAT",
+   "value": 12,
+   "bindings": 28
+  },
+  {
+   "collection": "Corner Radius",
+   "name": "Corner-Radius/Giant",
+   "type": "FLOAT",
+   "value": 32,
+   "bindings": 20
+  },
+  {
+   "collection": "Corner Radius",
+   "name": "Corner-Radius/Large",
+   "type": "FLOAT",
+   "value": 16,
+   "bindings": 136
+  },
+  {
+   "collection": "Corner Radius",
+   "name": "Corner-Radius/Rounded",
+   "type": "FLOAT",
+   "value": 1000,
+   "bindings": 2248
+  },
+  {
+   "collection": "Corner Radius",
+   "name": "Corner-Radius/Small",
+   "type": "FLOAT",
+   "value": 8,
+   "bindings": 40
+  },
+  {
+   "collection": "Corner Radius",
+   "name": "Corner-Radius/XLarge",
+   "type": "FLOAT",
+   "value": 20,
+   "bindings": 8
+  },
+  {
+   "collection": "Emphasis Level",
+   "name": "Emphasis/Font-Weight/Bold",
+   "type": "FLOAT",
+   "value": 600,
+   "bindings": 65
+  },
+  {
+   "collection": "Emphasis Level",
+   "name": "Emphasis/Font-Weight/Medium",
+   "type": "FLOAT",
+   "value": 500,
+   "bindings": 16
+  },
+  {
+   "collection": "Emphasis Level",
+   "name": "Emphasis/Font-Weight/Regular",
+   "type": "FLOAT",
+   "value": 400,
+   "bindings": 70
+  },
+  {
+   "collection": "Global Dimensions",
+   "name": "zen-dm-40",
+   "type": "FLOAT",
+   "value": 40,
+   "bindings": 12
+  },
+  {
+   "collection": "Global Dimensions",
+   "name": "zen-dm-48",
+   "type": "FLOAT",
+   "value": 48,
+   "bindings": 12
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Accent/Gradient/Default-Left",
+   "type": "COLOR",
+   "value": [
+    0.733,
+    0.29,
+    0.749,
+    1
+   ],
+   "bindings": 8
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Accent/Gradient/Default-Right",
+   "type": "COLOR",
+   "value": [
+    0.278,
+    0.322,
+    0.941,
+    1
+   ],
+   "bindings": 6
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Accent/Solid/Default",
+   "type": "COLOR",
+   "value": [
+    0.733,
+    0.29,
+    0.749,
+    1
+   ],
+   "bindings": 5
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Accent/Subtle/Default",
+   "type": "COLOR",
+   "value": [
+    1,
+    0.008,
+    0.596,
+    0.086
+   ],
+   "bindings": 3
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Active/Accent/Solid",
+   "type": "COLOR",
+   "value": [
+    0.733,
+    0.29,
+    0.749,
+    1
+   ],
+   "bindings": 238
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Neutral/Flat/Default",
+   "type": "COLOR",
+   "value": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "bindings": 6
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Neutral/Subtle/Default",
+   "type": "COLOR",
+   "value": [
+    0.004,
+    0.004,
+    0.004,
+    0.063
+   ],
+   "bindings": 15
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Blue/Deep",
+   "type": "COLOR",
+   "value": [
+    0,
+    0.169,
+    0.337,
+    1
+   ],
+   "bindings": 6
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Blue/Solid",
+   "type": "COLOR",
+   "value": [
+    0.039,
+    0.522,
+    1,
+    1
+   ],
+   "bindings": 2
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Bronze/Deep",
+   "type": "COLOR",
+   "value": [
+    0.341,
+    0.078,
+    0,
+    1
+   ],
+   "bindings": 4
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Crimson/Deep",
+   "type": "COLOR",
+   "value": [
+    0.349,
+    0,
+    0.137,
+    1
+   ],
+   "bindings": 5
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Crimson/Solid",
+   "type": "COLOR",
+   "value": [
+    0.914,
+    0.306,
+    0.459,
+    1
+   ],
+   "bindings": 3
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Cyan/Solid",
+   "type": "COLOR",
+   "value": [
+    0.063,
+    0.682,
+    0.855,
+    1
+   ],
+   "bindings": 7
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Golden/Solid",
+   "type": "COLOR",
+   "value": [
+    0.788,
+    0.604,
+    0.173,
+    1
+   ],
+   "bindings": 4
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Green/Solid",
+   "type": "COLOR",
+   "value": [
+    0.247,
+    0.671,
+    0.325,
+    1
+   ],
+   "bindings": 7
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Indigo/Deep",
+   "type": "COLOR",
+   "value": [
+    0.059,
+    0,
+    0.459,
+    1
+   ],
+   "bindings": 3
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Neutral/Deep",
+   "type": "COLOR",
+   "value": [
+    0.051,
+    0.051,
+    0.051,
+    1
+   ],
+   "bindings": 20
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Neutral/Pale",
+   "type": "COLOR",
+   "value": [
+    0.02,
+    0.02,
+    0.02,
+    0.031
+   ],
+   "bindings": 7
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Neutral/Subtle",
+   "type": "COLOR",
+   "value": [
+    0.004,
+    0.004,
+    0.004,
+    0.063
+   ],
+   "bindings": 10
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Orange/Solid",
+   "type": "COLOR",
+   "value": [
+    0.929,
+    0.502,
+    0.008,
+    1
+   ],
+   "bindings": 5
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Pink/Solid",
+   "type": "COLOR",
+   "value": [
+    0.91,
+    0.329,
+    0.698,
+    1
+   ],
+   "bindings": 14
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Plum/Deep",
+   "type": "COLOR",
+   "value": [
+    0.275,
+    0,
+    0.306,
+    1
+   ],
+   "bindings": 8
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Teal/Deep",
+   "type": "COLOR",
+   "value": [
+    0,
+    0.224,
+    0.196,
+    1
+   ],
+   "bindings": 4
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Teal/Solid",
+   "type": "COLOR",
+   "value": [
+    0.008,
+    0.694,
+    0.612,
+    1
+   ],
+   "bindings": 6
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Violet/Deep",
+   "type": "COLOR",
+   "value": [
+    0.153,
+    0,
+    0.431,
+    1
+   ],
+   "bindings": 4
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Violet/Solid",
+   "type": "COLOR",
+   "value": [
+    0.467,
+    0.333,
+    0.906,
+    1
+   ],
+   "bindings": 7
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Support/Yellow/Solid",
+   "type": "COLOR",
+   "value": [
+    1,
+    0.729,
+    0.102,
+    1
+   ],
+   "bindings": 5
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/Warning/Solid/Default",
+   "type": "COLOR",
+   "value": [
+    1,
+    0.729,
+    0.102,
+    1
+   ],
+   "bindings": 10
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Background/White-Solid/Default",
+   "type": "COLOR",
+   "value": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "bindings": 28
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Border/Accent/Solid/Default",
+   "type": "COLOR",
+   "value": [
+    0.733,
+    0.29,
+    0.749,
+    1
+   ],
+   "bindings": 2
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Border/Neutral/Pale/Default",
+   "type": "COLOR",
+   "value": [
+    0.004,
+    0.004,
+    0.004,
+    0.063
+   ],
+   "bindings": 2
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Border/Overlay/Pale/Default",
+   "type": "COLOR",
+   "value": [
+    0.988,
+    0.988,
+    0.988,
+    0.067
+   ],
+   "bindings": 17
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Border/Overlay/Subtle/Default",
+   "type": "COLOR",
+   "value": [
+    1,
+    1,
+    1,
+    0.102
+   ],
+   "bindings": 21
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Content/Accent/Base",
+   "type": "COLOR",
+   "value": [
+    0.471,
+    0.102,
+    0.498,
+    1
+   ],
+   "bindings": 9
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Content/Neutral/Strongest",
+   "type": "COLOR",
+   "value": [
+    0.051,
+    0.051,
+    0.051,
+    1
+   ],
+   "bindings": 27
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Content/On-Accent/Default",
+   "type": "COLOR",
+   "value": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "bindings": 5
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Content/On-Brights",
+   "type": "COLOR",
+   "value": [
+    0,
+    0,
+    0,
+    0.86
+   ],
+   "bindings": 20
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Content/On-Colors",
+   "type": "COLOR",
+   "value": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "bindings": 15
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Content/On-Dark-Overlay/Base",
+   "type": "COLOR",
+   "value": [
+    1,
+    1,
+    1,
+    0.796
+   ],
+   "bindings": 127
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Content/On-Dark-Overlay/Disabled",
+   "type": "COLOR",
+   "value": [
+    1,
+    1,
+    1,
+    0.224
+   ],
+   "bindings": 222
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Content/On-Dark-Overlay/Light",
+   "type": "COLOR",
+   "value": [
+    1,
+    1,
+    1,
+    0.361
+   ],
+   "bindings": 5
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Content/On-Dark-Overlay/Strongest",
+   "type": "COLOR",
+   "value": [
+    1,
+    1,
+    1,
+    0.957
+   ],
+   "bindings": 63
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Content/On-White-Overlay/Base",
+   "type": "COLOR",
+   "value": [
+    0,
+    0,
+    0,
+    0.639
+   ],
+   "bindings": 10
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Content/On-White-Overlay/Strongest",
+   "type": "COLOR",
+   "value": [
+    0,
+    0,
+    0,
+    0.949
+   ],
+   "bindings": 26
+  },
+  {
+   "collection": "Mode Colors (Semantic)",
+   "name": "Color/Shadow/Neutral/Light",
+   "type": "COLOR",
+   "value": [
+    0,
+    0,
+    0,
+    0.04
+   ],
+   "bindings": 1
+  },
+  {
+   "collection": "Spacing",
+   "name": "Spacing/Gap/2XSmall",
+   "type": "FLOAT",
+   "value": 4,
+   "bindings": 9
+  },
+  {
+   "collection": "Spacing",
+   "name": "Spacing/Gap/Large",
+   "type": "FLOAT",
+   "value": 24,
+   "bindings": 3
+  },
+  {
+   "collection": "Spacing",
+   "name": "Spacing/Gap/Medium",
+   "type": "FLOAT",
+   "value": 16,
+   "bindings": 21
+  },
+  {
+   "collection": "Spacing",
+   "name": "Spacing/Gap/Small",
+   "type": "FLOAT",
+   "value": 12,
+   "bindings": 13
+  },
+  {
+   "collection": "Spacing",
+   "name": "Spacing/Gap/XLarge",
+   "type": "FLOAT",
+   "value": 32,
+   "bindings": 3
+  },
+  {
+   "collection": "Spacing",
+   "name": "Spacing/Gap/XSmall",
+   "type": "FLOAT",
+   "value": 8,
+   "bindings": 40
+  },
+  {
+   "collection": "Spacing",
+   "name": "Spacing/Padding/2XSmall",
+   "type": "FLOAT",
+   "value": 4,
+   "bindings": 2
+  },
+  {
+   "collection": "Spacing",
+   "name": "Spacing/Padding/3XSmall",
+   "type": "FLOAT",
+   "value": 2,
+   "bindings": 8
+  },
+  {
+   "collection": "Spacing",
+   "name": "Spacing/Padding/Large",
+   "type": "FLOAT",
+   "value": 20,
+   "bindings": 6
+  },
+  {
+   "collection": "Spacing",
+   "name": "Spacing/Padding/Medium",
+   "type": "FLOAT",
+   "value": 16,
+   "bindings": 188
+  },
+  {
+   "collection": "Spacing",
+   "name": "Spacing/Padding/Small",
+   "type": "FLOAT",
+   "value": 12,
+   "bindings": 52
+  },
+  {
+   "collection": "Spacing",
+   "name": "Spacing/Padding/XLarge",
+   "type": "FLOAT",
+   "value": 24,
+   "bindings": 28
+  },
+  {
+   "collection": "Spacing",
+   "name": "Spacing/Padding/XSmall",
+   "type": "FLOAT",
+   "value": 8,
+   "bindings": 40
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Font-Family/Button",
+   "type": "STRING",
+   "value": "Be Vietnam Pro",
+   "bindings": 10
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Font-Family/Display",
+   "type": "STRING",
+   "value": "Be Vietnam Pro",
+   "bindings": 3
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Font-Family/Heading",
+   "type": "STRING",
+   "value": "Be Vietnam Pro",
+   "bindings": 68
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Font-Family/Sans",
+   "type": "STRING",
+   "value": "Be Vietnam Pro",
+   "bindings": 101
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Font-Size/Body-Base",
+   "type": "FLOAT",
+   "value": 14,
+   "bindings": 48
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Font-Size/Body-Small",
+   "type": "FLOAT",
+   "value": 12,
+   "bindings": 10
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Font-Size/Button-Label-L",
+   "type": "FLOAT",
+   "value": 14,
+   "bindings": 9
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Font-Size/Button-Label-XL",
+   "type": "FLOAT",
+   "value": 16,
+   "bindings": 1
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Font-Size/Caption",
+   "type": "FLOAT",
+   "value": 10,
+   "bindings": 43
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Font-Size/Display-1",
+   "type": "FLOAT",
+   "value": 52,
+   "bindings": 23
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Font-Size/Heading-1",
+   "type": "FLOAT",
+   "value": 32,
+   "bindings": 23
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Font-Size/Heading-2",
+   "type": "FLOAT",
+   "value": 28,
+   "bindings": 11
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Font-Size/Heading-3",
+   "type": "FLOAT",
+   "value": 24,
+   "bindings": 1
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Font-Size/Heading-4",
+   "type": "FLOAT",
+   "value": 20,
+   "bindings": 28
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Letter-Spacing/ALL-CAPS-M",
+   "type": "FLOAT",
+   "value": 0,
+   "bindings": 20
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Letter-Spacing/Body-Base",
+   "type": "FLOAT",
+   "value": -0.32,
+   "bindings": 48
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Letter-Spacing/Body-Small",
+   "type": "FLOAT",
+   "value": -0.28,
+   "bindings": 10
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Letter-Spacing/Button-Label-L",
+   "type": "FLOAT",
+   "value": -0.32,
+   "bindings": 9
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Letter-Spacing/Button-Label-XL",
+   "type": "FLOAT",
+   "value": -0.4,
+   "bindings": 1
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Letter-Spacing/Caption",
+   "type": "FLOAT",
+   "value": -0.12,
+   "bindings": 43
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Letter-Spacing/Display-1",
+   "type": "FLOAT",
+   "value": -3,
+   "bindings": 3
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Letter-Spacing/Heading-1",
+   "type": "FLOAT",
+   "value": -1.44,
+   "bindings": 23
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Letter-Spacing/Heading-2",
+   "type": "FLOAT",
+   "value": -0.96,
+   "bindings": 11
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Letter-Spacing/Heading-3",
+   "type": "FLOAT",
+   "value": -0.84,
+   "bindings": 1
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Letter-Spacing/Heading-4",
+   "type": "FLOAT",
+   "value": -0.72,
+   "bindings": 28
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Line-Height/Body-Base",
+   "type": "FLOAT",
+   "value": 20,
+   "bindings": 48
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Line-Height/Body-Small",
+   "type": "FLOAT",
+   "value": 16,
+   "bindings": 10
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Line-Height/Button-Label-L",
+   "type": "FLOAT",
+   "value": 20,
+   "bindings": 9
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Line-Height/Button-Label-XL",
+   "type": "FLOAT",
+   "value": 24,
+   "bindings": 1
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Line-Height/Caption",
+   "type": "FLOAT",
+   "value": 16,
+   "bindings": 43
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Line-Height/Display-1",
+   "type": "FLOAT",
+   "value": 60,
+   "bindings": 3
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Line-Height/Heading-1",
+   "type": "FLOAT",
+   "value": 40,
+   "bindings": 23
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Line-Height/Heading-2",
+   "type": "FLOAT",
+   "value": 36,
+   "bindings": 11
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Line-Height/Heading-3",
+   "type": "FLOAT",
+   "value": 32,
+   "bindings": 1
+  },
+  {
+   "collection": "Typography Configuration",
+   "name": "Typography/Line-Height/Heading-4",
+   "type": "FLOAT",
+   "value": 28,
+   "bindings": 28
+  }
+ ]
+}

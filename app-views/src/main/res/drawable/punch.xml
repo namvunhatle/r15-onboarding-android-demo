@@ -2,7 +2,7 @@
 <!-- the Figma status bar marks the camera as a white dot — a real punch-hole is black -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
     <gradient android:type="radial" android:gradientRadius="19.8dp" android:centerX="0.38" android:centerY="0.35"
-        android:startColor="#FF1D2230" android:centerColor="#FF07080C" android:endColor="#FF000000" />
+        android:startColor="@color/a7_punch_light" android:centerColor="@color/a7_punch_mid" android:endColor="@color/a7_punch" />
     <!-- box-shadow 0 0 0 1.5px #000 → the view is 25 dp: 22 dp hole + 1.5 dp ring -->
-    <stroke android:width="1.5dp" android:color="#FF000000" />
+    <stroke android:width="1.5dp" android:color="@color/a7_punch" />
 </shape>

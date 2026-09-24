@@ -15,6 +15,7 @@ import android.widget.Toast
 import namvunhatle.r15.onboarding.core.A7Art
 import namvunhatle.r15.onboarding.core.A7Native
 import namvunhatle.r15.onboarding.core.A7Player
+import namvunhatle.r15.onboarding.core.A7Visual
 import namvunhatle.r15.onboarding.core.Bleed
 import namvunhatle.r15.onboarding.core.Box
 import namvunhatle.r15.onboarding.core.Css
@@ -66,8 +67,8 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
         wave.bars = Scene.WAVE_BARS.map { player.store[it] }
 
         // The two native slots come from one layout: tag + tint each copy.
-        nativeSlot(R.id.nat1, "nat1", 0xFFE8ECFF.toInt(), 0xFFD9E2FF.toInt())
-        nativeSlot(R.id.nat2, "nat2", 0xFFFFF1E3.toInt(), 0xFFFFE2C7.toInt())
+        nativeSlot(R.id.nat1, "nat1", A7Visual.NATIVE_TINT_1)
+        nativeSlot(R.id.nat2, "nat2", A7Visual.NATIVE_TINT_2)
 
         // Figma elements drawn natively: the art is the view's background, sized to the sprite box the layout gives it.
         // LAYERED ones get a hardware layer: drawn once, then the timeline only moves, scales and fades the layer.
@@ -143,7 +144,8 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
         v.layoutParams = lp
     }
 
-    private fun nativeSlot(id: Int, tag: String, c0: Int, c1: Int) {
+    private fun nativeSlot(id: Int, tag: String, tint: IntArray) {
+        val (c0, c1) = tint
         val slot = findViewById<CssBox>(id)
         slot.tag = tag
         slot.findViewById<CssBox>(R.id.nat_icon).tint(c0, c1, 135f)

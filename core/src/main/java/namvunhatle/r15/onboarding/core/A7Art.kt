@@ -38,9 +38,9 @@ class A7Art(ctx: Context) {
         val src = BitmapFactory.decodeResource(ctx.resources, R.drawable.logo_src, BitmapFactory.Options().apply { inScaled = false })
         icon = Baked(circle(src, 96f, 0f), 96f)
         iconBlur = circle(src, 96f, pad = 3 * 7.8f).let { Baked(blur(it, 7.8f * PX), 96f + 6 * 7.8f) }
-        iconGlow = glow(96f / 2, 34f / 2, 0x33FFFFFF)
-        dot = layered(16f, listOf(Triple(8f + 6f, 9f, Scene.ACCENT), Triple(8f + 1f, 2f, -0x1)), -0x1)
-        ghost = layered(16f, listOf(Triple(8f + 4f, 7f, Scene.ACCENT)), 0xFFF3D6FF.toInt())
+        iconGlow = glow(96f / 2, 34f / 2, A7Visual.ICON_GLOW)
+        dot = layered(16f, listOf(Triple(8f + 6f, 9f, Scene.ACCENT), Triple(8f + 1f, 2f, A7Visual.DOT)), A7Visual.DOT)
+        ghost = layered(16f, listOf(Triple(8f + 4f, 7f, Scene.ACCENT)), A7Visual.GHOST)
     }
 
     private fun circle(src: Bitmap, dDp: Float, pad: Float): Bitmap {

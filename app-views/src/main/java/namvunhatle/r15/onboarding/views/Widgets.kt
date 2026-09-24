@@ -11,11 +11,13 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
 import namvunhatle.r15.onboarding.core.A7Art
+import namvunhatle.r15.onboarding.core.A7Visual
 import namvunhatle.r15.onboarding.core.Css
 import namvunhatle.r15.onboarding.core.El
 import namvunhatle.r15.onboarding.core.Prop
 import namvunhatle.r15.onboarding.core.Scene
 import namvunhatle.r15.onboarding.core.Viewport
+import namvunhatle.r15.onboarding.core.Zen
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -118,7 +120,7 @@ class RingView(ctx: Context, attrs: AttributeSet?) : View(ctx, attrs) {
     init {
         val a = ctx.obtainStyledAttributes(attrs, R.styleable.RingView)
         paint.strokeWidth = a.getDimension(R.styleable.RingView_ringStroke, dp(1.5f))
-        paint.color = (a.getFloat(R.styleable.RingView_ringAlpha, 0.28f) * 255).roundToInt() shl 24 or 0xFFFFFF
+        paint.color = (a.getFloat(R.styleable.RingView_ringAlpha, 0.28f) * 255).roundToInt() shl 24 or (A7Visual.RING and 0xFFFFFF)
         a.recycle()
     }
 
@@ -175,9 +177,9 @@ class WaveView(ctx: Context, attrs: AttributeSet?) : View(ctx, attrs) {
                 canvas.drawRoundRect(rect, r + u, r + u, glow)
             }
             paint.color = when {
-                i == played - 1 -> 0xF5FFFFFF.toInt()
-                i < played - 1 -> Scene.ACCENT
-                else -> 0x38FFFFFF
+                i == played - 1 -> Zen.Color.Content.OnDarkOverlay.Strongest
+                i < played - 1 -> Zen.Color.Background.Active.Accent.Solid
+                else -> Zen.Color.Content.OnDarkOverlay.Disabled
             }
             rect.set(x, top, x + 3 * u, top + h)
             canvas.drawRoundRect(rect, r, r, paint)
