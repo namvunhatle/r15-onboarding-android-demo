@@ -8,6 +8,8 @@ Use it to review the experience and discuss implementation. Ads, purchases, AI g
 
 **Native art.** Figma shapes, text, gradients, shadows, and blurs are drawn in code, following the v1.3.3 motion, audio, and fixed 360 × 800 layout. Only Figma image fills and the destination mocks remain bitmaps. See [Native art](docs/IMPLEMENTATION_NOTES.md#native-art-main).
 
+**Developers:** start with [`FigmaArt.kt`](core/src/main/java/namvunhatle/r15/onboarding/core/FigmaArt.kt), where each Figma component is drawn with its Figma values.
+
 ## Try it
 
 - **[Open the web demo](https://prototype-a7.vercel.app)** to watch the sequence in a browser. The live site may change after this release.
@@ -45,6 +47,24 @@ See [Experience](docs/EXPERIENCE.md) for the scene sequence and timing.
 
 The replay button appears on the interstitial and destination screens. Track switching is a review control, not part of the proposed onboarding.
 
+## Read the code
+
+| Folder | Purpose |
+| --- | --- |
+| `core/` | Timeline, scene script, playback state, audio, geometry, and shared assets |
+| `core/…/FigmaArt.kt` | **Start here for Figma → code:** each Figma component drawn natively, with its Figma values |
+| `core/…/A7Native.kt` | Which element uses which component, and what stays a bitmap |
+| `core/…/A7Glow.kt` | Figma layer blurs, computed at startup |
+| `app-compose/` | Compose renderer and activity |
+| `app-views/` | XML layouts, custom views, and activity |
+| `tools/` | Layout generation and optional audio baking |
+
+- [Experience](docs/EXPERIENCE.md) — what each scene demonstrates.
+- [Implementation notes](docs/IMPLEMENTATION_NOTES.md) — where to make changes and what needs production work.
+- [Credits](docs/CREDITS.md) — music, fonts, icons, and asset sources.
+
+The earlier sprite implementation is preserved on [`archive/v1.3.3-sprites`](https://github.com/namvunhatle/r15-onboarding-android-demo/tree/archive/v1.3.3-sprites).
+
 ## Known limits
 
 - **Fixed 360 × 800 layout.** The whole scene scales to fit. Other aspect ratios show black bars; responsive layouts are not implemented.
@@ -73,21 +93,3 @@ adb install -r app-views/build/outputs/apk/debug/app-views-debug.apk
 ```
 
 These commands build the current native-art version. The project pins Gradle 9.7.1, AGP 9.4.1, Kotlin Compose compiler 2.4.20, and Compose BOM 2026.09.00. The Gradle wrapper is included; the first build needs network access to download dependencies. Windows users can run `gradlew.bat`.
-
-## Read the code
-
-| Folder | Purpose |
-| --- | --- |
-| `core/` | Timeline, scene script, playback state, audio, geometry, and shared assets |
-| `core/…/FigmaArt.kt` | **Start here for Figma → code:** each Figma component drawn natively, with its Figma values |
-| `core/…/A7Native.kt` | Which element uses which component, and what stays a bitmap |
-| `core/…/A7Glow.kt` | Figma layer blurs, computed at startup |
-| `app-compose/` | Compose renderer and activity |
-| `app-views/` | XML layouts, custom views, and activity |
-| `tools/` | Layout generation and optional audio baking |
-
-- [Experience](docs/EXPERIENCE.md) — what each scene demonstrates.
-- [Implementation notes](docs/IMPLEMENTATION_NOTES.md) — where to make changes and what needs production work.
-- [Credits](docs/CREDITS.md) — music, fonts, icons, and asset sources.
-
-The earlier sprite implementation is preserved on [`archive/v1.3.3-sprites`](https://github.com/namvunhatle/r15-onboarding-android-demo/tree/archive/v1.3.3-sprites).
