@@ -24,10 +24,10 @@ Core source files live in `core/src/main/java/namvunhatle/r15/onboarding/core/`.
 | `Scene.kt` | Design coordinates, transform origins, tap areas, and track metadata |
 | `A7Art.kt` | Bitmap preparation for the logo blur, glows, and light trail |
 | `Immersive.kt` | System-bar handling and the time-inspection launch argument |
-| `A7Native.kt` | *(branch `native-vector`)* Builds each Figma element as a native drawable, by timeline id |
-| `FigmaArt.kt` | *(branch `native-vector`)* The Figma components drawn in code: text, shapes, gradients, shadows |
-| `A7Glow.kt` | *(branch `native-vector`)* Figma layer blurs on the glow ellipses, computed at startup |
-| `FigmaPaths.kt` | *(branch `native-vector`)* Vector geometry copied from Figma |
+| `A7Native.kt` | Builds each Figma element as a native drawable, by timeline id |
+| `FigmaArt.kt` | The Figma components drawn in code: text, shapes, gradients, shadows |
+| `A7Glow.kt` | Figma layer blurs on the glow ellipses, computed at startup |
+| `FigmaPaths.kt` | Vector geometry copied from Figma |
 
 
 The Compose renderer is [A7Screen.kt](../app-compose/src/main/java/namvunhatle/r15/onboarding/compose/A7Screen.kt). The Views renderer uses [MainActivity.kt](../app-views/src/main/java/namvunhatle/r15/onboarding/views/MainActivity.kt), [Widgets.kt](../app-views/src/main/java/namvunhatle/r15/onboarding/views/Widgets.kt), and generated XML.
@@ -57,9 +57,9 @@ The common clock is useful as a reference for keeping the sequence together. Pro
 
 This layout preserves the reference composition. It does **not** provide responsive layouts for different device aspect ratios. Wider or taller viewports show black bars.
 
-## Native art (branch `native-vector`)
+## Native art (`main`)
 
-On `main`, most of the scene is PNG/JPG sprites exported from the Figma section `15552:115354`. On this branch, every one of those sprites is drawn by code from the Figma node's own properties, in the box the sprite used. The shared timeline therefore moves, scales and fades exactly the same rectangles.
+On [`archive/v1.3.3-sprites`](https://github.com/namvunhatle/r15-onboarding-android-demo/tree/archive/v1.3.3-sprites), most of the scene is PNG/JPG sprites exported from the Figma section `15552:115354`. On `main`, those elements are drawn by code from the Figma node's own properties, in the same boxes. The shared timeline therefore moves, scales and fades exactly the same rectangles.
 
 | Element | How it is drawn now |
 | --- | --- |
@@ -76,10 +76,10 @@ On `main`, most of the scene is PNG/JPG sprites exported from the Figma section 
 
 **Per-frame cost.** Every native element except the spotlights is drawn into its own GPU layer: `CompositingStrategy.Offscreen` in Compose and `LAYER_TYPE_HARDWARE` in Views. The layer is drawn once at device resolution. After that, the timeline only transforms and fades it, so each frame costs the same as drawing a sprite. The spotlights are a single bitmap draw and skip the layer.
 
-**Differences from `main` (intentional).**
+**Differences from the sprite archive (intentional).**
 
-- Text and edges are sharper. `main` scales 2× sprites up to the screen density; this branch draws at the device's resolution.
-- The status bar is no longer squashed. `main` stretches a 46 dp export into the 40 dp bar.
+- Text and edges are sharper. The sprite archive scales 2× exports up to the screen density; the current build draws at the device's resolution.
+- The status bar is no longer squashed. The sprite archive stretches a 46 dp export into the 40 dp bar.
 - The P01 tagline and disclaimer sit 0.5–1.5 dp above today's Figma text boxes, matching where the v1.3.3 sprites put them.
 - The white of "RINGTONES" and "IS NEXT." is 96 %, and the other headline lines are solid white, as in the v1.3.3 export. Today's Figma file uses 96 % on every headline line.
 
@@ -105,17 +105,17 @@ The ad exception anticipates an SDK that presents a separate activity. There is 
 Force-stop the selected build, then launch it with the `t` argument. This makes sure a new activity reads the requested time.
 
 ```sh
-adb shell am force-stop namvunhatle.r15.onboarding.compose
-adb shell am start -n namvunhatle.r15.onboarding.compose/.MainActivity --ef t 12.4
+adb shell am force-stop namvunhatle.r15.onboarding.compose.vector
+adb shell am start -n namvunhatle.r15.onboarding.compose.vector/namvunhatle.r15.onboarding.compose.MainActivity --ef t 12.4
 ```
 
-For XML Views, replace `compose` with `views` in both commands. Time inspection suppresses timeline callbacks and audio. It is a visual review tool, not a way to test the interactive ad flow.
+For XML Views, use the package `namvunhatle.r15.onboarding.views.vector` and activity `namvunhatle.r15.onboarding.views.MainActivity`. Time inspection suppresses timeline callbacks and audio. It is a visual review tool, not a way to test the interactive ad flow.
 
 **Known limitation:** at or after the final scene's idle-loop start (19.47 s at 100 BPM), the master timeline freezes but the idle loop can still move stickers and the primary action. Screenshots taken after waiting may differ.
 
 ## Change the layout
 
-`core/src/main/assets/manifest.json` stores each element's box (the exported sprite's position and bounds; on branch `native-vector`, the box the native art is drawn in). Additional geometry and tap areas are defined in `Scene.kt`.
+`core/src/main/assets/manifest.json` stores each element's box: the exported sprite bounds on the archive branch and the native art bounds on `main`. Additional geometry and tap areas are defined in `Scene.kt`.
 
 The main Views layout is generated. After changing the relevant exported coordinates or generator rules, run from the repository root:
 
@@ -145,7 +145,7 @@ The original development notes record an API 36 emulator at 1080 × 2400, compar
 
 A separate code review exercised the shared Kotlin timeline/player with Android and audio stubs. At nine sampled times, direct seeking and stepped playback had no state differences above the test's 0.02 threshold. That check does not verify rendering, sound, or device performance.
 
-Known issues carried into **v1.3.3**:
+Known issues retained in the **current native-art build**:
 
 | Issue | Impact | Review workaround |
 | --- | --- | --- |
@@ -156,7 +156,7 @@ Known issues carried into **v1.3.3**:
 
 Physical-device frame pacing, speaker/headphone playback, Bluetooth latency, and a range of screen sizes have not been verified. The earlier emulator measurements used CPU rendering and do not establish production performance.
 
-Release preparation on 2026-09-23 rebuilt both debug apps from an independent copy of this repository and ran both app lint tasks successfully. Lint reported no errors; warnings remain for prototype choices such as fixed positioning, fixed text sizes, and portrait orientation.
+Preparation of the archived sprite release on 2026-09-23 rebuilt both debug apps from independent source and ran both app lint tasks successfully. Lint reported no errors; warnings remain for prototype choices such as fixed positioning, fixed text sizes, and portrait orientation.
 
 To run the project's lint tasks:
 

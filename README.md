@@ -6,21 +6,22 @@ Built for the Android development team from the React/Vite web prototype **v1.3.
 
 Use it to review the experience and discuss implementation. Ads, purchases, AI generation, and destination screens are mocked.
 
-> **Branch `native-vector`.** The Figma artwork is drawn natively instead of shipped as exported images: vector paths, real text, gradients, and effects built from the Figma node properties. The motion, audio, and layout are unchanged from v1.3.3, and screenshots match `main` at every checked timeline point. Bitmaps remain only where Figma itself uses an image. See [Native art](docs/IMPLEMENTATION_NOTES.md#native-art-branch-native-vector).
->
-> This branch builds as `namvunhatle.r15.onboarding.compose.vector` and `namvunhatle.r15.onboarding.views.vector` ("A7 · … · Native"), so it installs next to the v1.3.3 apps for side-by-side comparison. It has no GitHub release; build it locally.
+**Current `main`: native art.** Figma shapes, text, gradients, and effects are drawn in code. The motion, audio, and fixed 360 × 800 layout follow v1.3.3; Figma image fills and destination mocks remain bitmaps. See [Native art](docs/IMPLEMENTATION_NOTES.md#native-art-main). The two builds use the application IDs `namvunhatle.r15.onboarding.compose.vector` and `namvunhatle.r15.onboarding.views.vector`, so they install alongside the archived sprite builds.
 
 ## Try it
 
 - **[Open the web demo](https://prototype-a7.vercel.app)** to watch the sequence in a browser. The live site may change after this release.
-- **[Download Android v1.3.3](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.3)** to try it on a device. Requires Android 9 / API 28 or later.
+- **[Build the current native-art version](#build-locally)** from this branch. Requires Android 9 / API 28 or later.
+- **[Download the archived sprite version](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.3)** to compare it with the current build. Its source is preserved on [`archive/v1.3.3-sprites`](https://github.com/namvunhatle/r15-onboarding-android-demo/tree/archive/v1.3.3-sprites).
 
-| Build | APK | Application ID |
+The v1.3.3 release contains the **archived sprite APKs**:
+
+| Archived build | APK | Application ID |
 | --- | --- | --- |
 | Compose | [A7-Compose-1.3.3.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.3/A7-Compose-1.3.3.apk) | `namvunhatle.r15.onboarding.compose` |
 | XML Views | [A7-XMLViews-1.3.3.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.3/A7-XMLViews-1.3.3.apk) | `namvunhatle.r15.onboarding.views` |
 
-These are debug APKs for review. You can install both on the same device. If Android asks, allow installation from the app used to open the download.
+These archived files are debug APKs for review. You can install them alongside the current native-art builds. If Android asks, allow installation from the app used to open the download.
 
 ## What to look for
 
@@ -45,7 +46,7 @@ See [Experience](docs/EXPERIENCE.md) for the scene sequence and timing.
 
 The replay button appears on the interstitial and destination screens. Track switching is a review control, not part of the proposed onboarding.
 
-## Limits of this release
+## Known limits
 
 - **Fixed 360 × 800 layout.** The whole scene scales to fit. Other aspect ratios show black bars; responsive layouts are not implemented.
 - **Replay during a transition can leave an old destination visible.** Wait for the destination to settle before replaying. Relaunch the app if it occurs.
@@ -54,7 +55,7 @@ The replay button appears on the interstitial and destination screens. Track swi
 - Font scaling is fixed. Status bars and the camera cutout are drawn into the demo; destination screens are screenshots with tap areas.
 - Smoothness and audio timing have not been verified on physical devices.
 
-These limitations apply to both implementations. See [Validation and known limitations](docs/IMPLEMENTATION_NOTES.md#validation-and-known-limitations) for the review scope.
+These limitations apply to both Compose and XML Views on the current branch. See [Validation and known limitations](docs/IMPLEMENTATION_NOTES.md#validation-and-known-limitations) for the review scope.
 
 ## Build locally
 
@@ -71,7 +72,7 @@ adb install -r app-compose/build/outputs/apk/debug/app-compose-debug.apk
 adb install -r app-views/build/outputs/apk/debug/app-views-debug.apk
 ```
 
-The project pins Gradle 9.7.1, AGP 9.4.1, Kotlin Compose compiler 2.4.20, and Compose BOM 2026.09.00. The Gradle wrapper is included; the first build needs network access to download dependencies. Windows users can run `gradlew.bat`.
+These commands build the current native-art version. The project pins Gradle 9.7.1, AGP 9.4.1, Kotlin Compose compiler 2.4.20, and Compose BOM 2026.09.00. The Gradle wrapper is included; the first build needs network access to download dependencies. Windows users can run `gradlew.bat`.
 
 ## Read the code
 
