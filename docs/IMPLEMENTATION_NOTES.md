@@ -52,7 +52,7 @@ The common clock is useful as a reference for keeping the sequence together. Pro
 - Blur and glow bitmaps are prepared during startup. Motion animates their transforms and opacity.
 - Some elements extend beyond their layout bounds. The renderers account for this when drawing rings, shadows, and the call bubble.
 - Compose removes hidden overlay tap areas from composition. Setting alpha to zero alone would leave them able to intercept input.
-- The scene uses a **360 × 800** coordinate space. Each renderer scales the frame uniformly to fit, centers it, and fills the rest of a phone screen around it. See [Screen sizes](#screen-sizes-responsive-phone).
+- The scene uses a **360 × 800** coordinate space. Each renderer scales the frame uniformly to fit, centers it, and fills the rest of a phone screen around it. See [Screen sizes](#screen-sizes).
 - Font scaling is fixed. Status bars and the camera cutout are simulated artwork; the actual system bars are hidden.
 
 ## Native art (`main`)
@@ -95,7 +95,7 @@ adb pull /sdcard/Android/data/namvunhatle.r15.onboarding.compose.responsive/file
 
 **Changing the art.** Edit the numbers in `FigmaArt.kt` or `A7Native.kt`; they are written in Figma's frame coordinates. If an element's footprint changes, update its box in `manifest.json` and rerun `tools/gen_layout.py`, as on `main`.
 
-## Screen sizes (`responsive-phone`)
+## Screen sizes
 
 The 360 × 800 frame keeps its v1.3.3 scale (fit, never distorted), so on a 20:9 phone nothing changes. On other phones the leftover screen goes to the sides (shorter screens, 16:9 = 45 dp each side) or above and below (taller ones, 21:9 = 20 dp each). `Viewport.kt` measures it; `Scene` turns it into boxes; both renderers read those boxes.
 
