@@ -6,7 +6,7 @@ Built for the Android development team from the React/Vite web prototype **v1.3.
 
 Use it to review the experience and discuss implementation. Ads, purchases, AI generation, and destination screens are mocked.
 
-**Current `main`: native art.** Figma shapes, text, gradients, and effects are drawn in code. The motion, audio, and fixed 360 × 800 layout follow v1.3.3; Figma image fills and destination mocks remain bitmaps. See [Native art](docs/IMPLEMENTATION_NOTES.md#native-art-main). The two builds use the application IDs `namvunhatle.r15.onboarding.compose.vector` and `namvunhatle.r15.onboarding.views.vector`.
+**Native art.** Figma shapes, text, gradients, shadows, and blurs are drawn in code, following the v1.3.3 motion, audio, and fixed 360 × 800 layout. Only Figma image fills and the destination mocks remain bitmaps. See [Native art](docs/IMPLEMENTATION_NOTES.md#native-art-main).
 
 ## Try it
 
@@ -41,6 +41,7 @@ See [Experience](docs/EXPERIENCE.md) for the scene sequence and timing.
 | Tap the circular replay button | Restart from the splash |
 | Hold the replay button | Cycle through three music tracks and a music-off option; restart |
 | Open with a timeline time | Inspect a scene without playing its audio; see [instructions](docs/IMPLEMENTATION_NOTES.md#inspect-a-timeline-time) |
+| Open with `--ez dump true` | Save each native element as a PNG, for comparison with Figma; see [Native art](docs/IMPLEMENTATION_NOTES.md#native-art-main) |
 
 The replay button appears on the interstitial and destination screens. Track switching is a review control, not part of the proposed onboarding.
 
@@ -51,9 +52,10 @@ The replay button appears on the interstitial and destination screens. Track swi
 - **Time inspection does not fully freeze the final scene.** Its idle animation can keep running.
 - **Reduced motion is partial.** Some splash movement remains when system animations are disabled.
 - Font scaling is fixed. Status bars and the camera cutout are drawn into the demo; destination screens are screenshots with tap areas.
-- Smoothness and audio timing have not been verified on physical devices.
+- **Startup is about 0.3 s slower than the sprite build** (emulator), because fonts load and glows are blurred at launch. The 5 s splash covers it.
+- Smoothness, audio timing, and the GPU memory of the cached element layers have not been measured on physical devices.
 
-These limitations apply to both Compose and XML Views on the current branch. See [Validation and known limitations](docs/IMPLEMENTATION_NOTES.md#validation-and-known-limitations) for the review scope.
+These limitations apply to both Compose and XML Views in this version. See [Validation and known limitations](docs/IMPLEMENTATION_NOTES.md#validation-and-known-limitations) for the review scope.
 
 ## Build locally
 
@@ -76,7 +78,10 @@ These commands build the current native-art version. The project pins Gradle 9.7
 
 | Folder | Purpose |
 | --- | --- |
-| `core/` | Timeline, scene script, playback state, audio, geometry, shared assets, and the native Figma art |
+| `core/` | Timeline, scene script, playback state, audio, geometry, and shared assets |
+| `core/…/FigmaArt.kt` | **Start here for Figma → code:** each Figma component drawn natively, with its Figma values |
+| `core/…/A7Native.kt` | Which element uses which component, and what stays a bitmap |
+| `core/…/A7Glow.kt` | Figma layer blurs, computed at startup |
 | `app-compose/` | Compose renderer and activity |
 | `app-views/` | XML layouts, custom views, and activity |
 | `tools/` | Layout generation and optional audio baking |
