@@ -6,28 +6,20 @@ Built for the Android development team from the React/Vite web prototype **v1.3.
 
 Use it to review the experience and discuss implementation. Ads, purchases, AI generation, and destination screens are mocked.
 
-**Current `main`: native art.** Figma shapes, text, gradients, and effects are drawn in code. The motion, audio, and fixed 360 × 800 layout follow v1.3.3; Figma image fills and destination mocks remain bitmaps. See [Native art](docs/IMPLEMENTATION_NOTES.md#native-art-main). The two builds use the application IDs `namvunhatle.r15.onboarding.compose.vector` and `namvunhatle.r15.onboarding.views.vector`, so they install alongside the archived sprite builds.
+**Current `main`: native art.** Figma shapes, text, gradients, and effects are drawn in code. The motion, audio, and fixed 360 × 800 layout follow v1.3.3; Figma image fills and destination mocks remain bitmaps. See [Native art](docs/IMPLEMENTATION_NOTES.md#native-art-main). The two builds use the application IDs `namvunhatle.r15.onboarding.compose.vector` and `namvunhatle.r15.onboarding.views.vector`.
 
 ## Try it
 
 - **[Open the web demo](https://prototype-a7.vercel.app)** to watch the sequence in a browser. The live site may change after this release.
 - **[Download the current native-art version](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.3-native)**. Requires Android 9 / API 28 or later.
 - **[Build from source](#build-locally)** if you want to inspect or change the implementation.
-- **[Download the archived sprite version](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.3)** to compare it with the native-art build. Its source is preserved on [`archive/v1.3.3-sprites`](https://github.com/namvunhatle/r15-onboarding-android-demo/tree/archive/v1.3.3-sprites).
 
 | Current native-art build | APK | Application ID |
 | --- | --- | --- |
 | Compose | [A7-Compose-1.3.3-native.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.3-native/A7-Compose-1.3.3-native.apk) | `namvunhatle.r15.onboarding.compose.vector` |
 | XML Views | [A7-XMLViews-1.3.3-native.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.3-native/A7-XMLViews-1.3.3-native.apk) | `namvunhatle.r15.onboarding.views.vector` |
 
-The earlier `v1.3.3` release contains the **archived sprite APKs**:
-
-| Archived build | APK | Application ID |
-| --- | --- | --- |
-| Compose | [A7-Compose-1.3.3.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.3/A7-Compose-1.3.3.apk) | `namvunhatle.r15.onboarding.compose` |
-| XML Views | [A7-XMLViews-1.3.3.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.3/A7-XMLViews-1.3.3.apk) | `namvunhatle.r15.onboarding.views` |
-
-All APKs are debug builds for review. Their application IDs differ, so you can install the native-art and sprite versions together. If Android asks, allow installation from the app used to open the download.
+Both APKs are debug builds for review. If Android asks, allow installation from the app used to open the download.
 
 ## What to look for
 
@@ -92,3 +84,5 @@ These commands build the current native-art version. The project pins Gradle 9.7
 - [Experience](docs/EXPERIENCE.md) — what each scene demonstrates.
 - [Implementation notes](docs/IMPLEMENTATION_NOTES.md) — where to make changes and what needs production work.
 - [Credits](docs/CREDITS.md) — music, fonts, icons, and asset sources.
+
+The earlier sprite implementation is preserved on [`archive/v1.3.3-sprites`](https://github.com/namvunhatle/r15-onboarding-android-demo/tree/archive/v1.3.3-sprites).
