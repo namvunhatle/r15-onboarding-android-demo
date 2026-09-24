@@ -7,8 +7,8 @@ android {
         applicationId = "namvunhatle.r15.onboarding.views.responsive"
         minSdk = 28
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.3.3-R"
+        versionCode = 2
+        versionName = "1.3.4"
     }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
 }

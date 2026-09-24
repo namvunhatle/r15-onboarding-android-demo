@@ -10,23 +10,23 @@ Use it to review the experience and discuss implementation. Ads, purchases, AI g
 
 **Any phone screen.** The scene fills 16:9 to 23:9 phones instead of showing black bars: backgrounds bleed, the genre wall grows, and chrome holds the screen edges. See [Screen sizes](docs/IMPLEMENTATION_NOTES.md#screen-sizes).
 
-**Design tokens** (branch `design-tokens`). Colours, type, radii and spacing come from the ZEN variables bound in Figma, generated into `Zen.*` / `@color/zen_*`. Glows, gradients and other values without a variable are listed separately. See [Design tokens](docs/DESIGN_TOKENS.md).
+**Design tokens.** Colours, type, radii and spacing come from the ZEN variables bound in Figma, generated into `Zen.*` / `@color/zen_*`. Glows, gradients and other values without a variable are listed separately. See [Design tokens](docs/DESIGN_TOKENS.md).
 
 **Developers:** start with [`FigmaArt.kt`](core/src/main/java/namvunhatle/r15/onboarding/core/FigmaArt.kt), where each Figma component is drawn with its Figma values.
 
 ## Try it
 
 - **[Open the web demo](https://prototype-a7.vercel.app)** to watch the sequence in a browser. The live site may change after this release.
-- **[Download the current version, 1.3.3-R](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.3-R)**. Requires Android 9 / API 28 or later.
-- [1.3.3-native](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.3-native) is the previous native-art build, with a fixed 360 × 800 layout and black bars on other screens.
+- **[Download the current version, 1.3.4](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.4)**. Requires Android 9 / API 28 or later.
+- Earlier builds: [1.3.3-R](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.3-R) (same picture, before tokens) and [1.3.3-native](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.3-native) (fixed 360 × 800 layout). See the [changelog](CHANGELOG.md).
 - **[Build from source](#build-locally)** if you want to inspect or change the implementation.
 
 | Build | APK | Application ID |
 | --- | --- | --- |
-| Compose | [A7-Compose-1.3.3-R.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.3-R/A7-Compose-1.3.3-R.apk) | `namvunhatle.r15.onboarding.compose.responsive` |
-| XML Views | [A7-XMLViews-1.3.3-R.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.3-R/A7-XMLViews-1.3.3-R.apk) | `namvunhatle.r15.onboarding.views.responsive` |
+| Compose | [A7-Compose-1.3.4.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.4/A7-Compose-1.3.4.apk) | `namvunhatle.r15.onboarding.compose.responsive` |
+| XML Views | [A7-XMLViews-1.3.4.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.4/A7-XMLViews-1.3.4.apk) | `namvunhatle.r15.onboarding.views.responsive` |
 
-Both APKs are debug builds for review and install beside the earlier releases. If Android asks, allow installation from the app used to open the download.
+Both APKs are debug builds for review. They update 1.3.3-R in place and install beside the older native-art and sprite builds. If Android asks, allow installation from the app used to open the download.
 
 ## What to look for
 
