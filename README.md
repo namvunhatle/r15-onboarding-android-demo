@@ -11,17 +11,23 @@ Use it to review the experience and discuss implementation. Ads, purchases, AI g
 ## Try it
 
 - **[Open the web demo](https://prototype-a7.vercel.app)** to watch the sequence in a browser. The live site may change after this release.
-- **[Build the current native-art version](#build-locally)** from this branch. Requires Android 9 / API 28 or later.
-- **[Download the archived sprite version](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.3)** to compare it with the current build. Its source is preserved on [`archive/v1.3.3-sprites`](https://github.com/namvunhatle/r15-onboarding-android-demo/tree/archive/v1.3.3-sprites).
+- **[Download the current native-art version](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.3-native)**. Requires Android 9 / API 28 or later.
+- **[Build from source](#build-locally)** if you want to inspect or change the implementation.
+- **[Download the archived sprite version](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.3)** to compare it with the native-art build. Its source is preserved on [`archive/v1.3.3-sprites`](https://github.com/namvunhatle/r15-onboarding-android-demo/tree/archive/v1.3.3-sprites).
 
-The v1.3.3 release contains the **archived sprite APKs**:
+| Current native-art build | APK | Application ID |
+| --- | --- | --- |
+| Compose | [A7-Compose-1.3.3-native.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.3-native/A7-Compose-1.3.3-native.apk) | `namvunhatle.r15.onboarding.compose.vector` |
+| XML Views | [A7-XMLViews-1.3.3-native.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.3-native/A7-XMLViews-1.3.3-native.apk) | `namvunhatle.r15.onboarding.views.vector` |
+
+The earlier `v1.3.3` release contains the **archived sprite APKs**:
 
 | Archived build | APK | Application ID |
 | --- | --- | --- |
 | Compose | [A7-Compose-1.3.3.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.3/A7-Compose-1.3.3.apk) | `namvunhatle.r15.onboarding.compose` |
 | XML Views | [A7-XMLViews-1.3.3.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.3/A7-XMLViews-1.3.3.apk) | `namvunhatle.r15.onboarding.views` |
 
-These archived files are debug APKs for review. You can install them alongside the current native-art builds. If Android asks, allow installation from the app used to open the download.
+All APKs are debug builds for review. Their application IDs differ, so you can install the native-art and sprite versions together. If Android asks, allow installation from the app used to open the download.
 
 ## What to look for
 
