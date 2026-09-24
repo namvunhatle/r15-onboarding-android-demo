@@ -10,46 +10,7 @@ Use it to review the experience and discuss implementation. Ads, purchases, AI g
 
 **Any phone screen.** The scene fills 16:9 to 23:9 phones instead of showing black bars: backgrounds bleed, the genre wall grows, and chrome holds the screen edges. See [Screen sizes](docs/IMPLEMENTATION_NOTES.md#screen-sizes).
 
-**Design tokens.** Colours, type, corner radii and spacing use the ZEN variables the Figma file binds, under their Figma names. Glows, gradients and other values that Figma draws without a variable are kept apart. See [Design tokens](#design-tokens).
-
 **Developers:** start with [`FigmaArt.kt`](core/src/main/java/namvunhatle/r15/onboarding/core/FigmaArt.kt), where each Figma component is drawn with its Figma values.
-
-## Try it
-
-- **[Open the web demo](https://prototype-a7.vercel.app)** to watch the sequence in a browser. The live site may change after this release.
-- **[Download version 1.3.4](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.4)**. Requires Android 9 / API 28 or later.
-- **[Build from source](#build-locally)** if you want to inspect or change the implementation.
-
-| Build | APK | Application ID |
-| --- | --- | --- |
-| Compose | [A7-Compose-1.3.4.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.4/A7-Compose-1.3.4.apk) | `namvunhatle.r15.onboarding.compose.responsive` |
-| XML Views | [A7-XMLViews-1.3.4.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.4/A7-XMLViews-1.3.4.apk) | `namvunhatle.r15.onboarding.views.responsive` |
-
-Both APKs are debug builds for review. If Android asks, allow installation from the app used to open the download.
-
-## What to look for
-
-1. The splash logo expands and dissolves into a mock interstitial.
-2. Tap **Skip ads**. The logo returns briefly, then the ring burst opens the introduction.
-3. Watch the catalog scene, the **Same song. Any name.** sequence, and the incoming-call example.
-4. At **Yours is next.**, choose a path:
-   - **Explore AI Ringtones** → paywall mock → AI screen mock.
-   - **Browse ringtones** → Home screen mock.
-
-Closing the paywall or tapping its subscribe area opens the AI mock. No purchase is made. Two separate native-ad placeholders appear during the introduction.
-
-See [Experience](docs/EXPERIENCE.md) for the scene sequence and timing.
-
-## Review controls
-
-| Action | Result |
-| --- | --- |
-| Tap the circular replay button | Restart from the splash |
-| Hold the replay button | Cycle through three music tracks and a music-off option; restart |
-| Open with a timeline time | Inspect a scene without playing its audio; see [instructions](docs/IMPLEMENTATION_NOTES.md#inspect-a-timeline-time) |
-| Open with `--ez dump true` | Save each native element as a PNG, for comparison with Figma; see [Native art](docs/IMPLEMENTATION_NOTES.md#native-art-main) |
-
-The replay button appears on the interstitial and destination screens. Track switching is a review control, not part of the proposed onboarding.
 
 ## Design tokens
 
@@ -93,6 +54,43 @@ The values are those of the ZEN modes the design locks: **Light · Global - Base
 A second group in the same file keeps values that Figma now binds to a token but this demo draws differently: solid-white headlines, the opaque lyric card, the bubble's type size and a few others. Each entry names the token that production should use instead.
 
 The full token map, the visual-only table and the regeneration steps are in [Design tokens](docs/DESIGN_TOKENS.md).
+
+## Try it
+
+- **[Open the web demo](https://prototype-a7.vercel.app)** to watch the sequence in a browser. The live site may change after this release.
+- **[Download version 1.3.4](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.4)**. Requires Android 9 / API 28 or later.
+- **[Build from source](#build-locally)** if you want to inspect or change the implementation.
+
+| Build | APK | Application ID |
+| --- | --- | --- |
+| Compose | [A7-Compose-1.3.4.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.4/A7-Compose-1.3.4.apk) | `namvunhatle.r15.onboarding.compose.responsive` |
+| XML Views | [A7-XMLViews-1.3.4.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.4/A7-XMLViews-1.3.4.apk) | `namvunhatle.r15.onboarding.views.responsive` |
+
+Both APKs are debug builds for review. If Android asks, allow installation from the app used to open the download.
+
+## What to look for
+
+1. The splash logo expands and dissolves into a mock interstitial.
+2. Tap **Skip ads**. The logo returns briefly, then the ring burst opens the introduction.
+3. Watch the catalog scene, the **Same song. Any name.** sequence, and the incoming-call example.
+4. At **Yours is next.**, choose a path:
+   - **Explore AI Ringtones** → paywall mock → AI screen mock.
+   - **Browse ringtones** → Home screen mock.
+
+Closing the paywall or tapping its subscribe area opens the AI mock. No purchase is made. Two separate native-ad placeholders appear during the introduction.
+
+See [Experience](docs/EXPERIENCE.md) for the scene sequence and timing.
+
+## Review controls
+
+| Action | Result |
+| --- | --- |
+| Tap the circular replay button | Restart from the splash |
+| Hold the replay button | Cycle through three music tracks and a music-off option; restart |
+| Open with a timeline time | Inspect a scene without playing its audio; see [instructions](docs/IMPLEMENTATION_NOTES.md#inspect-a-timeline-time) |
+| Open with `--ez dump true` | Save each native element as a PNG, for comparison with Figma; see [Native art](docs/IMPLEMENTATION_NOTES.md#native-art-main) |
+
+The replay button appears on the interstitial and destination screens. Track switching is a review control, not part of the proposed onboarding.
 
 ## Read the code
 
