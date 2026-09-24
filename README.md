@@ -15,13 +15,16 @@ Use it to review the experience and discuss implementation. Ads, purchases, AI g
 ## Try it
 
 - **[Open the web demo](https://prototype-a7.vercel.app)** to watch the sequence in a browser. The live site may change after this release.
+- **[Download the responsive version 1.3.3-R](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.3-R)** — this branch. It installs beside the native-art release.
 - **[Download the current native-art version](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.3-native)**. Requires Android 9 / API 28 or later.
-- **[Build from source](#build-locally)** if you want to inspect or change the implementation. The responsive build has no release APK yet; it installs beside the release as `…compose.responsive` / `…views.responsive`.
+- **[Build from source](#build-locally)** if you want to inspect or change the implementation.
 
-| Current native-art build | APK | Application ID |
+| Build | APK | Application ID |
 | --- | --- | --- |
 | Compose | [A7-Compose-1.3.3-native.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.3-native/A7-Compose-1.3.3-native.apk) | `namvunhatle.r15.onboarding.compose.vector` |
 | XML Views | [A7-XMLViews-1.3.3-native.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.3-native/A7-XMLViews-1.3.3-native.apk) | `namvunhatle.r15.onboarding.views.vector` |
+| Compose · responsive | [A7-Compose-1.3.3-R.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.3-R/A7-Compose-1.3.3-R.apk) | `namvunhatle.r15.onboarding.compose.responsive` |
+| XML Views · responsive | [A7-XMLViews-1.3.3-R.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.3-R/A7-XMLViews-1.3.3-R.apk) | `namvunhatle.r15.onboarding.views.responsive` |
 
 Both APKs are debug builds for review. If Android asks, allow installation from the app used to open the download.
 
