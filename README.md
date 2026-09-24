@@ -10,15 +10,14 @@ Use it to review the experience and discuss implementation. Ads, purchases, AI g
 
 **Any phone screen.** The scene fills 16:9 to 23:9 phones instead of showing black bars: backgrounds bleed, the genre wall grows, and chrome holds the screen edges. See [Screen sizes](docs/IMPLEMENTATION_NOTES.md#screen-sizes).
 
-**Design tokens.** Colours, type, radii and spacing come from the ZEN variables bound in Figma, generated into `Zen.*` / `@color/zen_*`. Glows, gradients and other values without a variable are listed separately. See [Design tokens](docs/DESIGN_TOKENS.md).
+**Design tokens.** Colours, type, corner radii and spacing use the ZEN variables the Figma file binds, under their Figma names. Glows, gradients and other values that Figma draws without a variable are kept apart. See [Design tokens](#design-tokens).
 
 **Developers:** start with [`FigmaArt.kt`](core/src/main/java/namvunhatle/r15/onboarding/core/FigmaArt.kt), where each Figma component is drawn with its Figma values.
 
 ## Try it
 
 - **[Open the web demo](https://prototype-a7.vercel.app)** to watch the sequence in a browser. The live site may change after this release.
-- **[Download the current version, 1.3.4](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.4)**. Requires Android 9 / API 28 or later.
-- Earlier builds: [1.3.3-R](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.3-R) (same picture, before tokens) and [1.3.3-native](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.3-native) (fixed 360 × 800 layout). See the [changelog](CHANGELOG.md).
+- **[Download version 1.3.4](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.4)**. Requires Android 9 / API 28 or later.
 - **[Build from source](#build-locally)** if you want to inspect or change the implementation.
 
 | Build | APK | Application ID |
@@ -26,7 +25,7 @@ Use it to review the experience and discuss implementation. Ads, purchases, AI g
 | Compose | [A7-Compose-1.3.4.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.4/A7-Compose-1.3.4.apk) | `namvunhatle.r15.onboarding.compose.responsive` |
 | XML Views | [A7-XMLViews-1.3.4.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.4/A7-XMLViews-1.3.4.apk) | `namvunhatle.r15.onboarding.views.responsive` |
 
-Both APKs are debug builds for review. They update 1.3.3-R in place and install beside the older native-art and sprite builds. If Android asks, allow installation from the app used to open the download.
+Both APKs are debug builds for review. If Android asks, allow installation from the app used to open the download.
 
 ## What to look for
 
@@ -52,6 +51,49 @@ See [Experience](docs/EXPERIENCE.md) for the scene sequence and timing.
 
 The replay button appears on the interstitial and destination screens. Track switching is a review control, not part of the proposed onboarding.
 
+## Design tokens
+
+The A7 screens in Figma are built with the **ZEN design system**: 154 variables are bound across the frames, from ZEN plus the ad SDK kit used by the interstitial. The code uses each of those variables by name, not a copy of its value. When a variable changes in Figma, one regeneration updates both apps.
+
+**Naming.** A token keeps its Figma path:
+
+| In Figma | Compose and native drawing | XML layouts |
+| --- | --- | --- |
+| `Color/Background/Accent/Solid/Default` | `Zen.Color.Background.Accent.Solid.Default` (ARGB `Int`) | `@color/zen_color_background_accent_solid_default` |
+| `Corner-Radius/Large` | `Zen.CornerRadius.Large` (dp) | `@dimen/zen_corner_radius_large` |
+| Text style Heading-4: size, line height, letter spacing | `ZenText.Heading4` | `@dimen/zen_typography_font_size_heading_4`, `…line_height_heading_4` |
+| Ad SDK kit `background/bg-overlay` | `AdKit.Background.BgOverlay` | `@color/adkit_background_bg_overlay` |
+
+```kotlin
+Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Zen.ButtonPrimary.Background.Default } // native drawing
+Type(semiBold, ZenText.Heading4)                                                   // a ZEN text style
+Color(Zen.Color.Content.OnDarkOverlay.Strongest)                                    // Compose
+```
+
+```xml
+android:textColor="@color/zen_color_content_on_dark_overlay_base"
+android:textSize="@dimen/zen_typography_font_size_heading_4"
+```
+
+The values are those of the ZEN modes the design locks: **Light · Global - Base 14 · Brand Emphasis - S1 · Base Colors Zen**. Letter-spacing tokens are Figma pixels; divide by the font size to get Android's `em` units.
+
+**Where they come from.**
+
+1. `tools/tokens/export_tokens.js` reads the variables bound in the A7 frames from the Figma file. It is read-only and writes nothing to Figma.
+2. `tools/tokens/a7_figma_tokens.json` is the committed snapshot: each variable, its collection, and its resolved value.
+3. `python3 tools/gen_tokens.py` generates `ZenTokens.kt` and `zen_tokens.xml`. Never edit those two files by hand.
+
+**What is not a token.** Some values have no Figma variable behind them. They are drawn literally and live only in `A7Visual.kt` and its XML copy, `a7_visual.xml`; no other file contains a raw colour.
+
+- Splash background art: the grid gradient, the purple glows, the black ramp, the smoke.
+- Spotlight glow sizes, opacities and blurs. The glow colours themselves are tokens.
+- Gradient angles, drop shadows, the phone body, the ring-burst flash and ring opacities.
+- The interstitial's progress bar, the native-ad mock tints, and the demo's own chrome.
+
+A second group in the same file keeps values that Figma now binds to a token but this demo draws differently: solid-white headlines, the opaque lyric card, the bubble's type size and a few others. Each entry names the token that production should use instead.
+
+The full token map, the visual-only table and the regeneration steps are in [Design tokens](docs/DESIGN_TOKENS.md).
+
 ## Read the code
 
 | Folder | Purpose |
@@ -69,10 +111,9 @@ The replay button appears on the interstitial and destination screens. Track swi
 
 - [Experience](docs/EXPERIENCE.md) — what each scene demonstrates.
 - [Implementation notes](docs/IMPLEMENTATION_NOTES.md) — where to make changes and what needs production work.
-- [Design tokens](docs/DESIGN_TOKENS.md) — Figma → code token pipeline, what uses which token, and the visual-only values.
+- [Design tokens](docs/DESIGN_TOKENS.md) — what uses which token, and every visual-only value with its Figma node.
+- [Changelog](CHANGELOG.md) — what changed in each version.
 - [Credits](docs/CREDITS.md) — music, fonts, icons, and asset sources.
-
-The earlier sprite implementation is preserved on [`archive/v1.3.3-sprites`](https://github.com/namvunhatle/r15-onboarding-android-demo/tree/archive/v1.3.3-sprites).
 
 ## Known limits
 
@@ -81,7 +122,7 @@ The earlier sprite implementation is preserved on [`archive/v1.3.3-sprites`](htt
 - **Time inspection does not fully freeze the final scene.** Its idle animation can keep running.
 - **Reduced motion is partial.** Some splash movement remains when system animations are disabled.
 - Font scaling is fixed. Status bars and the camera cutout are drawn into the demo; destination screens are screenshots with tap areas.
-- **Startup is about 0.3 s slower than the sprite build** (emulator), because fonts load and glows are blurred at launch. The 5 s splash covers it.
+- **Launch does about 0.3 s of extra work** on the emulator: fonts load and glows are blurred at startup. The 5 s splash covers it.
 - Smoothness, audio timing, and the GPU memory of the cached element layers have not been measured on physical devices.
 
 These limitations apply to both Compose and XML Views in this version. See [Validation and known limitations](docs/IMPLEMENTATION_NOTES.md#validation-and-known-limitations) for the review scope.
@@ -101,4 +142,4 @@ adb install -r app-compose/build/outputs/apk/debug/app-compose-debug.apk
 adb install -r app-views/build/outputs/apk/debug/app-views-debug.apk
 ```
 
-These commands build the current native-art version. The project pins Gradle 9.7.1, AGP 9.4.1, Kotlin Compose compiler 2.4.20, and Compose BOM 2026.09.00. The Gradle wrapper is included; the first build needs network access to download dependencies. Windows users can run `gradlew.bat`.
+These commands build version 1.3.4. The project pins Gradle 9.7.1, AGP 9.4.1, Kotlin Compose compiler 2.4.20, and Compose BOM 2026.09.00. The Gradle wrapper is included; the first build needs network access to download dependencies. Windows users can run `gradlew.bat`.
