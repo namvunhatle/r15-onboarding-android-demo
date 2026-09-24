@@ -25,7 +25,7 @@ private fun View.dp(v: Float) = v * resources.displayMetrics.density
 
 /**
  * Holds the 360×800 design frame at its design size (dp) and scales itself to fit the screen — the XML twin of the
- * web's `transform: scale(s)` and of the Compose build's scaled Density. Children lay out in design dp.
+ * web's `transform: scale(s)`. Children lay out in design dp.
  *
  * With a [vp] margin the view is the whole visible screen (so it draws and takes touches there too) and the frame
  * sits inside it at padding = the margin: children still lay out in frame coordinates.

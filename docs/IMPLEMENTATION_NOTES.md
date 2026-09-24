@@ -4,15 +4,15 @@
 
 ## Architecture
 
-Both apps read the same animated scene state. They differ in how they draw it.
+The engine (package `…onboarding.core`) produces the animated scene state; the Views renderer (package `…onboarding.views`) draws it. On `main` the engine is a separate `:core` library shared with a Compose app; on this branch it lives in `app-views`.
 
 ```text
 Frame callback → A7Player → Timeline + A7Script → Store
                      ↑                            ↓
-               AudioTrack clock          Compose or XML Views
+               AudioTrack clock               XML Views
 ```
 
-Core source files live in `core/src/main/java/namvunhatle/r15/onboarding/core/`.
+Engine source files live in `app-views/src/main/java/namvunhatle/r15/onboarding/core/`.
 
 | File | Responsibility |
 | --- | --- |
@@ -30,11 +30,11 @@ Core source files live in `core/src/main/java/namvunhatle/r15/onboarding/core/`.
 | `FigmaPaths.kt` | Vector geometry copied from Figma |
 
 
-The Compose renderer is [A7Screen.kt](../app-compose/src/main/java/namvunhatle/r15/onboarding/compose/A7Screen.kt). The Views renderer uses [MainActivity.kt](../app-views/src/main/java/namvunhatle/r15/onboarding/views/MainActivity.kt), [Widgets.kt](../app-views/src/main/java/namvunhatle/r15/onboarding/views/Widgets.kt), and generated XML.
+The Views renderer uses [MainActivity.kt](../app-views/src/main/java/namvunhatle/r15/onboarding/views/MainActivity.kt), [Widgets.kt](../app-views/src/main/java/namvunhatle/r15/onboarding/views/Widgets.kt), and generated XML.
 
 ## Animation and audio
 
-A single master timeline advances all scene elements. The UI reads transforms and opacity from the shared store. Compose binds those values through `graphicsLayer`; Views applies them on each frame callback.
+A single master timeline advances all scene elements. The UI reads transforms and opacity from the shared store and applies them on each frame callback.
 
 After Skip ads, the player starts an `AudioTrack` stream: initial silence, the intro mix, then a repeating background loop. When timestamps are available, the audio clock guides the visual timeline. The still re-entry interval lets the visual clock wait for audio startup. During motion, the player limits timing correction to ±25% of the frame interval.
 
@@ -51,7 +51,6 @@ The common clock is useful as a reference for keeping the sequence together. Pro
 
 - Blur and glow bitmaps are prepared during startup. Motion animates their transforms and opacity.
 - Some elements extend beyond their layout bounds. The renderers account for this when drawing rings, shadows, and the call bubble.
-- Compose removes hidden overlay tap areas from composition. Setting alpha to zero alone would leave them able to intercept input.
 - The scene uses a **360 × 800** coordinate space. Each renderer scales the frame uniformly to fit, centers it, and fills the rest of a phone screen around it. See [Screen sizes](#screen-sizes).
 - Font scaling is fixed. Status bars and the camera cutout are simulated artwork; the actual system bars are hidden.
 
@@ -73,7 +72,7 @@ On [`archive/v1.3.3-sprites`](https://github.com/namvunhatle/r15-onboarding-andr
 
 **Effect calibration.** Figma drop shadows follow CSS: σ = blur / 2. For layer blur, the closest fit to Figma's own export was σ = 0.42 × radius, applied to the whole ellipse and then cut by the frame (mean error 0.8/255 over the four spotlight screens).
 
-**Per-frame cost.** Every native element except the spotlights and the interstitial is drawn into its own GPU layer: `CompositingStrategy.Offscreen` in Compose and `LAYER_TYPE_HARDWARE` in Views. The layer is drawn once at device resolution. After that, the timeline only transforms and fades it, so each frame costs the same as drawing a sprite. The spotlights are a single bitmap draw and skip the layer; the interstitial is static while it shows.
+**Per-frame cost.** Every native element except the spotlights and the interstitial is drawn into its own GPU layer (`LAYER_TYPE_HARDWARE`). The layer is drawn once at device resolution. After that, the timeline only transforms and fades it, so each frame costs the same as drawing a sprite. The spotlights are a single bitmap draw and skip the layer; the interstitial is static while it shows.
 
 **Differences from the sprite archive (intentional).**
 
@@ -87,8 +86,8 @@ On [`archive/v1.3.3-sprites`](https://github.com/namvunhatle/r15-onboarding-andr
 **Pixel review tool.** Launch with `--ez dump true` to write every native element, at 2× its box, to `Android/data/<package>/files/dump/`. Compare those files against the `main` sprites of the same name.
 
 ```sh
-adb shell am start -n namvunhatle.r15.onboarding.compose.responsive/namvunhatle.r15.onboarding.compose.MainActivity --ez dump true
-adb pull /sdcard/Android/data/namvunhatle.r15.onboarding.compose.responsive/files/dump
+adb shell am start -n namvunhatle.r15.onboarding.views.responsive/namvunhatle.r15.onboarding.views.MainActivity --ez dump true
+adb pull /sdcard/Android/data/namvunhatle.r15.onboarding.views.responsive/files/dump
 ```
 
 **Interstitial vs. the v1.3.3 screenshot.** Mean difference 1.1/255 at 1080 × 2400. The screenshot's corners were white (its rounded corners exported onto a JPEG); the native version is black behind the radius, like an SDK window.
@@ -124,17 +123,17 @@ The ad exception anticipates an SDK that presents a separate activity. There is 
 Force-stop the selected build, then launch it with the `t` argument. This makes sure a new activity reads the requested time.
 
 ```sh
-adb shell am force-stop namvunhatle.r15.onboarding.compose.responsive
-adb shell am start -n namvunhatle.r15.onboarding.compose.responsive/namvunhatle.r15.onboarding.compose.MainActivity --ef t 12.4
+adb shell am force-stop namvunhatle.r15.onboarding.views.responsive
+adb shell am start -n namvunhatle.r15.onboarding.views.responsive/namvunhatle.r15.onboarding.views.MainActivity --ef t 12.4
 ```
 
-For XML Views, use the package `namvunhatle.r15.onboarding.views.responsive` and activity `namvunhatle.r15.onboarding.views.MainActivity`. Time inspection suppresses timeline callbacks and audio. It is a visual review tool, not a way to test the interactive ad flow.
+Time inspection suppresses timeline callbacks and audio. It is a visual review tool, not a way to test the interactive ad flow.
 
 **Known limitation:** at or after the final scene's idle-loop start (19.47 s at 100 BPM), the master timeline freezes but the idle loop can still move stickers and the primary action. Screenshots taken after waiting may differ.
 
 ## Change the layout
 
-`core/src/main/assets/manifest.json` stores each element's box: the exported sprite bounds on the archive branch and the native art bounds on `main`. Additional geometry and tap areas are defined in `Scene.kt`.
+`app-views/src/main/assets/manifest.json` stores each element's box: the exported sprite bounds on the archive branch and the native art bounds on `main`. Additional geometry and tap areas are defined in `Scene.kt`.
 
 The main Views layout is generated. After changing the relevant exported coordinates or generator rules, run from the repository root:
 
@@ -142,7 +141,7 @@ The main Views layout is generated. After changing the relevant exported coordin
 python3 tools/gen_layout.py
 ```
 
-This overwrites `app-views/src/main/res/layout/activity_main.xml`. Other layouts, custom drawing code, and Compose geometry may also need corresponding edits. Review both renderers after a layout change.
+This overwrites `app-views/src/main/res/layout/activity_main.xml`. Other layouts and custom drawing code may also need corresponding edits.
 
 ## Rebuild the audio — optional
 
@@ -153,7 +152,7 @@ The baker requires Node.js, Playwright, Chrome, and the original web prototype s
 ```sh
 cd tools/bake
 npm install
-node bake.mjs /absolute/path/to/prototype-a7 ../../core/src/main/assets/audio
+node bake.mjs /absolute/path/to/prototype-a7 ../../app-views/src/main/assets/audio
 ```
 
 The existing `npm run bake` shortcut assumes the original sibling-folder layout. Use the explicit command above for a standalone checkout.
@@ -180,7 +179,7 @@ Preparation of the archived sprite release on 2026-09-23 rebuilt both debug apps
 To run the project's lint tasks:
 
 ```sh
-./gradlew :app-compose:lintDebug :app-views:lintDebug
+./gradlew :app-views:lintDebug
 ```
 
 Production work includes adaptive layout, accessibility semantics and font scaling, real system bars, final-resolution assets, ad integration, billing, and the actual destination screens.

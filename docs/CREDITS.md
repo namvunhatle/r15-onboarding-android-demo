@@ -10,7 +10,7 @@ The repository includes the assets used by this demo. Figma source files and the
 
 ## Music
 
-Track metadata is stored in [tracks.json](../core/src/main/assets/tracks.json).
+Track metadata is stored in [tracks.json](../app-views/src/main/assets/tracks.json).
 
 | Track | Artist | Source | Demo tempo |
 | --- | --- | --- | ---: |
@@ -46,6 +46,6 @@ The demo uses processed excerpts mixed with synthesized sound cues. The bundled 
 
 ## Dependencies
 
-The apps use AndroidX Core; the Compose build also uses AndroidX Activity and Jetpack Compose. Gradle supplies the build wrapper. Playwright is used only by the optional audio-bake tool. These projects retain their respective licenses.
+The app uses AndroidX Core. Gradle supplies the build wrapper. Playwright is used only by the optional audio-bake tool. These projects retain their respective licenses.
 
 No repository-wide open-source license has been assigned to the R15-specific code and artwork in this release. Third-party license notices apply to their respective components.

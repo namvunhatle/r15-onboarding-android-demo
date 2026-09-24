@@ -228,7 +228,7 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
         super.onStop()
         running = false
         Choreographer.getInstance().removeFrameCallback(this)
-        // Same rule as the Compose build: leaving mid-trailer restarts it — but not on the ad (a real SDK opens its
+        // Leaving mid-trailer restarts it — but not on the ad (a real SDK opens its
         // own Activity) and not on a destination.
         if (!isChangingConfigurations && !player.atAd && player.dest == null) player.replay()
     }

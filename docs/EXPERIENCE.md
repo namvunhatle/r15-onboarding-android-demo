@@ -78,7 +78,7 @@ The default track runs at **100 BPM**, so one beat is **0.6 seconds**. The alter
 
 The second ad's content is fully revealed about 0.35 seconds after its placeholder starts fading. The final scene continues with idle movement until a destination is chosen.
 
-Exact timings and easing curves are in [A7Script.kt](../core/src/main/java/namvunhatle/r15/onboarding/core/A7Script.kt). The script is the source for implementation details when a summary here is insufficient.
+Exact timings and easing curves are in [A7Script.kt](../app-views/src/main/java/namvunhatle/r15/onboarding/core/A7Script.kt). The script is the source for implementation details when a summary here is insufficient.
 
 ## Audio
 

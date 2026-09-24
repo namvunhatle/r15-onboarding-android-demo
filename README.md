@@ -2,7 +2,9 @@
 
 An interactive demo of the R15 onboarding sequence: motion, audio cues, ad placement, and the paths into AI Ringtones and the ringtone catalog.
 
-Built for the Android development team from the React/Vite web prototype **v1.3.3**. The repository contains two native implementations: **Jetpack Compose** and **XML Views**. Both use the same timeline and assets.
+Built for the Android development team from the React/Vite web prototype **v1.3.3**.
+
+**This branch — `merge-module` — is XML Views only, in a single module.** On `main` the project has three modules: a shared `:core` library (timeline, audio, tokens and every asset) used by two apps, Compose and XML Views. Here `:core` is merged into `:app-views` and the Compose app is removed, so the code, resources and assets all live in `app-views/`. The APK has byte-identical resources and assets and the same bytecode as the 1.3.4 XML Views build; see [Single module](#single-module).
 
 Use it to review the experience and discuss implementation. Ads, purchases, AI generation, and destination screens are mocked.
 
@@ -10,15 +12,15 @@ Use it to review the experience and discuss implementation. Ads, purchases, AI g
 
 **Any phone screen.** The scene fills 16:9 to 23:9 phones instead of showing black bars: backgrounds bleed, the genre wall grows, and chrome holds the screen edges. See [Screen sizes](docs/IMPLEMENTATION_NOTES.md#screen-sizes).
 
-**Developers:** start with [`FigmaArt.kt`](core/src/main/java/namvunhatle/r15/onboarding/core/FigmaArt.kt), where each Figma component is drawn with its Figma values.
+**Developers:** start with [`FigmaArt.kt`](app-views/src/main/java/namvunhatle/r15/onboarding/core/FigmaArt.kt), where each Figma component is drawn with its Figma values.
 
 ## Design tokens
 
-The A7 screens in Figma are built with the **ZEN design system**: 154 variables are bound across the frames, from ZEN plus the ad SDK kit used by the interstitial. The code uses each of those variables by name, not a copy of its value. When a variable changes in Figma, one regeneration updates both apps.
+The A7 screens in Figma are built with the **ZEN design system**: 154 variables are bound across the frames, from ZEN plus the ad SDK kit used by the interstitial. The code uses each of those variables by name, not a copy of its value. When a variable changes in Figma, one regeneration updates the app.
 
 **Naming.** A token keeps its Figma path:
 
-| In Figma | Compose and native drawing | XML layouts |
+| In Figma | Kotlin (native drawing) | XML layouts |
 | --- | --- | --- |
 | `Color/Background/Accent/Solid/Default` | `Zen.Color.Background.Accent.Solid.Default` (ARGB `Int`) | `@color/zen_color_background_accent_solid_default` |
 | `Corner-Radius/Large` | `Zen.CornerRadius.Large` (dp) | `@dimen/zen_corner_radius_large` |
@@ -28,7 +30,6 @@ The A7 screens in Figma are built with the **ZEN design system**: 154 variables 
 ```kotlin
 Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Zen.ButtonPrimary.Background.Default } // native drawing
 Type(semiBold, ZenText.Heading4)                                                   // a ZEN text style
-Color(Zen.Color.Content.OnDarkOverlay.Strongest)                                    // Compose
 ```
 
 ```xml
@@ -58,15 +59,14 @@ The full token map, the visual-only table and the regeneration steps are in [Des
 ## Try it
 
 - **[Open the web demo](https://prototype-a7.vercel.app)** to watch the sequence in a browser. The live site may change after this release.
-- **[Download version 1.3.4](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.4)**. Requires Android 9 / API 28 or later.
+- **[Download version 1.3.4](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.4)**. Requires Android 9 / API 28 or later. Its XML Views APK behaves exactly like a build of this branch.
 - **[Build from source](#build-locally)** if you want to inspect or change the implementation.
 
 | Build | APK | Application ID |
 | --- | --- | --- |
-| Compose | [A7-Compose-1.3.4.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.4/A7-Compose-1.3.4.apk) | `namvunhatle.r15.onboarding.compose.responsive` |
 | XML Views | [A7-XMLViews-1.3.4.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.4/A7-XMLViews-1.3.4.apk) | `namvunhatle.r15.onboarding.views.responsive` |
 
-Both APKs are debug builds for review. If Android asks, allow installation from the app used to open the download.
+This is a debug build for review. If Android asks, allow installation from the app used to open the download.
 
 ## What to look for
 
@@ -96,15 +96,15 @@ The replay button appears on the interstitial and destination screens. Track swi
 
 | Folder | Purpose |
 | --- | --- |
-| `core/` | Timeline, scene script, playback state, audio, geometry, and shared assets |
-| `core/…/FigmaArt.kt` | **Start here for Figma → code:** each Figma component drawn natively, with its Figma values |
-| `core/…/A7Native.kt` | Which element uses which component, and what stays a bitmap |
-| `core/…/A7Glow.kt` | Figma layer blurs, computed at startup |
-| `core/…/Viewport.kt`, `Scene.kt` | Screen size → which elements bleed, grow or hold an edge |
-| `core/…/ZenTokens.kt`, `res/values/zen_tokens.xml` | Figma variables as code, generated by `tools/gen_tokens.py` — do not edit |
-| `core/…/A7Visual.kt`, `res/values/a7_visual.xml` | The only raw colours: values Figma draws without a variable, and v1.3.3 values kept over a token |
-| `app-compose/` | Compose renderer and activity |
-| `app-views/` | XML layouts, custom views, and activity |
+| `app-views/src/main/java/…/onboarding/core/` | Engine: timeline, scene script, playback, audio, geometry, native art, tokens |
+| `app-views/src/main/java/…/onboarding/views/` | Renderer: `MainActivity`, custom views |
+| `app-views/src/main/res/`, `assets/` | Every image, font, vector, token XML, layout; audio WAVs and scene JSON |
+| `…/core/FigmaArt.kt` | **Start here for Figma → code:** each Figma component drawn natively, with its Figma values |
+| `…/core/A7Native.kt` | Which element uses which component, and what stays a bitmap |
+| `…/core/A7Glow.kt` | Figma layer blurs, computed at startup |
+| `…/core/Viewport.kt`, `Scene.kt` | Screen size → which elements bleed, grow or hold an edge |
+| `…/core/ZenTokens.kt`, `res/values/zen_tokens.xml` | Figma variables as code, generated by `tools/gen_tokens.py` — do not edit |
+| `…/core/A7Visual.kt`, `res/values/a7_visual.xml` | The only raw colours: values Figma draws without a variable, and v1.3.3 values kept over a token |
 | `tools/` | Layout generation and optional audio baking |
 
 - [Experience](docs/EXPERIENCE.md) — what each scene demonstrates.
@@ -123,21 +123,30 @@ The replay button appears on the interstitial and destination screens. Track swi
 - **Launch does about 0.3 s of extra work** on the emulator: fonts load and glows are blurred at startup. The 5 s splash covers it.
 - Smoothness, audio timing, and the GPU memory of the cached element layers have not been measured on physical devices.
 
-These limitations apply to both Compose and XML Views in this version. See [Validation and known limitations](docs/IMPLEMENTATION_NOTES.md#validation-and-known-limitations) for the review scope.
+These limitations apply to this build as they do to 1.3.4. See [Validation and known limitations](docs/IMPLEMENTATION_NOTES.md#validation-and-known-limitations) for the review scope.
 
 ## Build locally
 
 Open this repository in Android Studio, configure **JDK 17**, and install **Android SDK Platform 37**. Let Android Studio create `local.properties`, or set `ANDROID_HOME` to your SDK directory.
 
 ```sh
-./gradlew :app-compose:assembleDebug :app-views:assembleDebug
-```
-
-Install either build on a connected device:
-
-```sh
-adb install -r app-compose/build/outputs/apk/debug/app-compose-debug.apk
+./gradlew :app-views:assembleDebug
 adb install -r app-views/build/outputs/apk/debug/app-views-debug.apk
 ```
 
-These commands build version 1.3.4. The project pins Gradle 9.7.1, AGP 9.4.1, Kotlin Compose compiler 2.4.20, and Compose BOM 2026.09.00. The Gradle wrapper is included; the first build needs network access to download dependencies. Windows users can run `gradlew.bat`.
+These commands build version 1.3.4. The project pins Gradle 9.7.1, AGP 9.4.1 and Kotlin 2.4.20 (the same compiler as `main`; without the pin, AGP falls back to its bundled 2.2.10). The Gradle wrapper is included; the first build needs network access to download dependencies. Windows users can run `gradlew.bat`.
+
+## Single module
+
+What moved from `main`:
+
+| On `main` | On this branch |
+| --- | --- |
+| `core/src/main/java/…/onboarding/core/` | `app-views/src/main/java/…/onboarding/core/` — package name unchanged |
+| `core/src/main/res/` (images, fonts, vectors, `zen_tokens.xml`, `a7_visual.xml`, theme) | `app-views/src/main/res/` |
+| `core/src/main/assets/` (audio, `manifest.json`, `tracks.json`) | `app-views/src/main/assets/` |
+| `app-compose/` | removed |
+
+Code changes: `A7Art.kt` and `A7Native.kt` import `namvunhatle.r15.onboarding.views.R`, since the library's own `R` no longer exists. The tools in `tools/` write to the new paths.
+
+**Checked.** Comparing this APK with the `main` 1.3.4 XML Views build: all 85 resource and asset files are byte-identical, the 1,522 resource entries match, and the bytecode of all 203 app classes is the same apart from dex offsets, `R` class names, and Kotlin's module suffix on `internal` members (`$core` → `$app_views`). Lint: 0 errors. The emulator was unavailable, so no screenshots were compared on a device.

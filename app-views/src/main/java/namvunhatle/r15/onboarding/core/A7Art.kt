@@ -1,6 +1,7 @@
 package namvunhatle.r15.onboarding.core
 
 import android.content.Context
+import namvunhatle.r15.onboarding.views.R
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.BitmapShader

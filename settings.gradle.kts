@@ -6,4 +6,4 @@ dependencyResolutionManagement {
     repositories { google(); mavenCentral() }
 }
 rootProject.name = "A7Onboarding"
-include(":core", ":app-compose", ":app-views")
+include(":app-views")

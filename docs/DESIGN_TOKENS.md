@@ -9,11 +9,11 @@ Figma (variables bound in the A7 frames)
   └─ tools/tokens/export_tokens.js     read-only export
        └─ tools/tokens/a7_figma_tokens.json   snapshot in the repo: 154 variables and their resolved values
             └─ tools/gen_tokens.py
-                 ├─ core/…/core/ZenTokens.kt           Compose and native drawing
-                 └─ core/src/main/res/values/zen_tokens.xml   XML layouts: colors, dimens
+                 ├─ app-views/…/core/ZenTokens.kt      native drawing
+                 └─ app-views/src/main/res/values/zen_tokens.xml   XML layouts: colors, dimens
 ```
 
-Values without a variable are in [`A7Visual.kt`](../core/src/main/java/namvunhatle/r15/onboarding/core/A7Visual.kt) and its XML copy, [`a7_visual.xml`](../core/src/main/res/values/a7_visual.xml). No other source file contains a raw colour.
+Values without a variable are in [`A7Visual.kt`](../app-views/src/main/java/namvunhatle/r15/onboarding/core/A7Visual.kt) and its XML copy, [`a7_visual.xml`](../app-views/src/main/res/values/a7_visual.xml). No other source file contains a raw colour.
 
 ## Using a token
 

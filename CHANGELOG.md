@@ -2,6 +2,13 @@
 
 All Android builds share the v1.3.3 web prototype's timeline, audio and scene script. Releases: [GitHub](https://github.com/namvunhatle/r15-onboarding-android-demo/releases).
 
+## Branch `merge-module` — XML Views only, one module
+
+- For teams building with XML Views only. The `:core` library is merged into `:app-views` and `app-compose` is removed: code, resources and assets all live in `app-views/`.
+- Package names are unchanged (`…onboarding.core` for the engine, `…onboarding.views` for the renderer). `A7Art.kt` and `A7Native.kt` now import the app's `R`. `tools/` write to the new paths.
+- Kotlin stays pinned to 2.4.20, the compiler `main` uses, through the root `buildscript` classpath.
+- Same app as 1.3.4 XML Views: resources and assets byte-identical, bytecode equal apart from dex offsets, `R` names and the `internal` module suffix. Same version and application ID.
+
 ## 1.3.4 — design tokens
 
 - Colours, type, corner radii and spacing reference the **ZEN variables** bound in the Figma A7 frames, instead of copied values. The pipeline is `tools/tokens/export_tokens.js`, then `a7_figma_tokens.json` (154 variables), then `tools/gen_tokens.py`. It generates `ZenTokens.kt` (`Zen`, `AdKit`, `Project`, `Aosp`, with Figma paths kept) and `zen_tokens.xml` for the XML layouts.

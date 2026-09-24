@@ -4,8 +4,8 @@
     python3 tools/gen_tokens.py
 
 Reads  tools/tokens/a7_figma_tokens.json  (exported from Figma by tools/tokens/export_tokens.js)
-Writes core/src/main/java/namvunhatle/r15/onboarding/core/ZenTokens.kt   (Compose + native drawing)
-       core/src/main/res/values/zen_tokens.xml                           (XML layouts: colors, dimens)
+Writes app-views/src/main/java/namvunhatle/r15/onboarding/core/ZenTokens.kt   (native drawing)
+       app-views/src/main/res/values/zen_tokens.xml                      (XML layouts: colors, dimens)
 
 A token keeps its Figma path: `Color/Background/Accent/Solid/Default` becomes
 `Zen.Color.Background.Accent.Solid.Default` in Kotlin and `@color/zen_color_background_accent_solid_default` in XML.
@@ -16,8 +16,8 @@ import re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, 'tools/tokens/a7_figma_tokens.json')
-KT = os.path.join(ROOT, 'core/src/main/java/namvunhatle/r15/onboarding/core/ZenTokens.kt')
-XML = os.path.join(ROOT, 'core/src/main/res/values/zen_tokens.xml')
+KT = os.path.join(ROOT, 'app-views/src/main/java/namvunhatle/r15/onboarding/core/ZenTokens.kt')
+XML = os.path.join(ROOT, 'app-views/src/main/res/values/zen_tokens.xml')
 
 # Figma collection → Kotlin root object
 ROOTS = {
