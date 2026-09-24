@@ -4,12 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import namvunhatle.r15.onboarding.core.A7Art
+import namvunhatle.r15.onboarding.core.A7Native
 import namvunhatle.r15.onboarding.core.A7Player
 import namvunhatle.r15.onboarding.core.Scene
 import namvunhatle.r15.onboarding.core.immersive
+import namvunhatle.r15.onboarding.core.dumpExtra
 import namvunhatle.r15.onboarding.core.seekExtra
 
-/** A7 onboarding — Jetpack Compose build. Same engine, assets and audio as the Views build (module :core). */
+/** A7 onboarding — Jetpack Compose build. Same engine, native art and audio as the Views build (module :core). */
 class MainActivity : ComponentActivity() {
     private lateinit var player: A7Player
 
@@ -20,7 +22,9 @@ class MainActivity : ComponentActivity() {
         player = A7Player(this, scene)
         seekExtra()?.let(player::seekFrozen)
         val art = A7Art(this)
-        setContent { A7Screen(player, art) }
+        val native = A7Native(this, scene)
+        if (dumpExtra()) native.dump(getExternalFilesDir("dump")!!)
+        setContent { A7Screen(player, art, native) }
     }
 
     override fun onStop() {

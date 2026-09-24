@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Generate app-views/src/main/res/layout/activity_main.xml from core/src/main/assets/manifest.json.
 
-Every sprite = an ImageView at its Figma box (dp in the 360x800 frame). Stacking order = DOM order of
+Every element sits at its Figma box (dp in the 360x800 frame): a View for the natively drawn ones (A7Native),
+an ImageView for the few that stay screenshots. Stacking order = DOM order of
 prototype-a7 v1.3.3 (App.tsx). `android:tag` = the element id the shared timeline animates.
 Run again whenever the Figma export (manifest + sprites) changes.
 """
@@ -28,8 +29,16 @@ def box(x, y, w, h):
     return f'android:layout_width="{n(w)}dp" android:layout_height="{n(h)}dp" android:layout_marginLeft="{n(x)}dp" android:layout_marginTop="{n(y)}dp"'
 
 
+# Drawn natively (core A7Native): a plain View in the sprite's box; MainActivity sets the art as its background.
+NATIVE = {'splash_bg', 'tagline', 'sp_note', 'sp_strip', 'statusbar', 'tile_alarm', 'tile_rnb', 'tile_sfx', 'tile_baby', 'tile_msg',
+          'g01_phone', 'g02_phone', 'g03_phone', 'st_mia', 'st_leo', 'st_zoe', 'st_noah',
+          'g04_sam', 'g04_emma', 'g04_jake', 'g04_mia', 'g04_leo', 'g04_zoe', 'g04_center', 'g04_cta', 'g04_secondary'} | set(BGS) | set(HEADS)
+
+
 def sprite(k, ind):
     x, y, w, h = M[k]['pos']
+    if k in NATIVE:
+        return f'{ind}<View android:tag="{k}" {box(x, y, w, h)} android:importantForAccessibility="no" />'
     return f'{ind}<ImageView android:tag="{k}" {box(x, y, w, h)} android:src="@drawable/{k.lower()}" android:scaleType="fitXY" android:importantForAccessibility="no" />'
 
 
@@ -120,7 +129,7 @@ xml = f'''<?xml version="1.0" encoding="utf-8"?>
 
 {full('cam', I2, chr(10).join(cam))}
 
-        <ImageView android:tag="statusbar" {box(0, 0, 360, 40)} android:src="@drawable/statusbar" android:scaleType="fitXY" android:importantForAccessibility="no" />
+{sprite('statusbar', I2)}
         <View {box(167.5, 7.5, 25, 25)} android:background="@drawable/punch" />
 
         <!-- Interstitial — third-party, R15 does not control it -->

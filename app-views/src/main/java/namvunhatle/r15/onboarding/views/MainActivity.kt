@@ -10,19 +10,22 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import namvunhatle.r15.onboarding.core.A7Art
+import namvunhatle.r15.onboarding.core.A7Native
 import namvunhatle.r15.onboarding.core.A7Player
 import namvunhatle.r15.onboarding.core.Css
 import namvunhatle.r15.onboarding.core.Dest
 import namvunhatle.r15.onboarding.core.El
 import namvunhatle.r15.onboarding.core.Prop
 import namvunhatle.r15.onboarding.core.Scene
+import namvunhatle.r15.onboarding.core.dumpExtra
 import namvunhatle.r15.onboarding.core.immersive
 import namvunhatle.r15.onboarding.core.seekExtra
 import kotlin.math.exp
 import kotlin.math.roundToInt
 
 /**
- * A7 onboarding — XML Views build. The scene is declared in XML (res/layout, generated from the Figma export);
+ * A7 onboarding — XML Views build. The scene is declared in XML (res/layout, generated from the Figma export) and
+ * its Figma elements are drawn natively by :core ([A7Native]);
  * every vsync the shared timeline (:core) writes transform + opacity, and this class copies them onto the views.
  */
 class MainActivity : Activity(), Choreographer.FrameCallback {
@@ -58,6 +61,17 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
         // The two native slots come from one layout: tag + tint each copy.
         nativeSlot(R.id.nat1, "nat1", 0xFFE8ECFF.toInt(), 0xFFD9E2FF.toInt())
         nativeSlot(R.id.nat2, "nat2", 0xFFFFF1E3.toInt(), 0xFFFFE2C7.toInt())
+
+        // Figma elements drawn natively: the art is the view's background, sized to the sprite box the layout gives it.
+        // LAYERED ones get a hardware layer: drawn once, then the timeline only moves, scales and fades the layer.
+        val native = A7Native(this, scene)
+        if (dumpExtra()) native.dump(getExternalFilesDir("dump")!!)
+        A7Native.IDS.forEach { id ->
+            frame.findViewWithTag<View>(id).apply {
+                background = native.art(id)
+                if (id in A7Native.LAYERED) setLayerType(View.LAYER_TYPE_HARDWARE, null)
+            }
+        }
 
         (frame.findViewWithTag<BakedView>("icon")).layers += listOf(art.iconGlow, art.icon)
         (frame.findViewWithTag<BakedView>("logoB")).layers += art.iconBlur

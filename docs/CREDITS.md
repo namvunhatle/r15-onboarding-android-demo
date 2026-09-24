@@ -20,12 +20,17 @@ Track metadata is stored in [tracks.json](../core/src/main/assets/tracks.json).
 
 The demo uses processed excerpts mixed with synthesized sound cues. The bundled WAV files contain the resulting intro and loop mixes. Music selection remains part of the prototype; these credits do not establish clearance for a separate production release.
 
-## Font
+## Fonts
 
 **Be Vietnam Pro** — The Be Vietnam Pro Project Authors.
 
 - [Project](https://github.com/bettergui/BeVietnamPro)
 - [SIL Open Font License 1.1 and copyright notice](licenses/BeVietnamPro-OFL.txt)
+
+**Anton** — The Anton Project Authors. Used for the headlines on branch `native-vector`.
+
+- [Project](https://github.com/googlefonts/AntonFont)
+- [SIL Open Font License 1.1 and copyright notice](licenses/Anton-OFL.txt)
 
 ## Replay icon
 

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma: Status bar › Battery › Base -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="8.5dp" android:height="14.1667dp"
+    android:viewportWidth="8.5" android:viewportHeight="14.1667">
+    <path android:fillColor="#FFFFFF" android:pathData="M5.84375 0 L2.65625 0 L2.65625 1.41667 L1.0625 1.41667 C0.475697 1.41667 0 1.89236 0 2.47917 L0 13.1042 C0 13.691 0.475697 14.1667 1.0625 14.1667 L7.4375 14.1667 C8.0243 14.1667 8.5 13.691 8.5 13.1042 L8.5 2.47917 C8.5 1.89236 8.0243 1.41667 7.4375 1.41667 L5.84375 1.41667 L5.84375 0 Z" />
+</vector>

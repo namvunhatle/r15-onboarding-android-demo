@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma: Status bar › Wifi › signal (R15 `2ckF7fXzWpx8fBkOImitb4`, instance 266:1644) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="14.6667dp" android:height="10.3733dp"
+    android:viewportWidth="14.6667" android:viewportHeight="10.3733">
+    <path android:fillColor="#FFFFFF" android:pathData="M0 3.04 L7.33333 10.3733 L14.6667 3.04 C10.6133 -1.01333 4.05333 -1.01333 0 3.04 Z" />
+</vector>

@@ -24,6 +24,11 @@ Core source files live in `core/src/main/java/namvunhatle/r15/onboarding/core/`.
 | `Scene.kt` | Design coordinates, transform origins, tap areas, and track metadata |
 | `A7Art.kt` | Bitmap preparation for the logo blur, glows, and light trail |
 | `Immersive.kt` | System-bar handling and the time-inspection launch argument |
+| `A7Native.kt` | *(branch `native-vector`)* Builds each Figma element as a native drawable, by timeline id |
+| `FigmaArt.kt` | *(branch `native-vector`)* The Figma components drawn in code: text, shapes, gradients, shadows |
+| `A7Glow.kt` | *(branch `native-vector`)* Figma layer blurs on the glow ellipses, computed at startup |
+| `FigmaPaths.kt` | *(branch `native-vector`)* Vector geometry copied from Figma |
+
 
 The Compose renderer is [A7Screen.kt](../app-compose/src/main/java/namvunhatle/r15/onboarding/compose/A7Screen.kt). The Views renderer uses [MainActivity.kt](../app-views/src/main/java/namvunhatle/r15/onboarding/views/MainActivity.kt), [Widgets.kt](../app-views/src/main/java/namvunhatle/r15/onboarding/views/Widgets.kt), and generated XML.
 
@@ -52,6 +57,43 @@ The common clock is useful as a reference for keeping the sequence together. Pro
 
 This layout preserves the reference composition. It does **not** provide responsive layouts for different device aspect ratios. Wider or taller viewports show black bars.
 
+## Native art (branch `native-vector`)
+
+On `main`, most of the scene is PNG/JPG sprites exported from the Figma section `15552:115354`. On this branch, every one of those sprites is drawn by code from the Figma node's own properties, in the box the sprite used. The shared timeline therefore moves, scales and fades exactly the same rectangles.
+
+| Element | How it is drawn now |
+| --- | --- |
+| Headlines (`g0*_head`, `g04_center`) | Anton text. Center-aligned echoes are stroked text. Outside-aligned echoes are the stroke outline minus the glyphs, computed once as a path |
+| Tagline, disclaimer, buttons, banner ad, stickers, genre tiles | Be Vietnam Pro text with Figma letter spacing and line boxes. Rounded rectangles, gradients from the Figma `gradientTransform`, and drop shadows from Figma offset, blur and colour |
+| Phone frames | Rounded body, inside stroke, drop shadow and punch-hole in code. The screen is an image fill in Figma and stays a bitmap |
+| Spotlight backgrounds, splash glows | Figma `LAYER_BLUR` ellipses, blurred at startup into small bitmaps (`A7Glow`), because a live blur of this size costs a full-screen pass every frame |
+| Splash background | Figma image fill (bitmap) + 52 % black ramp + tilted grid (vector union from `fillGeometry`) + glows + 40 % smoke photo (bitmap) |
+| Status bar | Roboto text and three `VectorDrawable` icons copied from the Figma paths |
+
+**Still bitmaps:** the splash image fill and smoke photo, the three phone screens, the logo record, the mock interstitial, and the three destination screens. These are images in Figma too, or screens owned by other products.
+
+**Effect calibration.** Figma drop shadows follow CSS: σ = blur / 2. For layer blur, the closest fit to Figma's own export was σ = 0.42 × radius, applied to the whole ellipse and then cut by the frame (mean error 0.8/255 over the four spotlight screens).
+
+**Per-frame cost.** Every native element except the spotlights is drawn into its own GPU layer: `CompositingStrategy.Offscreen` in Compose and `LAYER_TYPE_HARDWARE` in Views. The layer is drawn once at device resolution. After that, the timeline only transforms and fades it, so each frame costs the same as drawing a sprite. The spotlights are a single bitmap draw and skip the layer.
+
+**Differences from `main` (intentional).**
+
+- Text and edges are sharper. `main` scales 2× sprites up to the screen density; this branch draws at the device's resolution.
+- The status bar is no longer squashed. `main` stretches a 46 dp export into the 40 dp bar.
+- The P01 tagline and disclaimer sit 0.5–1.5 dp above today's Figma text boxes, matching where the v1.3.3 sprites put them.
+- The white of "RINGTONES" and "IS NEXT." is 96 %, and the other headline lines are solid white, as in the v1.3.3 export. Today's Figma file uses 96 % on every headline line.
+
+**Validation.** Checked on an API 36 emulator at 1080 × 2400 against the v1.3.3 APKs, at 16 timeline points from 1.0 s to 19.2 s. Mean difference per screen: 0.9–2.0/255 in both apps. At most 2.3 % of pixels differ by more than 24/255, all on glyph and shape edges. Both paths were walked through (Skip ads → G04 → paywall → AI). Frame-phase timings on the emulator matched `main`. As on `main`, this is not a physical-device test.
+
+**Pixel review tool.** Launch with `--ez dump true` to write every native element, at 2× its box, to `Android/data/<package>/files/dump/`. Compare those files against the `main` sprites of the same name.
+
+```sh
+adb shell am start -n namvunhatle.r15.onboarding.compose.vector/namvunhatle.r15.onboarding.compose.MainActivity --ez dump true
+adb pull /sdcard/Android/data/namvunhatle.r15.onboarding.compose.vector/files/dump
+```
+
+**Changing the art.** Edit the numbers in `FigmaArt.kt` or `A7Native.kt`; they are written in Figma's frame coordinates. If an element's footprint changes, update its box in `manifest.json` and rerun `tools/gen_layout.py`, as on `main`.
+
 ## Lifecycle
 
 Leaving the app during the introduction resets playback to the splash. The activity does not apply that reset while it is waiting on the mock ad or showing a destination.
@@ -73,7 +115,7 @@ For XML Views, replace `compose` with `views` in both commands. Time inspection 
 
 ## Change the layout
 
-`core/src/main/assets/manifest.json` stores exported sprite positions and bounds. Additional geometry and tap areas are defined in `Scene.kt`.
+`core/src/main/assets/manifest.json` stores each element's box (the exported sprite's position and bounds; on branch `native-vector`, the box the native art is drawn in). Additional geometry and tap areas are defined in `Scene.kt`.
 
 The main Views layout is generated. After changing the relevant exported coordinates or generator rules, run from the repository root:
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="A7 · Compose"
+        android:label="A7 · Compose · Native"
         android:icon="@drawable/ic_a7_launcher"
         android:theme="@style/A7">
         <activity

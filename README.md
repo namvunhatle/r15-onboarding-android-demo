@@ -6,6 +6,10 @@ Built for the Android development team from the React/Vite web prototype **v1.3.
 
 Use it to review the experience and discuss implementation. Ads, purchases, AI generation, and destination screens are mocked.
 
+> **Branch `native-vector`.** The Figma artwork is drawn natively instead of shipped as exported images: vector paths, real text, gradients, and effects built from the Figma node properties. The motion, audio, and layout are unchanged from v1.3.3, and screenshots match `main` at every checked timeline point. Bitmaps remain only where Figma itself uses an image. See [Native art](docs/IMPLEMENTATION_NOTES.md#native-art-branch-native-vector).
+>
+> This branch builds as `namvunhatle.r15.onboarding.compose.vector` and `namvunhatle.r15.onboarding.views.vector` ("A7 · … · Native"), so it installs next to the v1.3.3 apps for side-by-side comparison. It has no GitHub release; build it locally.
+
 ## Try it
 
 - **[Open the web demo](https://prototype-a7.vercel.app)** to watch the sequence in a browser. The live site may change after this release.
@@ -73,7 +77,7 @@ The project pins Gradle 9.7.1, AGP 9.4.1, Kotlin Compose compiler 2.4.20, and Co
 
 | Folder | Purpose |
 | --- | --- |
-| `core/` | Timeline, scene script, playback state, audio, geometry, and shared assets |
+| `core/` | Timeline, scene script, playback state, audio, geometry, shared assets, and the native Figma art |
 | `app-compose/` | Compose renderer and activity |
 | `app-views/` | XML layouts, custom views, and activity |
 | `tools/` | Layout generation and optional audio baking |

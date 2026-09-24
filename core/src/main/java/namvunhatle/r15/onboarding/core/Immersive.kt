@@ -22,3 +22,6 @@ fun Activity.immersive() {
 
 /** `adb shell am start -n <pkg>/.MainActivity --ef t 12.4` opens frozen at 12.4 s, like the web's `?t=12.4`. */
 fun Activity.seekExtra(): Double? = intent?.getFloatExtra("t", Float.NaN)?.takeIf { !it.isNaN() }?.toDouble()
+
+/** `--ez dump true`: write every native element as a PNG to the app's external files (`dump/`), for pixel review. */
+fun Activity.dumpExtra(): Boolean = intent?.getBooleanExtra("dump", false) == true

@@ -77,6 +77,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.BasicText
 import namvunhatle.r15.onboarding.core.A7Art
+import namvunhatle.r15.onboarding.core.A7Native
 import namvunhatle.r15.onboarding.core.A7Player
 import namvunhatle.r15.onboarding.core.Box as DBox
 import namvunhatle.r15.onboarding.core.Css
@@ -113,7 +114,7 @@ private fun Text(
 ) = BasicText(text, modifier, style, overflow = overflow, softWrap = softWrap, maxLines = maxLines)
 
 /** Frame clock + store handle shared by every element. */
-private class Ctx(val player: A7Player, val art: A7Art, val tick: MutableLongState) {
+private class Ctx(val player: A7Player, val art: A7Art, val native: A7Native, val tick: MutableLongState) {
     val store = player.store
 }
 
@@ -130,7 +131,7 @@ private fun Modifier.at(b: DBox) =
  * offscreen layer. Besides being cheaper, the layer would be clipped to the element's bounds while it fades —
  * cutting off glows and shadows that overflow the box (CSS never clips those).
  */
-private fun Modifier.anim(c: Ctx, id: String, leaf: Boolean = false, scaleFrom: (El) -> Float = { 1f }): Modifier {
+private fun Modifier.anim(c: Ctx, id: String, leaf: Boolean = false, cached: Boolean = false, scaleFrom: (El) -> Float = { 1f }): Modifier {
     val el = c.store[id]
     val (ox, oy) = Scene.origin(id)
     return graphicsLayer {
@@ -141,12 +142,16 @@ private fun Modifier.anim(c: Ctx, id: String, leaf: Boolean = false, scaleFrom: 
         rotationZ = el.rot
         alpha = el.alpha.coerceIn(0f, 1f)
         transformOrigin = TransformOrigin(ox, oy)
-        compositingStrategy = if (leaf) CompositingStrategy.ModulateAlpha else CompositingStrategy.Auto
+        compositingStrategy = when {
+            cached -> CompositingStrategy.Offscreen
+            leaf -> CompositingStrategy.ModulateAlpha
+            else -> CompositingStrategy.Auto
+        }
     }
 }
 
 @Composable
-fun A7Screen(player: A7Player, art: A7Art) {
+fun A7Screen(player: A7Player, art: A7Art, native: A7Native) {
     val tick = remember { mutableLongStateOf(0L) }
     var ui by remember { mutableIntStateOf(0) }
     LaunchedEffect(player) {
@@ -156,7 +161,7 @@ fun A7Screen(player: A7Player, art: A7Art) {
             if (player.uiVersion != ui) ui = player.uiVersion
         }
     }
-    val c = remember(player) { Ctx(player, art, tick) }
+    val c = remember(player) { Ctx(player, art, native, tick) }
     BoxWithConstraints(Modifier.fillMaxSize().background(Color(0xFF050507))) {
         // Fit the 360×800 design frame (20:9) to the screen, never distort; the design dp becomes s × a real dp.
         val s = min(maxWidth.value / Scene.W, maxHeight.value / Scene.H)
@@ -270,8 +275,22 @@ private fun SpriteImage(k: String, modifier: Modifier) {
     Image(remember(bmp) { BitmapPainter(bmp) }, null, modifier, contentScale = ContentScale.FillBounds)
 }
 
+/**
+ * A scene element in its v1.3.3 sprite box. Native elements ([A7Native]) draw Figma geometry, text and effects; they
+ * fade through the layer (not per draw call) because they are several overlapping draws, and the box already holds
+ * every shadow, so the layer clips nothing. [A7Native.LAYERED] ones keep that layer (Offscreen): drawn once, then only
+ * transformed. Only the interstitial and destinations are still screenshots.
+ */
 @Composable
-private fun Sprite(c: Ctx, k: String) = SpriteImage(k, Modifier.at(c.player.scene.pos.getValue(k)).anim(c, k, leaf = true))
+private fun Sprite(c: Ctx, k: String) {
+    val box = Modifier.at(c.player.scene.pos.getValue(k))
+    if (k !in A7Native.IDS) return SpriteImage(k, box.anim(c, k, leaf = true))
+    val art = remember(k) { c.native.art(k) }
+    Box(box.anim(c, k, cached = k in A7Native.LAYERED).drawBehind {
+        art.setBounds(0, 0, size.width.roundToInt(), size.height.roundToInt())
+        drawIntoCanvas { art.draw(it.nativeCanvas) }
+    })
+}
 
 /** Draw a baked bitmap centred on this element's box, at its own dp size (it may overflow the box, like a CSS shadow). */
 private fun DrawScope.baked(b: A7Art.Baked, img: ImageBitmap) {
