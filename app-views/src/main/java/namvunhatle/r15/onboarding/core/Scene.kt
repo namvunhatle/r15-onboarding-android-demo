@@ -72,7 +72,8 @@ class Scene(ctx: Context, val vp: Viewport = Viewport.FRAME) {
             BLEED.forEach { p[it] = view }
             FULL_WIDTH.forEach { k -> p.getValue(k).let { p[k] = grow(it, Box(view.x, it.y, view.w, it.h)) } }
             // cut by the frame edge in the v1.3.3 export: grow (about the same centre, so the motion is unchanged)
-            // until the node and its shadow are whole again, as far as the screen shows
+            // until the node and its shadow are whole again, as far as the screen shows. (g01_phone's manifest box already
+            // runs past the frame bottom, body + shadow to y 1084, so its rising overshoot never lifts it off the edge.)
             (REST_TILES + G02_STICKERS + G04_STICKERS + "g01_phone").forEach { k -> p[k] = grow(p.getValue(k), b.getValue(k).outset(24f).intersect(view)) }
             TOP.forEach { k -> p[k] = p.getValue(k).dy(-vp.my); shift[k] = -vp.my }
             BOTTOM.forEach { k -> p[k] = p.getValue(k).dy(vp.my); shift[k] = vp.my }
