@@ -26,12 +26,8 @@ object A7Visual {
     val SPOT_G04_MAIN = 0xFFBB4ABF.toInt()
     val SPOT_G04_RIM = 0xFFE854B2.toInt()
 
-    /**
-     * Drop shadows: black at 35 %. The phone deliberately differs from Figma (0 24 48 @ 45 %): it uses a tight
-     * 0 8 16 @ 35 % contact shadow, because the wide one darkened the G01 tiles around the rising phone and read as
-     * a plane dragged along with it (user, 2026-09-25). Production should decide which of the two it keeps.
-     */
-    val SHADOW_PHONE = argb(0.35f, 0)
+    /** Drop shadows: black at 45 % (phone), 35 % (stickers, lyric card, bubble). */
+    val SHADOW_PHONE = argb(0.45f, 0)
     val SHADOW = argb(0.35f, 0)
 
     /** A7 / Phone: body and the punch-hole marker. */

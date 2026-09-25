@@ -7,7 +7,6 @@ All Android builds share the v1.3.3 web prototype's timeline, audio and scene sc
 - Splash progress bar opens at **80 %** on the first frame, then eases to 100 % over the 5 s splash (was a linear 0 → 100 %).
 - G01: the phone slides in opaque from below the screen. It used to fade in, so the tiles showed through it like a glow.
 - G03: the G02 phone now shrinks onto the call phone's exact body (scale 0.516, +9.5 dp), so only the screen changes. Scaling to the sprite boxes (0.623) made the phone jump 17 % smaller at the swap.
-- Phone drop shadow tightened from Figma's 0 24 48 @ 45 % to 0 8 16 @ 35 %: the wide shadow darkened the G01 tiles around the rising phone, like a plane dragged along. All three phones, so the hand-offs keep matching.
 
 ## 1.3.5 (branch `merge-module`) — one track, Ogg Opus
 
