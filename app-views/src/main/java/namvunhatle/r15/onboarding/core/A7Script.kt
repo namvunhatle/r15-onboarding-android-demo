@@ -117,9 +117,8 @@ object A7Script {
             }
         }
         t.fromTo(one("tagline"), v("y" to 12, "autoAlpha" to 0), v("y" to 0, "autoAlpha" to 1), 0.35, 0.5, Ease.power2Out, immediate = true)
-        // Real 0→100 % in 5 s, slightly faster over the last 20 % (R15_Splash.md §3).
-        t.fromTo(one("sp_fill"), v("scaleX" to 0), v("scaleX" to 0.8), 0.0, 4.2, Ease.none, immediate = true)
-        t.to(one("sp_fill"), v("scaleX" to 1), 4.2, 0.8, Ease.none)
+        // Opens at 80 % on the first frame, then eases the last 20 % over the 5 s splash (user ruling 2026-09-25).
+        t.fromTo(one("sp_fill"), v("scaleX" to 0.8), v("scaleX" to 1), 0.0, 5.0, Ease.power1Out, immediate = true)
 
         /* ---------------- P02 · zoom up and dissolve ---------------- */
         out(one("tagline"), A7Times.T_ZOOM - 0.2, v("y" to -8), 0.25)

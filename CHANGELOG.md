@@ -2,6 +2,10 @@
 
 All Android builds share the v1.3.3 web prototype's timeline, audio and scene script. Releases: [GitHub](https://github.com/namvunhatle/r15-onboarding-android-demo/releases).
 
+## Unreleased (branch `merge-module`)
+
+- Splash progress bar opens at **80 %** on the first frame, then eases to 100 % over the 5 s splash (was a linear 0 → 100 %).
+
 ## 1.3.5 (branch `merge-module`) — one track, Ogg Opus
 
 - One music track, **Future Pop Upbeat**. Pop Upbeat and 80s-Synth are removed, and so is the hold-replay-to-switch-track review control.
