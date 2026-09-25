@@ -45,6 +45,11 @@ class A7Times(bpm: Int) {
 }
 
 object A7Script {
+    // G02 → G03 phone hand-off, from the phone bodies in A7Native (g02: 232 wide at y 192 in a box from y 168,
+    // origin top-centre; g03: 119.68 wide at y 189.9).
+    private const val G03_FIT = 119.68 / 232.0
+    private const val G03_DY = 189.9 - (168.0 + (192.0 - 168.0) * G03_FIT)
+
     fun build(tl: Timeline, scene: Scene, times: A7Times, reduced: Boolean, onAd: () -> Unit, onIdle: () -> Unit) {
         val R = reduced
         val TILES = scene.tiles
@@ -221,7 +226,9 @@ object A7Script {
         }
         // Countdown: A7 / Progress Wave, G01 → G04 (UI paints bars + "-0:SS" from clock.p).
         t.fromTo(one("clock"), v("p" to 0), v("p" to 1), times.tG01, times.tG04 - times.tG01, Ease.none)
-        inn(one("g01_phone"), b(2.0), v("y" to 330), 0.8, backOut(1.1f))
+        // Opaque from its first frame and slid in from below the screen: fading it in let the tiles show through it.
+        if (R) inn(one("g01_phone"), b(2.0), v())
+        else t.fromTo(one("g01_phone"), v("y" to 360, "autoAlpha" to 1), v("y" to 0), b(2.0), 0.8, backOut(1.1f))
         if (!R) t.to(one("tiles"), v("x" to -12), times.tG01, times.tG02a - times.tG01, Ease.none)
 
         /* ---------------- G02a · Same song. — head b5 · card b5½ · "Sam" b6 (holds 2 beats) ---------------- */
@@ -293,8 +300,9 @@ object A7Script {
             out(one("g02_phone"), b(12.0) - 0.1, v())
             fadeIn(one("g03_phone"), b(12.0), 0.3)
         } else {
-            // Hero phone settles to 62 % around its top edge, screen swaps to the call once sizes match.
-            t.to(one("g02_phone"), v("scale" to 0.623), b(12.0) - 0.1, 0.5, Ease.power3InOut)
+            // Hero phone settles onto the G03 phone's exact body (232 → 119.68 wide, top 180.4 → 189.9), so the swap
+            // changes only the screen. Scaling to the sprite boxes (0.623) left a 17 % jump in the native build.
+            t.to(one("g02_phone"), v("scale" to G03_FIT, "y" to G03_DY), b(12.0) - 0.1, 0.5, Ease.power3InOut)
             t.fromTo(one("g03_phone"), v("autoAlpha" to 0), v("autoAlpha" to 1), b(12.0) + 0.4, 0.1, Ease.none)
             t.set(one("g02_phone"), v("autoAlpha" to 0), b(12.0) + 0.5)
         }
