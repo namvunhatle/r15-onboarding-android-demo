@@ -10,6 +10,8 @@ Built for the Android development team from the React/Vite web prototype **v1.3.
 
 Use it to review the experience and discuss implementation. Ads, purchases, AI generation, and destination screens are mocked.
 
+**Adding it to the production app?** Start with the [Integration guide](docs/integration/README.md): what to copy, what to replace, and the rules that must not change.
+
 **Native art.** Figma shapes, text, gradients, shadows, and blurs are drawn in code, following the v1.3.3 motion, audio, and 360 × 800 composition. Only Figma image fills and the destination mocks remain bitmaps. See [Native art](docs/IMPLEMENTATION_NOTES.md#native-art-main).
 
 **Any phone screen.** The scene fills 16:9 to 23:9 phones instead of showing black bars: backgrounds bleed, the genre wall grows, and chrome holds the screen edges. See [Screen sizes](docs/IMPLEMENTATION_NOTES.md#screen-sizes).

@@ -188,4 +188,4 @@ To run the project's lint tasks:
 ./gradlew :app-views:lintDebug
 ```
 
-Production work includes adaptive layout, accessibility semantics and font scaling, real system bars, final-resolution assets, ad integration, billing, and the actual destination screens.
+Production work includes adaptive layout, accessibility semantics and font scaling, real system bars, final-resolution assets, ad integration, billing, and the actual destination screens. The [Integration guide](integration/README.md) covers the steps to move this code into the production app.
