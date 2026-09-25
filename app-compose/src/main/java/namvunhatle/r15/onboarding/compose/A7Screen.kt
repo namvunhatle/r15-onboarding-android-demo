@@ -32,6 +32,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
@@ -47,7 +48,6 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -86,6 +86,7 @@ import namvunhatle.r15.onboarding.core.Box as DBox
 import namvunhatle.r15.onboarding.core.Css
 import namvunhatle.r15.onboarding.core.Dest
 import namvunhatle.r15.onboarding.core.El
+import namvunhatle.r15.onboarding.core.Later
 import namvunhatle.r15.onboarding.core.Prop
 import namvunhatle.r15.onboarding.core.R
 import namvunhatle.r15.onboarding.core.Ring
@@ -296,13 +297,16 @@ private fun SpriteImage(k: String, modifier: Modifier) {
 @Composable
 private fun Screenshot(c: Ctx, id: String, k: String, content: @Composable () -> Unit) {
     val scene = c.player.scene
-    val bmp = spriteBitmap(k)
-    val bleed = remember(bmp) { if (scene.vp.isFrame) null else Bleed(bmp.asAndroidBitmap(), scene.vp) }
+    // decoded on the start-up pool ([A7Native.screenshot]); the first draw waits for it
+    val shot = remember(k) { c.native.screenshot(k) }
+    val ready = rememberReady(c, id, shot)
+    val img = remember(shot) { lazy { shot.value.asImageBitmap() } }
+    val bleed = remember(shot) { lazy { if (scene.vp.isFrame) null else Bleed(shot.value, scene.vp) } }
     Box(Modifier.at(scene.view).anim(c, id).drawBehind {
-        bleed?.run { setBounds(0, 0, size.width.roundToInt(), size.height.roundToInt()); drawIntoCanvas { draw(it.nativeCanvas) } }
+        if (ready()) bleed.value?.run { setBounds(0, 0, size.width.roundToInt(), size.height.roundToInt()); drawIntoCanvas { draw(it.nativeCanvas) } }
     }) {
         Box(Modifier.at(DBox(-scene.view.x, -scene.view.y, Scene.W, Scene.H))) {
-            SpriteImage(k, Modifier.size(Scene.W.dp, Scene.H.dp))
+            Box(Modifier.size(Scene.W.dp, Scene.H.dp).drawBehind { if (ready()) drawImage(img.value, dstSize = IntSize(size.width.roundToInt(), size.height.roundToInt())) })
             content()
         }
     }
@@ -319,22 +323,43 @@ private fun Sprite(c: Ctx, k: String) {
     val box = Modifier.at(c.player.scene.pos.getValue(k))
     if (k !in c.native.ids) return SpriteImage(k, box.anim(c, k, leaf = true))
     val art = remember(k) { c.native.art(k) }
+    val ready = rememberReady(c, k, art.later)
     Box(box.anim(c, k, cached = k in c.native.layered).drawBehind {
+        if (!ready()) return@drawBehind
         art.setBounds(0, 0, size.width.roundToInt(), size.height.roundToInt())
         drawIntoCanvas { art.draw(it.nativeCanvas) }
     })
 }
 
+/**
+ * Whether element [id] may draw its [later] content now. Compose records every layer on the first frame, shown or
+ * not, so a hidden element does not wait for its bake: it draws nothing, and is redrawn when the bake lands — seconds
+ * before it shows. A shown one waits for it, as in the Views build (where hidden views are not drawn at all).
+ */
+@Composable
+private fun rememberReady(c: Ctx, id: String, later: Later<*>): () -> Boolean {
+    val done = remember(later) { mutableStateOf(later.isDone).also { s -> if (!s.value) later.onDone { s.value = true } } }
+    val el = c.store[id]
+    return { done.value || el.shown }
+}
+
+/** A bitmap baked on the start-up pool ([A7Art]), wrapped for Compose on its first draw, which waits for the bake. */
+private class BakedImage(private val later: Later<A7Art.Baked>) {
+    val baked get() = later.value
+    val img by lazy { later.value.bitmap.asImageBitmap() }
+}
+
 /** Draw a baked bitmap centred on this element's box, at its own dp size (it may overflow the box, like a CSS shadow). */
-private fun DrawScope.baked(b: A7Art.Baked, img: ImageBitmap) {
-    val d = b.dp.dp.toPx()
-    drawImage(img, dstOffset = IntOffset((center.x - d / 2).roundToInt(), (center.y - d / 2).roundToInt()), dstSize = IntSize(d.roundToInt(), d.roundToInt()))
+private fun DrawScope.baked(b: BakedImage) {
+    val d = b.baked.dp.dp.toPx()
+    drawImage(b.img, dstOffset = IntOffset((center.x - d / 2).roundToInt(), (center.y - d / 2).roundToInt()), dstSize = IntSize(d.roundToInt(), d.roundToInt()))
 }
 
 @Composable
-private fun Baked(c: Ctx, id: String, b: A7Art.Baked) {
-    val img = remember(b) { b.bitmap.asImageBitmap() }
-    Box(Modifier.at(DBox(0f, 0f, 16f, 16f)).anim(c, id, leaf = true).drawBehind { baked(b, img) })
+private fun Baked(c: Ctx, id: String, b: Later<A7Art.Baked>) {
+    val img = remember(b) { BakedImage(b) }
+    val ready = rememberReady(c, id, b)
+    Box(Modifier.at(DBox(0f, 0f, 16f, 16f)).anim(c, id, leaf = true).drawBehind { if (ready()) baked(img) })
 }
 
 @Composable
@@ -351,18 +376,21 @@ private fun Logo(c: Ctx) {
     val zoom = c.store["zoom"]
     val g = 232f
     val box = DBox(Scene.LX - g / 2, Scene.LY - g / 2, g, g)
-    val icon = remember { c.art.icon.bitmap.asImageBitmap() }
-    val glow = remember { c.art.iconGlow.bitmap.asImageBitmap() }
-    val blur = remember { c.art.iconBlur.bitmap.asImageBitmap() }
+    val icon = remember { BakedImage(c.art.icon) }
+    val glow = remember { BakedImage(c.art.iconGlow) }
+    val blur = remember { BakedImage(c.art.iconBlur) }
+    val iconReady = rememberReady(c, "icon", c.art.icon)
+    val glowReady = rememberReady(c, "icon", c.art.iconGlow)
+    val blurReady = rememberReady(c, "logoB", c.art.iconBlur)
     Box(Modifier.at(box).anim(c, "logo", scaleFrom = { exp(zoom[Prop.K]) })) {
         (Scene.EMITS + Scene.SRINGS).forEach { RingEl(c, it, g / 2, g / 2) }
         Box(Modifier.at(DBox(g / 2 - 48, g / 2 - 48, 96f, 96f)).anim(c, "icon", leaf = true).drawBehind {
-            baked(c.art.iconGlow, glow)
-            baked(c.art.icon, icon)
+            if (glowReady()) baked(glow)
+            if (iconReady()) baked(icon)
         })
     }
     // pre-blurred twin: crossfading to it = a blur ramp with no per-frame filter work
-    Box(Modifier.at(box).anim(c, "logoB", leaf = true, scaleFrom = { exp(zoom[Prop.K]) }).drawBehind { baked(c.art.iconBlur, blur) })
+    Box(Modifier.at(box).anim(c, "logoB", leaf = true, scaleFrom = { exp(zoom[Prop.K]) }).drawBehind { if (blurReady()) baked(blur) })
 }
 
 @Composable

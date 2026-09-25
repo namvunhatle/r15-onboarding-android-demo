@@ -2,7 +2,6 @@ package namvunhatle.r15.onboarding.views
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.view.Choreographer
 import android.view.MotionEvent
@@ -12,6 +11,8 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.graphics.drawable.toDrawable
+import androidx.core.view.children
 import namvunhatle.r15.onboarding.core.A7Art
 import namvunhatle.r15.onboarding.core.A7Native
 import namvunhatle.r15.onboarding.core.A7Player
@@ -21,6 +22,8 @@ import namvunhatle.r15.onboarding.core.Box
 import namvunhatle.r15.onboarding.core.Css
 import namvunhatle.r15.onboarding.core.Dest
 import namvunhatle.r15.onboarding.core.El
+import namvunhatle.r15.onboarding.core.Later
+import namvunhatle.r15.onboarding.core.LaterDrawable
 import namvunhatle.r15.onboarding.core.Prop
 import namvunhatle.r15.onboarding.core.Scene
 import namvunhatle.r15.onboarding.core.dumpExtra
@@ -53,14 +56,22 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         immersive()
-        setContentView(R.layout.activity_main)
         val scene = Scene(this, viewport())
+        // Start every bake and decode on the start-up pool first, so they run while the layout inflates.
+        val art = A7Art(this)
+        val native = A7Native(this, scene)
+        setContentView(R.layout.activity_main)
         player = A7Player(this, scene)
         seekExtra()?.let(player::seekFrozen)
-        val art = A7Art(this)
 
         frame = findViewById(R.id.frame)
-        if (!scene.vp.isFrame) fill(scene)
+        // destination screenshots: decoded off the main thread, drawn when a destination opens
+        Dest.entries.map(A7Player::destId).forEach { id ->
+            val shot = native.screenshot(id)
+            frame.findViewWithTag<ViewGroup>(id).children.filterIsInstance<ImageView>().single()
+                .setImageDrawable(LaterDrawable(Later.of { shot.value.toDrawable(resources) }))
+        }
+        if (!scene.vp.isFrame) fill(scene, native)
         fab = findViewById(R.id.fab)
         wave = findViewById(R.id.wave_bars)
         wave.clock = player.store["clock"]
@@ -72,7 +83,6 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
 
         // Figma elements drawn natively: the art is the view's background, sized to the sprite box the layout gives it.
         // LAYERED ones get a hardware layer: drawn once, then the timeline only moves, scales and fades the layer.
-        val native = A7Native(this, scene)
         if (dumpExtra()) native.dump(getExternalFilesDir("dump")!!)
         native.ids.forEach { id ->
             frame.findViewWithTag<View>(id).apply {
@@ -107,7 +117,7 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
      * The layout holds the v1.3.3 boxes; this moves the ones [Scene] changed, adds the extra wall tiles, and
      * surrounds each destination screenshot with its [Bleed].
      */
-    private fun fill(scene: Scene) {
+    private fun fill(scene: Scene, native: A7Native) {
         val view = scene.view
         frame.vp = scene.vp
         val tiles = frame.findViewWithTag<ViewGroup>("tiles")
@@ -128,7 +138,8 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
                 val lp = child.layoutParams as ViewGroup.MarginLayoutParams
                 if (child is ImageView) {
                     lp.width = px(Scene.W); lp.height = px(Scene.H)
-                    box.background = Bleed((child.drawable as BitmapDrawable).bitmap, scene.vp)
+                    val shot = native.screenshot(id)
+                    box.background = LaterDrawable(Later.of { Bleed(shot.value, scene.vp) })
                 }
                 lp.leftMargin += px(-view.x); lp.topMargin += px(-view.y)
                 child.layoutParams = lp

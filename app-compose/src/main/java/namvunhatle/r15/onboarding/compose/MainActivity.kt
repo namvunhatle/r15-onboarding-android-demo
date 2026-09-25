@@ -20,10 +20,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         immersive()
         val scene = Scene(this, viewport())
-        player = A7Player(this, scene)
-        seekExtra()?.let(player::seekFrozen)
+        // Start every bake and decode on the start-up pool first, so they run while the scene composes.
         val art = A7Art(this)
         val native = A7Native(this, scene)
+        player = A7Player(this, scene)
+        seekExtra()?.let(player::seekFrozen)
         if (dumpExtra()) native.dump(getExternalFilesDir("dump")!!)
         setContent { A7Screen(player, art, native) }
     }

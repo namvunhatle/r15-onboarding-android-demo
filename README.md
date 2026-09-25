@@ -58,15 +58,15 @@ The full token map, the visual-only table and the regeneration steps are in [Des
 ## Try it
 
 - **[Open the web demo](https://prototype-a7.vercel.app)** to watch the sequence in a browser. The live site may change after this release.
-- **[Download version 1.3.6](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.6)**. Requires Android 9 / API 28 or later.
+- **[Download version 1.3.7](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.7)**. Requires Android 9 / API 28 or later.
 - **[Build from source](#build-locally)** if you want to inspect or change the implementation.
 
 | Build | APK | Application ID |
 | --- | --- | --- |
-| Compose | [A7-Compose-1.3.6.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.6/A7-Compose-1.3.6.apk) | `namvunhatle.r15.onboarding.compose.responsive` |
-| XML Views | [A7-XMLViews-1.3.6.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.6/A7-XMLViews-1.3.6.apk) | `namvunhatle.r15.onboarding.views.responsive` |
+| Compose | [A7-Compose-1.3.7.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.7/A7-Compose-1.3.7.apk) | `namvunhatle.r15.onboarding.compose.responsive` |
+| XML Views | [A7-XMLViews-1.3.7.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.7/A7-XMLViews-1.3.7.apk) | `namvunhatle.r15.onboarding.views.responsive` |
 
-Both APKs are debug builds for review. If Android asks, allow installation from the app used to open the download.
+Both APKs are release builds (R8, not debuggable) signed with a debug key for review. If Android asks, allow installation from the app used to open the download.
 
 ## What to look for
 
@@ -120,7 +120,7 @@ The replay button appears on the interstitial and destination screens. Track swi
 - **Time inspection does not fully freeze the final scene.** Its idle animation can keep running.
 - **Reduced motion is partial.** Some splash movement remains when system animations are disabled.
 - Font scaling is fixed. Status bars and the camera cutout are drawn into the demo; destination screens are screenshots with tap areas.
-- **Launch does about 0.3 s of extra work** on the emulator: fonts load and glows are blurred at startup. The 5 s splash covers it.
+- **Launch** takes about 0.25 s (XML Views) and 0.31 s (Compose) to the first frame on the emulator. Blurs, glows and native art are prepared off the main thread; see [Rendering details](docs/IMPLEMENTATION_NOTES.md#rendering-details). Not yet measured on a physical phone.
 - Smoothness, audio timing, and the GPU memory of the cached element layers have not been measured on physical devices.
 
 These limitations apply to both Compose and XML Views in this version. See [Validation and known limitations](docs/IMPLEMENTATION_NOTES.md#validation-and-known-limitations) for the review scope.
@@ -130,14 +130,14 @@ These limitations apply to both Compose and XML Views in this version. See [Vali
 Open this repository in Android Studio, configure **JDK 17**, and install **Android SDK Platform 37**. Let Android Studio create `local.properties`, or set `ANDROID_HOME` to your SDK directory.
 
 ```sh
-./gradlew :app-compose:assembleDebug :app-views:assembleDebug
+./gradlew :app-compose:assembleRelease :app-views:assembleRelease
 ```
 
 Install either build on a connected device:
 
 ```sh
-adb install -r app-compose/build/outputs/apk/debug/app-compose-debug.apk
-adb install -r app-views/build/outputs/apk/debug/app-views-debug.apk
+adb install -r app-compose/build/outputs/apk/release/app-compose-release.apk
+adb install -r app-views/build/outputs/apk/release/app-views-release.apk
 ```
 
-These commands build version 1.3.6. The project pins Gradle 9.7.1, AGP 9.4.1, Kotlin Compose compiler 2.4.20, and Compose BOM 2026.09.00. The Gradle wrapper is included; the first build needs network access to download dependencies. Windows users can run `gradlew.bat`.
+These commands build version 1.3.7. Release builds are signed with your local debug key, so they install like debug builds. Use `assembleDebug` only for debugging: a debuggable build opens about 3× slower. The project pins Gradle 9.7.1, AGP 9.4.1, Kotlin Compose compiler 2.4.20, and Compose BOM 2026.09.00. The Gradle wrapper is included; the first build needs network access to download dependencies. Windows users can run `gradlew.bat`.
