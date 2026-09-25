@@ -226,9 +226,7 @@ object A7Script {
         }
         // Countdown: A7 / Progress Wave, G01 → G04 (UI paints bars + "-0:SS" from clock.p).
         t.fromTo(one("clock"), v("p" to 0), v("p" to 1), times.tG01, times.tG04 - times.tG01, Ease.none)
-        // Opaque from its first frame and slid in from below the screen: fading it in let the tiles show through it.
-        if (R) inn(one("g01_phone"), b(2.0), v())
-        else t.fromTo(one("g01_phone"), v("y" to 360, "autoAlpha" to 1), v("y" to 0), b(2.0), 0.8, backOut(1.1f))
+        inn(one("g01_phone"), b(2.0), v("y" to 330), 0.8, backOut(1.1f))
         if (!R) t.to(one("tiles"), v("x" to -12), times.tG01, times.tG02a - times.tG01, Ease.none)
 
         /* ---------------- G02a · Same song. — head b5 · card b5½ · "Sam" b6 (holds 2 beats) ---------------- */
