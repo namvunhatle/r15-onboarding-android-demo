@@ -253,12 +253,13 @@ class GenreTile(box: Box, private val cx: Float, private val cy: Float, c0: Int,
 
 /**
  * A7 / Phone (`15553:122095`). Hero = 232×496, radius 32, #0E0E12, inside stroke 2 @ 10 % white, drop shadow
- * 0 24 48 @ 45 %; the screen is inset 8 with radius 24 and is an image fill in Figma, so it stays a bitmap.
+ * 0 24 48 @ 45 % (drawn tighter here, see [A7Visual.SHADOW_PHONE]); the screen is inset 8 with radius 24 and is an
+ * image fill in Figma, so it stays a bitmap.
  * Settled is the same component at [k] = 119.68 / 232.
  */
 class Phone(box: Box, private val frame: RectF, private val screen: Bitmap) : FigmaArt(box) {
     private val k = frame.width() / 232f
-    private val body = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = A7Visual.PHONE_BODY }.dropShadow(24f * k, 48f * k, A7Visual.SHADOW_PHONE)
+    private val body = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = A7Visual.PHONE_BODY }.dropShadow(8f * k, 16f * k, A7Visual.SHADOW_PHONE)
     private val rim = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 2f * k; color = Zen.Color.Border.Overlay.Subtle.Default }
     private val hole = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = A7Visual.PHONE_HOLE }
     private val holeRim = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 1f * k; color = A7Visual.PHONE_HOLE_RIM }

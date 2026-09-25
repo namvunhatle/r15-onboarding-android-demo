@@ -65,7 +65,7 @@ These are drawn without a variable in Figma, so they stay literal. The colours a
 | **G04 spotlight colours** | `#BB4ABF` main, `#E854B2` rim. They match two tokens, but Figma does not bind them. | `G04 › Spotlight BG` |
 | **Blur model** | σ = 0.42 × Figma radius, baked at startup (`A7Glow`) | calibration, not design |
 | **Genre tile gradient** | transform `[0.8, 0.6, −0.2; −0.6, 0.8, 0.4]`, 12° wall rotation | `A7 / Genre Tile` |
-| **Drop shadows** | phone 0 24 48 at 45 %; stickers 0 8 16 at 35 %; lyric card 0 20 40 at 35 %; bubble 0 12 24 at 35 % | effects are not bound |
+| **Drop shadows** | phone 0 24 48 at 45 % in Figma, drawn as 0 8 16 at 35 % (see `A7Visual.SHADOW_PHONE`); stickers 0 8 16 at 35 %; lyric card 0 20 40 at 35 %; bubble 0 12 24 at 35 % | effects are not bound |
 | **Phone body** | `#0E0E12`; punch hole `#050507` / `#2A2A33`; inset 8 | `A7 / Phone` |
 | **Headline type** | Anton, 92 % line height, 1.5 px echo strokes, echo offsets | family and line height are not bound |
 | **Ring burst flash** | radial: white 95 % → `rgba(231,170,255,.55)` at 35 % → transparent accent at 70 % | web v1.3.3 |
