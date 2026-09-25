@@ -7,19 +7,25 @@ import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTimestamp
 import android.media.AudioTrack
+import android.media.MediaCodec
+import android.media.MediaDataSource
+import android.media.MediaExtractor
+import android.media.MediaFormat
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
-import java.nio.ByteBuffer
+import android.util.Log
 import java.nio.ByteOrder
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
 import kotlin.math.exp
 
 /**
  * Trailer audio. The web prototype synthesised its accents (pluck / whoosh / pop / ring / tick) and ducking live
  * with Web Audio; here the SAME graph was rendered offline into two files per track (tools/bake):
- *   `<id>_intro.wav` = file 0 → beat 32 with every accent + ducking · `<id>_loop.wav` = beats 16–32, bed only (G04 loop).
+ *   `<id>_intro` = file 0 → beat 32 with every accent + ducking · `<id>_loop` = beats 16–32, bed only (G04 loop).
+ * They ship as Ogg Opus (tools/encode_audio.sh, 48 kHz, 96 kbps) and are decoded to PCM once, during the splash.
  * That is also how a shipping app would do it: the sound designer delivers stems, the app only plays them in sync.
  *
  * Sync: one AudioTrack stream = [silence up to the drop's pre-roll] + intro + loop forever. Its presentation
@@ -30,14 +36,14 @@ import kotlin.math.exp
  */
 class A7Audio(private val ctx: Context) {
     private val am = ctx.getSystemService(AudioManager::class.java)
-    private val io = Executors.newSingleThreadExecutor()
+    private val io = Executors.newFixedThreadPool(2) // intro and loop decode side by side
     private val main = Handler(Looper.getMainLooper())
 
     private var track: Track? = null
-    private var pcm: Future<Pair<ShortArray, ShortArray>?>? = null
+    private var pcm: Pair<Future<ShortArray?>, Future<ShortArray?>>? = null
 
     /** One playback: an AudioTrack + the thread that keeps it fed (silence → intro → loop forever) until [kill]. */
-    private class Stream(val track: AudioTrack, val t0: Double) {
+    private class Stream(val track: AudioTrack, val t0: Double, val sr: Int) {
         @Volatile var alive = true
         var hasStamp = false
         val startedAt = SystemClock.elapsedRealtime()
@@ -54,13 +60,73 @@ class A7Audio(private val ctx: Context) {
     /** Decode the chosen track in the background while the splash plays. */
     fun prepare(track: Track?) {
         this.track = track
-        pcm = track?.let { tr -> io.submit<Pair<ShortArray, ShortArray>?> { readWav("audio/${tr.id}_intro.wav") to readWav("audio/${tr.id}_loop.wav") } }
+        pcm = track?.let { tr ->
+            fun job(part: String, frames: Int) = io.submit<ShortArray?> {
+                runCatching { decode(tr, "audio/${tr.id}_$part.ogg", frames) }
+                    .onFailure { Log.w(TAG, "decode of $part failed, music stays off", it) }.getOrNull()
+            }
+            job("intro", tr.introFrames) to job("loop", tr.loopFrames)
+        }
     }
 
-    private fun readWav(path: String): ShortArray {
+    /**
+     * Ogg Opus asset → interleaved 16-bit stereo PCM of exactly [frames] frames. The decoder drops Opus's
+     * pre-skip; the end padding of the last packet is cut here, so the drop and the G04 loop stay sample-accurate.
+     */
+    private fun decode(tr: Track, path: String, frames: Int): ShortArray {
+        val t = SystemClock.elapsedRealtime()
         val bytes = ctx.assets.open(path).use { it.readBytes() }
-        val bb = ByteBuffer.wrap(bytes, 44, bytes.size - 44).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer()
-        return ShortArray(bb.remaining()).also { bb.get(it) }
+        val ex = MediaExtractor()
+        ex.setDataSource(object : MediaDataSource() {
+            override fun readAt(position: Long, buffer: ByteArray, offset: Int, size: Int): Int {
+                if (position >= bytes.size) return -1
+                val n = minOf(size, bytes.size - position.toInt())
+                System.arraycopy(bytes, position.toInt(), buffer, offset, n)
+                return n
+            }
+            override fun getSize() = bytes.size.toLong()
+            override fun close() {}
+        })
+        ex.selectTrack(0)
+        val fmt = ex.getTrackFormat(0)
+        val codec = MediaCodec.createDecoderByType(fmt.getString(MediaFormat.KEY_MIME)!!)
+        val out = ShortArray(frames * 2)
+        var n = 0
+        var decoded = 0L
+        try {
+            codec.configure(fmt, null, null, 0)
+            codec.start()
+            val info = MediaCodec.BufferInfo()
+            var inputDone = false
+            while (true) {
+                // Fill every free input slot without waiting; only the output side blocks (briefly).
+                while (!inputDone) {
+                    val i = codec.dequeueInputBuffer(0)
+                    if (i < 0) break
+                    val size = ex.readSampleData(codec.getInputBuffer(i)!!, 0)
+                    if (size < 0) { codec.queueInputBuffer(i, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM); inputDone = true }
+                    else { codec.queueInputBuffer(i, 0, size, ex.sampleTime, 0); ex.advance() }
+                }
+                val o = codec.dequeueOutputBuffer(info, 2_000)
+                if (o == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+                    val f = codec.outputFormat
+                    check(f.getInteger(MediaFormat.KEY_SAMPLE_RATE) == tr.sampleRate && f.getInteger(MediaFormat.KEY_CHANNEL_COUNT) == 2) { "unexpected output $f" }
+                } else if (o >= 0) {
+                    val sb = codec.getOutputBuffer(o)!!.order(ByteOrder.LITTLE_ENDIAN).asShortBuffer()
+                    decoded += sb.remaining() / 2
+                    val take = minOf(sb.remaining(), out.size - n)
+                    sb.get(out, n, take)
+                    n += take
+                    codec.releaseOutputBuffer(o, false)
+                    if (info.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) break
+                }
+            }
+        } finally {
+            codec.release()
+            ex.release()
+        }
+        Log.i(TAG, "$path: decoded $decoded frames, kept $frames, ${SystemClock.elapsedRealtime() - t} ms")
+        return out
     }
 
     fun allowed(): Boolean = am.ringerMode == AudioManager.RINGER_MODE_NORMAL && !am.isMusicActive
@@ -70,8 +136,10 @@ class A7Audio(private val ctx: Context) {
         stop()
         val tr = track ?: return
         if (!allowed()) return
-        val data = runCatching { pcm?.get() }.getOrNull() ?: return
-        val (intro, loop) = data
+        // Decoding normally ends during the splash; never hold the UI thread more than 1 s for it.
+        val (fi, fl) = pcm ?: return
+        val intro = runCatching { fi.get(1, TimeUnit.SECONDS) }.getOrNull() ?: return
+        val loop = runCatching { fl.get(1, TimeUnit.SECONDS) }.getOrNull() ?: return
 
         val attrs = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()
         val fr = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
@@ -82,7 +150,7 @@ class A7Audio(private val ctx: Context) {
         if (am.requestAudioFocus(fr) != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) return
         focus = fr
 
-        val sr = SR
+        val sr = tr.sampleRate
         val fmt = AudioFormat.Builder().setSampleRate(sr).setChannelMask(AudioFormat.CHANNEL_OUT_STEREO).setEncoding(AudioFormat.ENCODING_PCM_16BIT).build()
         val min = AudioTrack.getMinBufferSize(sr, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT)
         val track = AudioTrack.Builder()
@@ -94,7 +162,7 @@ class A7Audio(private val ctx: Context) {
         // file position 0 sits at T_DROP − preroll on the timeline
         val origin = A7Times.T_DROP - tr.preroll
         val silence = ShortArray(((origin - tl0) * sr).toInt().coerceAtLeast(0) * 2)
-        val st = Stream(track, tl0)
+        val st = Stream(track, tl0, sr)
         cur = st
         track.play()
         Thread {
@@ -122,8 +190,8 @@ class A7Audio(private val ctx: Context) {
         st.hasStamp = true
         // The frame being built now is shown ~1 vsync later; ask the audio clock about that moment.
         val showAt = frameTimeNanos + DISPLAY_LATENCY_NS
-        val frames = ts.framePosition + (showAt - ts.nanoTime) * SR / 1e9
-        return st.t0 + frames / SR
+        val frames = ts.framePosition + (showAt - ts.nanoTime) * st.sr / 1e9
+        return st.t0 + frames / st.sr
     }
 
     /** Stop, optionally with the web's fade (exponential, τ = fade / 3). The stream keeps playing while it fades. */
@@ -150,7 +218,7 @@ class A7Audio(private val ctx: Context) {
     fun release() { stop(); io.shutdown() }
 
     companion object {
-        const val SR = 44100
+        private const val TAG = "A7Audio"
         private const val DISPLAY_LATENCY_NS = 16_666_667L
     }
 }

@@ -20,7 +20,8 @@ class A7Player(ctx: Context, val scene: Scene) {
     /** prefers-reduced-motion ≈ "Remove animations" (animator duration scale 0). */
     val reduced = Settings.Global.getFloat(app.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
 
-    var track: Track? = scene.tracks.firstOrNull(); private set
+    /** The one onboarding track (Future Pop Upbeat); there is no track switching. */
+    val track: Track? = scene.tracks.firstOrNull()
     lateinit var times: A7Times; private set
     private lateinit var main: Timeline
     private var idle: Timeline? = null
@@ -109,18 +110,6 @@ class A7Player(ctx: Context, val scene: Scene) {
         atAd = false; paused = false; frozen = false; uiVersion++
         main.reset()
         main.advanceTo(0.0)
-    }
-
-    /** Dev tool: next track (or none), restarts from the splash like the web music menu. */
-    fun nextTrack(): String {
-        val list = scene.tracks + listOf(null)
-        track = list[(list.indexOf(track) + 1) % list.size]
-        audio.stop()
-        hideDests()
-        atAd = false; paused = false; frozen = false; uiVersion++
-        rebuild()
-        main.advanceTo(0.0)
-        return track?.title ?: "Tắt nhạc"
     }
 
     /** `?t=12.4` equivalent: open frozen at that second (review, screenshots). No events, no audio. */

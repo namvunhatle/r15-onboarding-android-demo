@@ -3,6 +3,6 @@
   "private": true,
   "type": "module",
   "description": "Render the A7 trailer mix (music + accents + ducking) offline, with the web prototype's own Web Audio graph.",
-  "scripts": { "bake": "node bake.mjs ../../../prototype-a7 ../../app-views/src/main/assets/audio" },
+  "scripts": { "bake": "node bake.mjs ../../../prototype-a7 ../../build/baked-wav" },
   "dependencies": { "playwright": "^1.63.0" }
 }

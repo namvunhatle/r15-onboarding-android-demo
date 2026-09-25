@@ -2,6 +2,13 @@
 
 All Android builds share the v1.3.3 web prototype's timeline, audio and scene script. Releases: [GitHub](https://github.com/namvunhatle/r15-onboarding-android-demo/releases).
 
+## 1.3.5 (branch `merge-module`) — one track, Ogg Opus
+
+- One music track, **Future Pop Upbeat**. Pop Upbeat and 80s-Synth are removed, and so is the hold-replay-to-switch-track review control.
+- Audio ships as **Ogg Opus** (48 kHz, 96 kbps, 120 ms packets) instead of WAV: 330 KB instead of 15.3 MB. The APK drops from 25.0 MB to 10.1 MB.
+- `A7Audio` decodes during the splash (about 0.2–0.3 s on the emulator), trims to the exact frame counts in `tracks.json`, and plays at 48 kHz. Decoded audio lines up with the original mix to the sample. Visuals are unchanged.
+- `versionCode` 3, so it installs over 1.3.4.
+
 ## Branch `merge-module` — XML Views only, one module
 
 - For teams building with XML Views only. The `:core` library is merged into `:app-views` and `app-compose` is removed: code, resources and assets all live in `app-views/`.

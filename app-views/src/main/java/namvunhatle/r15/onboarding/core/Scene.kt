@@ -25,7 +25,11 @@ data class Mini(val wall: String, val label: String, val c0: Int, val c1: Int, v
 /** A stroked circle: diameter + stroke in dp, white at [alpha]. */
 data class Ring(val id: String, val d: Float, val stroke: Float, val alpha: Float)
 
-data class Track(val id: String, val title: String, val artist: String, val bpm: Int, val preroll: Double)
+/** [introFrames] / [loopFrames]: exact file lengths at [sampleRate], to trim codec padding off the decoded PCM. */
+data class Track(
+    val id: String, val title: String, val artist: String, val bpm: Int, val preroll: Double,
+    val sampleRate: Int, val introFrames: Int, val loopFrames: Int,
+)
 
 /**
  * Everything both UIs need to lay the scene out: sprite boxes (Figma export of section `15552:115354`,
@@ -92,7 +96,10 @@ class Scene(ctx: Context, val vp: Viewport = Viewport.FRAME) {
         val t = JSONArray(ctx.assets.open("tracks.json").bufferedReader().readText())
         tracks = (0 until t.length()).map { i ->
             val o = t.getJSONObject(i)
-            Track(o.getString("id"), o.getString("title"), o.getString("artist"), o.getInt("bpm"), o.getDouble("preroll"))
+            Track(
+                o.getString("id"), o.getString("title"), o.getString("artist"), o.getInt("bpm"), o.getDouble("preroll"),
+                o.getInt("sampleRate"), o.getInt("introFrames"), o.getInt("loopFrames"),
+            )
         }
     }
 

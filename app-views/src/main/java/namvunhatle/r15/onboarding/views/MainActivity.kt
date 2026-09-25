@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import namvunhatle.r15.onboarding.core.A7Art
 import namvunhatle.r15.onboarding.core.A7Native
 import namvunhatle.r15.onboarding.core.A7Player
@@ -98,8 +97,6 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
         hot(R.id.hot_paywall_close, null, { player.dest == Dest.PAYWALL }) { player.go(Dest.AI) }
         hot(R.id.hot_subscribe, null, { player.dest == Dest.PAYWALL }) { player.go(Dest.AI) }
         fab.setOnClickListener { player.replay() }
-        // Long-press = next track — a review tool, not part of the onboarding.
-        fab.setOnLongClickListener { Toast.makeText(this, "Nhạc: " + player.nextTrack(), Toast.LENGTH_SHORT).show(); true }
     }
 
     /**

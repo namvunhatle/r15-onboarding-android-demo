@@ -38,12 +38,14 @@ A single master timeline advances all scene elements. The UI reads transforms an
 
 After Skip ads, the player starts an `AudioTrack` stream: initial silence, the intro mix, then a repeating background loop. When timestamps are available, the audio clock guides the visual timeline. The still re-entry interval lets the visual clock wait for audio startup. During motion, the player limits timing correction to ±25% of the frame interval.
 
-Each track has two bundled files:
+The track has two bundled files:
 
-- `<id>_intro.wav` — music, accents, and volume changes through beat 32.
-- `<id>_loop.wav` — background music for the final scene.
+- `future-pop_intro.ogg` — music, accents, and volume changes through beat 32.
+- `future-pop_loop.ogg` — background music for the final scene.
 
-The player expects **44.1 kHz, stereo, 16-bit PCM WAV files with a 44-byte header**. Its reader is specific to the output of the supplied bake tool; it is not a general WAV decoder.
+Both are **Ogg Opus, 48 kHz stereo, 96 kbps, 120 ms packets** (330 KB together). `A7Audio` decodes them with `MediaExtractor` + `MediaCodec` during the splash, in parallel; this takes about 0.2–0.3 s on the emulator. The long packets matter: with Opus's default 20 ms packets, the per-packet decoder round trips made decoding take seconds.
+
+The decoder drops Opus's pre-skip; `A7Audio` then cuts the last packet's padding so each file is exactly `introFrames` / `loopFrames` long (`tracks.json`). The drop and the G04 loop are therefore sample-accurate. If decoding has not finished when Skip ads is tapped, the player waits at most 1 s, then continues without music.
 
 The common clock is useful as a reference for keeping the sequence together. Production code can use a different animation system if it preserves the same timing relationships.
 
@@ -145,17 +147,19 @@ This overwrites `app-views/src/main/res/layout/activity_main.xml`. Other layouts
 
 ## Rebuild the audio — optional
 
-The WAV files needed to build and run the app are already included. Audio baking is only needed when changing the mix.
+The Ogg files needed to build and run the app are already included. Audio baking is only needed when changing the mix.
 
 The baker requires Node.js, Playwright, Chrome, and the original web prototype source directory containing `src/tracks.json` and the processed tracks in `public/audio/`. That web source is **not included in this repository**.
 
 ```sh
 cd tools/bake
 npm install
-node bake.mjs /absolute/path/to/prototype-a7 ../../app-views/src/main/assets/audio
+node bake.mjs /absolute/path/to/prototype-a7 /tmp/a7-wav
+cd ../..
+tools/encode_audio.sh /tmp/a7-wav future-pop
 ```
 
-The existing `npm run bake` shortcut assumes the original sibling-folder layout. Use the explicit command above for a standalone checkout.
+The baker writes WAV mixes; `encode_audio.sh` (needs ffmpeg with libopus) turns them into the shipped Ogg files and prints their frame counts. Copy those into `introFrames` / `loopFrames` in `tracks.json`. The `npm run bake` shortcut assumes the original sibling-folder layout.
 
 ## Validation and known limitations
 

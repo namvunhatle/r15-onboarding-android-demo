@@ -15,10 +15,8 @@ Track metadata is stored in [tracks.json](../app-views/src/main/assets/tracks.js
 | Track | Artist | Source | Demo tempo |
 | --- | --- | --- | ---: |
 | Future Pop Upbeat | JonasBlakewood | [Pixabay](https://pixabay.com/music/future-bass-future-pop-upbeat-569721/) | 100 BPM |
-| Pop Upbeat | The_Mountain | [Pixabay](https://pixabay.com/music/dance-pop-upbeat-upbeat-pop-576584/) | 100 BPM |
-| 80s-Synth | JonasBlakewood | [Pixabay](https://pixabay.com/music/pop-80s-synth-583367/) | 90 BPM |
 
-The demo uses processed excerpts mixed with synthesized sound cues. The bundled WAV files contain the resulting intro and loop mixes. Music selection remains part of the prototype; these credits do not establish clearance for a separate production release.
+The demo uses processed excerpts mixed with synthesized sound cues. The bundled Ogg Opus files contain the resulting intro and loop mixes. Music selection remains part of the prototype; these credits do not establish clearance for a separate production release.
 
 ## Fonts
 

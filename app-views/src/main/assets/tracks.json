@@ -9,30 +9,9 @@
   "src": "audio/future-pop.mp3",
   "dropInSource": 16.04,
   "bpmOriginal": 120,
-  "stretch": 0.833333
- },
- {
-  "id": "upbeat-pop",
-  "title": "Pop Upbeat",
-  "artist": "The_Mountain",
-  "page": "https://pixabay.com/music/dance-pop-upbeat-upbeat-pop-576584/",
-  "bpm": 100,
-  "preroll": 0.36,
-  "src": "audio/upbeat-pop.mp3",
-  "dropInSource": 17.537,
-  "bpmOriginal": 120,
-  "stretch": 0.833333
- },
- {
-  "id": "synth-80s",
-  "title": "80s-Synth",
-  "artist": "JonasBlakewood",
-  "page": "https://pixabay.com/music/pop-80s-synth-583367/",
-  "bpm": 90,
-  "preroll": 0.36,
-  "src": "audio/synth-80s.mp3",
-  "dropInSource": 8.91,
-  "bpmOriginal": 108,
-  "stretch": 0.833333
+  "stretch": 0.833333,
+  "sampleRate": 48000,
+  "introFrames": 938880,
+  "loopFrames": 460800
  }
 ]

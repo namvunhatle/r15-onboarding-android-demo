@@ -50,7 +50,7 @@ The destination screenshots end the demo. Catalog browsing, ringtone setup, gene
 
 Times below are **timeline seconds**, not elapsed time since launch. Time spent waiting on the interstitial is excluded. Audio startup and frame scheduling can also affect elapsed time.
 
-The default track runs at **100 BPM**, so one beat is **0.6 seconds**. The alternate 80s-Synth track uses 90 BPM and changes the beat-based timings.
+The track runs at **100 BPM**, so one beat is **0.6 seconds**.
 
 | Event | Timeline time at 100 BPM |
 | --- | ---: |
@@ -86,7 +86,7 @@ The demo uses instrumental background music with baked plucks, swaps, pops, ring
 
 Playback is requested after Skip ads. It remains off if the device is in silent/vibrate mode or another app is already playing music. It also requires audio focus. Choosing a destination fades the audio out.
 
-Track selection is for review. The included tracks and credits are listed in [Credits](CREDITS.md).
+The onboarding has one track, Future Pop Upbeat; see [Credits](CREDITS.md).
 
 ## What to preserve in a production implementation
 
