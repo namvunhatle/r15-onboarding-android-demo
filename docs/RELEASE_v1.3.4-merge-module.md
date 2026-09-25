@@ -33,7 +33,12 @@ This APK was compared with the XML Views APK built from `main` at 1.3.4:
 - The bytecode of all 203 app classes matches, apart from dex offsets, `R` class names, and Kotlin's module suffix on `internal` members (`$core` → `$app_views`).
 - Lint reports 0 errors.
 
-These checks compare the two APK files. The app has **not** been launched from this build: the emulator was unavailable, so no screenshots were compared.
+The release APK was then tested on an Android 16 emulator (API 36, 1080 × 2400):
+
+- It installs, and both paths run to the end without a crash: splash → interstitial → Skip ads → G01–G04 → **Explore AI Ringtones** → paywall → AI screen, and replay → **Browse ringtones** → Home.
+- At 14 timeline points from 0.5 s to 19.0 s, its screenshots are **pixel-identical** to the 1.3.4 XML Views APK: 0 of 2,592,000 pixels differ at every point.
+
+As with 1.3.4, it has not been tested on physical devices.
 
 ## Known limits
 

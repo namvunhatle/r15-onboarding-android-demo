@@ -149,4 +149,4 @@ What moved from `main`:
 
 Code changes: `A7Art.kt` and `A7Native.kt` import `namvunhatle.r15.onboarding.views.R`, since the library's own `R` no longer exists. The tools in `tools/` write to the new paths.
 
-**Checked.** Comparing this APK with the `main` 1.3.4 XML Views build: all 85 resource and asset files are byte-identical, the 1,522 resource entries match, and the bytecode of all 203 app classes is the same apart from dex offsets, `R` class names, and Kotlin's module suffix on `internal` members (`$core` → `$app_views`). Lint: 0 errors. The emulator was unavailable, so no screenshots were compared on a device.
+**Checked.** Comparing this APK with the `main` 1.3.4 XML Views build: all 85 resource and asset files are byte-identical, the 1,522 resource entries match, and the bytecode of all 203 app classes is the same apart from dex offsets, `R` class names, and Kotlin's module suffix on `internal` members (`$core` → `$app_views`). Lint: 0 errors. On an Android 16 emulator at 1080 × 2400, both paths run without a crash, and screenshots at 14 timeline points are pixel-identical to the 1.3.4 XML Views APK.
