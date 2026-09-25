@@ -467,7 +467,7 @@ private fun Bubble(c: Ctx) {
                 Word("bw_hey", "“Hey")
                 Text(" ", style = word)
                 Word("bw_sam", "Sam", Modifier.padding(start = 3.dp, end = 5.dp), lit = false, chip = true)
-                Word("bw_call", ", calling…”")
+                Word("bw_call", " calling…”") // no comma after Sam (user 2026-09-25)
             }
         }
     }
