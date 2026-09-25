@@ -58,13 +58,13 @@ The full token map, the visual-only table and the regeneration steps are in [Des
 ## Try it
 
 - **[Open the web demo](https://prototype-a7.vercel.app)** to watch the sequence in a browser. The live site may change after this release.
-- **[Download version 1.3.4](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.4)**. Requires Android 9 / API 28 or later.
+- **[Download version 1.3.6](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.6)**. Requires Android 9 / API 28 or later.
 - **[Build from source](#build-locally)** if you want to inspect or change the implementation.
 
 | Build | APK | Application ID |
 | --- | --- | --- |
-| Compose | [A7-Compose-1.3.4.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.4/A7-Compose-1.3.4.apk) | `namvunhatle.r15.onboarding.compose.responsive` |
-| XML Views | [A7-XMLViews-1.3.4.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.4/A7-XMLViews-1.3.4.apk) | `namvunhatle.r15.onboarding.views.responsive` |
+| Compose | [A7-Compose-1.3.6.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.6/A7-Compose-1.3.6.apk) | `namvunhatle.r15.onboarding.compose.responsive` |
+| XML Views | [A7-XMLViews-1.3.6.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.6/A7-XMLViews-1.3.6.apk) | `namvunhatle.r15.onboarding.views.responsive` |
 
 Both APKs are debug builds for review. If Android asks, allow installation from the app used to open the download.
 
@@ -140,4 +140,4 @@ adb install -r app-compose/build/outputs/apk/debug/app-compose-debug.apk
 adb install -r app-views/build/outputs/apk/debug/app-views-debug.apk
 ```
 
-These commands build version 1.3.4. The project pins Gradle 9.7.1, AGP 9.4.1, Kotlin Compose compiler 2.4.20, and Compose BOM 2026.09.00. The Gradle wrapper is included; the first build needs network access to download dependencies. Windows users can run `gradlew.bat`.
+These commands build version 1.3.6. The project pins Gradle 9.7.1, AGP 9.4.1, Kotlin Compose compiler 2.4.20, and Compose BOM 2026.09.00. The Gradle wrapper is included; the first build needs network access to download dependencies. Windows users can run `gradlew.bat`.

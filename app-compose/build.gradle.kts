@@ -10,8 +10,8 @@ android {
         applicationId = "namvunhatle.r15.onboarding.compose.responsive"
         minSdk = 28
         targetSdk = 37
-        versionCode = 2
-        versionName = "1.3.4"
+        versionCode = 4
+        versionName = "1.3.6"
     }
     buildFeatures { compose = true }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
