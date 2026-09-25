@@ -23,35 +23,47 @@ import namvunhatle.r15.onboarding.core.Zen.Color.Background.Support
  * What stays a bitmap is what is a bitmap in Figma too: the splash's image fill and smoke photo, and the phone
  * screens (image fills of `A7 / Phone`), and the interstitial's creative (its SDK chrome is drawn). The three
  * destination mocks are other products' screens and keep their screenshots.
+ *
+ * Every element and screenshot is made on the start-up pool ([Later]) as soon as this is constructed, in scene order
+ * (splash first, screenshots last); [art] hands out a drawable that waits for its element on first draw.
  */
 class A7Native(private val ctx: Context, private val scene: Scene) {
     private fun font(id: Int): Typeface = ResourcesCompat.getFont(ctx, id)!!
     private fun bitmap(id: Int): Bitmap = BitmapFactory.decodeResource(ctx.resources, id, BitmapFactory.Options().apply { inScaled = false })
 
-    private val anton = font(R.font.anton_regular)
-    private val be400 = font(R.font.bevietnampro_regular)
-    private val be500 = font(R.font.bevietnampro_medium)
-    private val be600 = font(R.font.bevietnampro_semibold)
+    // loaded by the first element that needs them, on the start-up pool
+    private val anton by lazy { font(R.font.anton_regular) }
+    private val be400 by lazy { font(R.font.bevietnampro_regular) }
+    private val be500 by lazy { font(R.font.bevietnampro_medium) }
+    private val be600 by lazy { font(R.font.bevietnampro_semibold) }
 
     // ZEN text styles used by the scene (weights are the Emphasis/Font-Weight tokens: 600 Bold, 500 Medium, 400 Regular)
-    private val name20 = Type(be600, ZenText.Heading4)
-    private val tile32 = Type(be600, ZenText.Heading1)
+    private val name20 by lazy { Type(be600, ZenText.Heading4) }
+    private val tile32 by lazy { Type(be600, ZenText.Heading1) }
 
     private val screens by lazy { mapOf("g01_phone" to bitmap(R.drawable.screen_g01), "g02_phone" to bitmap(R.drawable.screen_g02), "g03_phone" to bitmap(R.drawable.screen_g03)) }
-    private val spots = HashMap<String, Bitmap>()
 
     /** Ids drawn by [art]: [IDS] plus the wall tiles this screen adds ([Scene.extraTiles]). */
     val ids: List<String> = IDS + scene.extraTiles.keys
     val layered: Set<String> = LAYERED + scene.extraTiles.keys
 
-    fun art(id: String): Drawable {
+    private val made: Map<String, Later<Drawable>> = ids.associateWith { id -> Later.of { make(id) } }
+    private val shots: Map<String, Later<Bitmap>> = SHOTS.mapValues { (_, res) -> Later.of { bitmap(res) } }
+
+    /** The element [id]; drawing it waits for its bake. */
+    fun art(id: String) = LaterDrawable(made.getValue(id))
+
+    /** A destination screenshot ("dest_ai", …), decoded off the main thread; it shows only at the end. */
+    fun screenshot(k: String): Later<Bitmap> = shots.getValue(k)
+
+    private fun make(id: String): Drawable {
         val box = scene.artBox(id)
         return when (id) {
             "splash_bg" -> SplashBg(
                 box, bitmap(R.drawable.splash_base), A7Glow.bake(box, null, SplashBg.GLOWS), bitmap(R.drawable.splash_wisps),
                 PathParser.createPathFromPathData(FigmaPaths.SPLASH_GRID),
             )
-            in Spotlight.SPOTS -> Spotlight(box, spots.getOrPut(id) { Spotlight.bake(id, box) })
+            in Spotlight.SPOTS -> Spotlight(box, Spotlight.bake(id, box))
             // P01's text sits where the v1.3.3 sprites put it: 1.5 / 0.5 dp above the current Figma boxes (446 / 660).
             "tagline" -> TextArt(box, name20, Zen.Color.Content.OnDarkOverlay.Strongest, listOf(Line("A world of ringtones.", 180.5f, 444.5f, true), Line("Personalized for you.", 180.5f, 472.5f, true)))
             "sp_note" -> TextArt(box, Type(be400, ZenText.Caption), Zen.Color.Content.OnDarkOverlay.Base, listOf(Line("This action may contain ads.", 179.5f, 659.5f, true)))
@@ -163,6 +175,8 @@ class A7Native(private val ctx: Context, private val scene: Scene) {
          * already and skip the layer (six full-screen layers would cost ~60 MB of GPU memory for nothing).
          */
         val LAYERED: Set<String> by lazy { (IDS - Scene.BGS.toSet() - "bridge_full").toSet() }
+
+        private val SHOTS = mapOf("dest_paywall" to R.drawable.dest_paywall, "dest_ai" to R.drawable.dest_ai, "dest_home" to R.drawable.dest_home)
 
         /** Ids drawn by [art] — every other sprite id is still a bitmap. */
         val IDS: List<String> = listOf("splash_bg", "tagline", "sp_note", "sp_strip", "statusbar") + Scene.BGS + TILES.keys +

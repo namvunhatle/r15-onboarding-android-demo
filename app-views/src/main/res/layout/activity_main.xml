@@ -109,17 +109,17 @@
             <View android:id="@+id/hot_skip" android:layout_width="110dp" android:layout_height="44dp" android:layout_marginLeft="248dp" android:layout_marginTop="12dp" android:contentDescription="Skip ads" />
         </FrameLayout>
 
-        <!-- Destinations (static screenshots + hotspots) -->
+        <!-- Destinations (static screenshots, set in code off the main thread, + hotspots) -->
         <FrameLayout android:tag="dest_paywall" android:layout_width="360dp" android:layout_height="800dp">
-                <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:src="@drawable/dest_paywall" android:scaleType="fitXY" android:importantForAccessibility="no" />
+                <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:importantForAccessibility="no" />
                 <View android:id="@+id/hot_paywall_close" android:layout_width="52dp" android:layout_height="52dp" android:layout_marginLeft="300dp" android:layout_marginTop="28dp" android:contentDescription="Close paywall" />
                 <View android:id="@+id/hot_subscribe" android:layout_width="320dp" android:layout_height="52dp" android:layout_marginLeft="20dp" android:layout_marginTop="638dp" android:contentDescription="Subscribe" />
         </FrameLayout>
         <FrameLayout android:tag="dest_ai" android:layout_width="360dp" android:layout_height="800dp">
-                <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:src="@drawable/dest_ai" android:scaleType="fitXY" android:importantForAccessibility="no" />
+                <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:importantForAccessibility="no" />
         </FrameLayout>
         <FrameLayout android:tag="dest_home" android:layout_width="360dp" android:layout_height="800dp">
-                <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:src="@drawable/dest_home" android:scaleType="fitXY" android:importantForAccessibility="no" />
+                <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:importantForAccessibility="no" />
         </FrameLayout>
     </namvunhatle.r15.onboarding.views.DesignFrame>
 

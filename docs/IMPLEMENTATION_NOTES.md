@@ -23,6 +23,7 @@ Engine source files live in `app-views/src/main/java/namvunhatle/r15/onboarding/
 | `A7Audio.kt` | WAV loading, audio focus, streaming playback, timestamps, and fades |
 | `Scene.kt` | Design coordinates, transform origins, tap areas, and track metadata |
 | `A7Art.kt` | Bitmap preparation for the logo blur, glows, and light trail |
+| `Later.kt` | The start-up pool: bakes and decodes off the main thread, waited on at first draw |
 | `Immersive.kt` | System-bar handling and the time-inspection launch argument |
 | `A7Native.kt` | Builds each Figma element as a native drawable, by timeline id |
 | `FigmaArt.kt` | The Figma components drawn in code: text, shapes, gradients, shadows |
@@ -52,6 +53,7 @@ The common clock is useful as a reference for keeping the sequence together. Pro
 ## Rendering details
 
 - Blur and glow bitmaps are prepared during startup. Motion animates their transforms and opacity.
+- **Start-up work is off the main thread.** `A7Art` and `A7Native` submit every bake and decode to a three-thread pool (`Later.kt`) before the layout inflates, splash pieces first and screenshots last. A view waits on a piece only when it first draws it, and hidden views are not drawn, so only the splash, logo and glow are waited on. A pool job may wait on an earlier job, never on a later one.
 - Some elements extend beyond their layout bounds. The renderers account for this when drawing rings, shadows, and the call bubble.
 - The scene uses a **360 × 800** coordinate space. Each renderer scales the frame uniformly to fit, centers it, and fills the rest of a phone screen around it. See [Screen sizes](#screen-sizes).
 - Font scaling is fixed. Status bars and the camera cutout are simulated artwork; the actual system bars are hidden.

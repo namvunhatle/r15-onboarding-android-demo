@@ -6,7 +6,7 @@ Built for the Android development team from the React/Vite web prototype **v1.3.
 
 **This branch — `merge-module` — is XML Views only, in a single module.** On `main` the project has three modules: a shared `:core` library (timeline, audio, tokens and every asset) used by two apps, Compose and XML Views. Here `:core` is merged into `:app-views` and the Compose app is removed, so the code, resources and assets all live in `app-views/`. See [Single module](#single-module).
 
-**Version 1.3.5** keeps one music track, Future Pop Upbeat, shipped as Ogg Opus instead of WAV: the APK is 10 MB instead of 25 MB. **1.3.6** fixes the G01 phone's bottom edge and the G03 phone hand-off, opens the splash progress at 80 %, and drops the comma in the call bubble. See the [changelog](CHANGELOG.md).
+**Version 1.3.5** keeps one music track, Future Pop Upbeat, shipped as Ogg Opus instead of WAV: the APK is 10 MB instead of 25 MB. **1.3.6** fixes the G01 phone's bottom edge and the G03 phone hand-off, opens the splash progress at 80 %, and drops the comma in the call bubble. **1.3.7** opens about 5× faster: a release build, with start-up work moved off the main thread. See the [changelog](CHANGELOG.md).
 
 Use it to review the experience and discuss implementation. Ads, purchases, AI generation, and destination screens are mocked.
 
@@ -61,14 +61,14 @@ The full token map, the visual-only table and the regeneration steps are in [Des
 ## Try it
 
 - **[Open the web demo](https://prototype-a7.vercel.app)** to watch the sequence in a browser. The live site may change after this release.
-- **[Download version 1.3.6](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.6-merge-module)**. Requires Android 9 / API 28 or later.
+- **[Download version 1.3.7](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.7-merge-module)**. Requires Android 9 / API 28 or later.
 - **[Build from source](#build-locally)** if you want to inspect or change the implementation.
 
 | Build | APK | Application ID |
 | --- | --- | --- |
-| XML Views | [A7-XMLViews-1.3.6.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.6-merge-module/A7-XMLViews-1.3.6.apk) | `namvunhatle.r15.onboarding.views.responsive` |
+| XML Views | [A7-XMLViews-1.3.7.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.7-merge-module/A7-XMLViews-1.3.7.apk) | `namvunhatle.r15.onboarding.views.responsive` |
 
-This is a debug build for review. If Android asks, allow installation from the app used to open the download.
+This is a release build (R8, not debuggable) signed with a debug key for review. If Android asks, allow installation from the app used to open the download.
 
 ## What to look for
 
@@ -121,7 +121,7 @@ The replay button appears on the interstitial and destination screens.
 - **Time inspection does not fully freeze the final scene.** Its idle animation can keep running.
 - **Reduced motion is partial.** Some splash movement remains when system animations are disabled.
 - Font scaling is fixed. Status bars and the camera cutout are drawn into the demo; destination screens are screenshots with tap areas.
-- **Launch does about 0.3 s of extra work** on the emulator: fonts load and glows are blurred at startup. The 5 s splash covers it.
+- **Launch** takes about 0.31 s to the first frame on the emulator. Blurs, glows and native art are prepared off the main thread; see [Rendering details](docs/IMPLEMENTATION_NOTES.md#rendering-details). Not yet measured on a physical phone.
 - Smoothness, audio timing, and the GPU memory of the cached element layers have not been measured on physical devices.
 
 These limitations apply to this build as they do to 1.3.4. See [Validation and known limitations](docs/IMPLEMENTATION_NOTES.md#validation-and-known-limitations) for the review scope.
@@ -131,11 +131,11 @@ These limitations apply to this build as they do to 1.3.4. See [Validation and k
 Open this repository in Android Studio, configure **JDK 17**, and install **Android SDK Platform 37**. Let Android Studio create `local.properties`, or set `ANDROID_HOME` to your SDK directory.
 
 ```sh
-./gradlew :app-views:assembleDebug
-adb install -r app-views/build/outputs/apk/debug/app-views-debug.apk
+./gradlew :app-views:assembleRelease
+adb install -r app-views/build/outputs/apk/release/app-views-release.apk
 ```
 
-These commands build version 1.3.6. The project pins Gradle 9.7.1, AGP 9.4.1 and Kotlin 2.4.20 (the same compiler as `main`; without the pin, AGP falls back to its bundled 2.2.10). The Gradle wrapper is included; the first build needs network access to download dependencies. Windows users can run `gradlew.bat`.
+These commands build version 1.3.7. The release build is signed with your local debug key, so it installs like a debug build. Use `assembleDebug` only for debugging: a debuggable build opens about 3× slower. The project pins Gradle 9.7.1, AGP 9.4.1 and Kotlin 2.4.20 (the same compiler as `main`; without the pin, AGP falls back to its bundled 2.2.10). The Gradle wrapper is included; the first build needs network access to download dependencies. Windows users can run `gradlew.bat`.
 
 ## Single module
 

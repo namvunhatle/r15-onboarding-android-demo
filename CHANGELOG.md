@@ -2,6 +2,17 @@
 
 All Android builds share the v1.3.3 web prototype's timeline, audio and scene script. Releases: [GitHub](https://github.com/namvunhatle/r15-onboarding-android-demo/releases).
 
+## 1.3.7 (branch `merge-module`) — faster launch
+
+Cold start on an Android 16 emulator (1080 × 2400, Apple M1 host), time to first frame: **1.57 s → 0.31 s**.
+
+- **Release build.** The APK is now an R8-minified, non-debuggable release build, still signed with a debug key for review. A debuggable build ran the start-up code about 3× slower. The APK shrinks from 10.6 MB to 3.6 MB.
+- **Start-up work off the main thread.** Every blur, glow, native element and screenshot is baked or decoded on a small pool (`Later.kt`), started before the layout inflates. The main thread waits only for what the first frame shows: the splash, logo and glow. The rest shows from 4.4 s on and is ready long before.
+- **Destination screenshots** load off the main thread. The XML layout no longer sets them with `android:src`.
+- **One-colour glows blur only their alpha**, a quarter of the work.
+- The picture is unchanged. At 20:9 and 16:9 it matches 1.3.6 pixel for pixel: 16 timeline frames, plus both destination paths. The Ogg decode and music are unchanged.
+- `versionCode` 5, so it installs over 1.3.6. The same changes ship on `main` as v1.3.7.
+
 ## 1.3.6 (branch `merge-module`) — motion and copy fixes
 
 - Splash progress bar opens at **80 %** on the first frame, then eases to 100 % over the 5 s splash (was a linear 0 → 100 %).

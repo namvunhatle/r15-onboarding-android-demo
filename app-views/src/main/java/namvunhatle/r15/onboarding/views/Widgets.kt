@@ -14,6 +14,7 @@ import namvunhatle.r15.onboarding.core.A7Art
 import namvunhatle.r15.onboarding.core.A7Visual
 import namvunhatle.r15.onboarding.core.Css
 import namvunhatle.r15.onboarding.core.El
+import namvunhatle.r15.onboarding.core.Later
 import namvunhatle.r15.onboarding.core.Prop
 import namvunhatle.r15.onboarding.core.Scene
 import namvunhatle.r15.onboarding.core.Viewport
@@ -133,7 +134,8 @@ class RingView(ctx: Context, attrs: AttributeSet?) : View(ctx, attrs) {
 
 /** Draws pre-rendered art ([A7Art.Baked]) centred on this view at its own dp size — it may overflow, like a CSS shadow. */
 class BakedView(ctx: Context, attrs: AttributeSet?) : View(ctx, attrs) {
-    val layers = ArrayList<A7Art.Baked>()
+    /** Baked on the start-up pool; the first draw waits for them. */
+    val layers = ArrayList<Later<A7Art.Baked>>()
 
     /** Opacity applied per draw call, no offscreen layer — a layer would be clipped to this view's bounds and cut
      *  off the glow that overflows them while it fades (CSS never clips a shadow). */
@@ -142,7 +144,8 @@ class BakedView(ctx: Context, attrs: AttributeSet?) : View(ctx, attrs) {
     private val dst = RectF()
 
     override fun onDraw(canvas: Canvas) {
-        for (b in layers) {
+        for (l in layers) {
+            val b = l.value
             val d = dp(b.dp)
             dst.set(width / 2f - d / 2, height / 2f - d / 2, width / 2f + d / 2, height / 2f + d / 2)
             canvas.drawBitmap(b.bitmap, null, dst, paint)
