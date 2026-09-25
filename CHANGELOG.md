@@ -2,12 +2,13 @@
 
 All Android builds share the v1.3.3 web prototype's timeline, audio and scene script. Releases: [GitHub](https://github.com/namvunhatle/r15-onboarding-android-demo/releases).
 
-## Unreleased (branch `merge-module`)
+## 1.3.6 (branch `merge-module`) — motion and copy fixes
 
 - Splash progress bar opens at **80 %** on the first frame, then eases to 100 % over the 5 s splash (was a linear 0 → 100 %).
 - G03: the G02 phone now shrinks onto the call phone's exact body (scale 0.516, +9.5 dp), so only the screen changes. Scaling to the sprite boxes (0.623) made the phone jump 17 % smaller at the swap.
 - G01: the phone's box now runs below the screen (body and shadow, to y 1084). It stopped at the screen edge, so the rising overshoot lifted the cut edge and left a gap under the phone.
 - G03 bubble reads “Hey Sam calling…”, without the comma.
+- `versionCode` 4, so it installs over 1.3.5. The same fixes ship on `main` as v1.3.6.
 
 ## 1.3.5 (branch `merge-module`) — one track, Ogg Opus
 
