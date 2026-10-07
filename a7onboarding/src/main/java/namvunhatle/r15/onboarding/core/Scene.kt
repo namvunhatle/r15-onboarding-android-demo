@@ -1,0 +1,218 @@
+package namvunhatle.r15.onboarding.core
+
+import android.content.Context
+import org.json.JSONArray
+import org.json.JSONObject
+import namvunhatle.r15.onboarding.core.Zen.Color.Background.Support
+
+/** A box in the 360×800 design frame, in dp. */
+data class Box(val x: Float, val y: Float, val w: Float, val h: Float) {
+    val cx get() = x + w / 2f
+    val cy get() = y + h / 2f
+    val right get() = x + w
+    val bottom get() = y + h
+    fun dy(d: Float) = if (d == 0f) this else copy(y = y + d)
+    fun outset(d: Float) = Box(x - d, y - d, w + 2 * d, h + 2 * d)
+    fun intersect(o: Box): Box {
+        val l = maxOf(x, o.x); val t = maxOf(y, o.y)
+        return Box(l, t, (minOf(right, o.right) - l).coerceAtLeast(0f), (minOf(bottom, o.bottom) - t).coerceAtLeast(0f))
+    }
+}
+
+/** A burst genre tile (P04 keyframe 05). */
+data class Mini(val wall: String, val label: String, val c0: Int, val c1: Int, val dx: Float, val dy: Float, val rot: Float, val tw: Float)
+
+/** A stroked circle: diameter + stroke in dp, white at [alpha]. */
+data class Ring(val id: String, val d: Float, val stroke: Float, val alpha: Float)
+
+/**
+ * Everything both UIs need to lay the scene out: sprite boxes (Figma export of section `15552:115354`,
+ * 360×800 frame), the HTML-built parts' geometry, and the element ids the timeline animates.
+ * Ported from prototype-a7 v1.3.3, then 1.6.6 (src/App.tsx + src/index.css).
+ *
+ * [vp] adapts it to the phone's screen ([Viewport]); on a 20:9 screen every box is the v1.3.3 one.
+ */
+class Scene(ctx: Context, val vp: Viewport = Viewport.FRAME) {
+    val pos: Map<String, Box>
+    private val bbox: Map<String, Box>
+    private val pos0: Map<String, Box>
+    private val shift = HashMap<String, Float>()
+
+    /** The visible area, in frame coordinates. */
+    val view = vp.view
+    /** Wall tiles added past the Figma wall's ends when the screen is wider than 20:9: id → the tile it repeats. */
+    val extraTiles: Map<String, String>
+    val tiles: List<String>
+    val restTiles: List<String>
+
+    // anchored HTML-built parts
+    val wave = WAVE.dy(-vp.my)
+    val spTrack = SP_TRACK.dy(vp.my)
+
+    init {
+        val m = JSONObject(ctx.assets.open("a7/manifest.json").bufferedReader().readText())
+        val p = HashMap<String, Box>(); val b = HashMap<String, Box>()
+        for (k in m.keys()) {
+            val e = m.getJSONObject(k)
+            p[k] = e.getJSONArray("pos").box(); b[k] = e.getJSONArray("bbox").box()
+        }
+        pos0 = HashMap(p)
+        val extra = LinkedHashMap<String, String>()
+        if (!vp.isFrame) {
+            BLEED.forEach { p[it] = view }
+            FULL_WIDTH.forEach { k -> p.getValue(k).let { p[k] = grow(it, Box(view.x, it.y, view.w, it.h)) } }
+            // cut by the frame edge in the v1.3.3 export: grow (about the same centre, so the motion is unchanged)
+            // until the node and its shadow are whole again, as far as the screen shows. (g01_phone's manifest box already
+            // runs past the frame bottom, body + shadow to y 1084, so its rising overshoot never lifts it off the edge.)
+            (REST_TILES + G04_STICKERS + "g01_phone").forEach { k -> p[k] = grow(p.getValue(k), b.getValue(k).outset(24f).intersect(view)) }
+            TOP.forEach { k -> p[k] = p.getValue(k).dy(-vp.my); shift[k] = -vp.my }
+            BOTTOM.forEach { k -> p[k] = p.getValue(k).dy(vp.my); shift[k] = vp.my }
+            // the wall repeats row by row: one more tile at each end of a row, as far as the screen shows
+            val step = b.getValue(TILES[1]).cx - b.getValue(TILES[0]).cx to b.getValue(TILES[1]).cy - b.getValue(TILES[0]).cy
+            WALL_ROWS.forEachIndexed { r, row ->
+                for ((side, from, copy) in listOf(Triple(-1, row.first(), row.last()), Triple(1, row.last(), row.first()))) {
+                    val c = b.getValue(from)
+                    val t = Box(c.cx + side * step.first - c.w / 2, c.cy + side * step.second - c.h / 2, c.w, c.h)
+                    val vis = t.intersect(view)
+                    if (vis.w <= 0f || vis.h <= 0f || (vis.x >= 0f && vis.right <= W && vis.y >= 0f && vis.bottom <= H)) continue
+                    val id = "tile_x$r${if (side < 0) "l" else "r"}"
+                    extra[id] = copy; b[id] = t; p[id] = vis
+                }
+            }
+        }
+        pos = p; bbox = b
+        extraTiles = extra
+        tiles = TILES + extra.keys
+        restTiles = REST_TILES + extra.keys
+    }
+
+    /** [b] grown symmetrically until it covers [need] on the sides where it touches the 360×800 frame. */
+    private fun grow(b: Box, need: Box): Box {
+        val dx = maxOf(if (b.x <= 0.5f) b.x - need.x else 0f, if (b.right >= W - 0.5f) need.right - b.right else 0f, 0f)
+        val dy = maxOf(if (b.y <= 0.5f) b.y - need.y else 0f, if (b.bottom >= H - 0.5f) need.bottom - b.bottom else 0f, 0f)
+        return Box(b.x - dx, b.y - dy, b.w + 2 * dx, b.h + 2 * dy)
+    }
+
+    /** The box an element's art is drawn for: [pos] before any anchoring move, so the art keeps frame coordinates. */
+    fun artBox(id: String) = pos.getValue(id).dy(-(shift[id] ?: 0f))
+
+    /** Transform origin as fractions of the element's box: the v1.3.3 pivot, carried along if the element moved. */
+    fun origin(id: String): Pair<Float, Float> {
+        val o = ORIGIN[id] ?: (0.5f to 0.5f)
+        val b0 = pos0[id] ?: return o
+        val b = pos.getValue(id)
+        if (b == b0) return o
+        return (b0.x + o.first * b0.w - b.x) / b.w to (b0.y + (shift[id] ?: 0f) + o.second * b0.h - b.y) / b.h
+    }
+
+    private fun JSONArray.box() = Box(getDouble(0).toFloat(), getDouble(1).toFloat(), getDouble(2).toFloat(), getDouble(3).toFloat())
+
+    /** Sprite resource name (drawable-nodpi, lowercase). */
+    fun res(k: String) = k.lowercase()
+
+    fun center(k: String) = pos.getValue(k).let { it.cx to it.cy }
+    /** Centre of the full (unclipped) wall tile — `bbox` keeps the part outside the screen. */
+    fun wallCenter(k: String) = bbox.getValue(k).let { it.cx to it.cy }
+
+    /** The 4 genre tiles of the burst, built natively (Figma fills of `Tile · *`), centred on their wall slot. */
+    fun gtileBox(m: Mini) = wallCenter(m.wall).let { (cx, cy) -> Box(cx - 84f, cy - 60f, 168f, 120f) }
+
+    companion object {
+        const val W = 360f
+        const val H = 800f
+        /** The brand accent: Color/Background/Accent/Solid/Default (wave, progress, glows, pills). */
+        val ACCENT = Zen.Color.Background.Accent.Solid.Default
+
+        // Splash logo centre — the camera flies through this point into G01.
+        const val LX = 180f
+        const val LY = 298f
+
+        val TILES = listOf("tile_hiphop", "tile_rock", "tile_country", "tile_holiday", "tile_alarm", "tile_rnb", "tile_sfx", "tile_baby", "tile_msg")
+        private val WALL_ROWS = TILES.chunked(3)
+        val G04_STICKERS = listOf("g04_sam", "g04_emma", "g04_jake", "g04_mia", "g04_leo", "g04_zoe")
+        val HEADS = listOf("g01_head", "g02a_head", "g02b_head", "g03_head")
+        val BGS = listOf("bg_G01", "bg_G02a", "bg_G02b", "bg_G02c", "bg_G03", "bg_G04")
+
+        // P04 keyframe 05 (`15560:138820`): dx/dy = offset from the burst centre, rot = keyframe rotation; wall tiles sit at 12°.
+        val MINIS = listOf(
+            Mini("tile_hiphop", "Hip-Hop", Support.Orange.Solid, Support.Crimson.Deep, -62.3f, -45.2f, 18f, 70.56f),
+            Mini("tile_rock", "Rock", Support.Crimson.Solid, Support.Plum.Deep, 58.9f, -79.5f, -10f, 77.28f),
+            Mini("tile_holiday", "Holiday", Support.Green.Solid, Support.Teal.Deep, -35.2f, 48.1f, -8f, 63.84f),
+            Mini("tile_country", "Country", Support.Golden.Solid, Support.Bronze.Deep, 56.7f, 71.5f, 12f, 73.92f),
+        )
+        val MINI_WALLS = MINIS.map { it.wall }
+        val REST_TILES = TILES.filter { it !in MINI_WALLS }
+
+        // A7 / Progress Wave — bar heights copied from the Figma component.
+        val WAVE_H = intArrayOf(7, 8, 4, 6, 9, 10, 5, 16, 13, 11, 9, 17, 16, 7, 14, 10, 17, 9, 16, 15, 9, 7, 23, 23, 8, 14, 23, 9, 13, 15, 16, 10, 8, 19, 11, 8, 11, 8, 6, 12, 7, 7, 4, 10)
+        val WAVE_BARS = WAVE_H.indices.map { "wave_bar_$it" }
+
+        // Logo rings (P01): id, diameter, stroke, white alpha
+        val EMITS = listOf(Ring("emit0", 136f, 1.5f, 0.45f), Ring("emit1", 136f, 1.5f, 0.45f))
+        val SRINGS = listOf(136f, 184f, 232f).mapIndexed { i, d -> Ring("sring$i", d, 1f, A7Visual.SPLASH_RING_OPACITY) }
+        // P04 keyframe 05: ring strokes 55 / 30 / 14 % white, 2 / 2 / 1.5 px, centred on the logo
+        val BRINGS = listOf(Ring("bring0", 300f, 2f, 0.55f), Ring("bring1", 520f, 2f, 0.30f), Ring("bring2", 800f, 1.5f, 0.14f))
+        // G03 rings under the phone, centred (180, 318)
+        val G3RINGS = listOf(Ring("g3ring0", 224f, 1.5f, 0.28f), Ring("g3ring1", 300f, 1.5f, 0.28f), Ring("g3ring2", 380f, 1.5f, 0.28f))
+        const val G3_CX = 180f
+        const val G3_CY = 318f
+
+        val GHOSTS = listOf("ghost0", "ghost1", "ghost2")
+
+        // HTML-built parts (index.css)
+        val CARD = Box(24f, 414f, 312f, 230f)
+        // Web box is 137,283 203×94 with the pill centred and overflowing (white-space: nowrap). Android clips a
+        // fading layer to its bounds, so the box is grown around the same centre; the origin below keeps the
+        // web's pivot (15 % 60 % of the original box = 167.45, 339.4).
+        val BUBBLE = Box(37f, 223f, 403f, 214f)
+        val WAVE = Box(16f, 62f, 328f, 28f)
+        val DIVIDER = Box(16f, 463f, 328f, 1f)
+        val NATIVE1 = Box(16f, 524f, 328f, 256f) // 1.5+: below the feed's swipe area (ends at y 515)
+        val NATIVE2 = Box(16f, 480f, 328f, 256f)
+        val BANNER = Box(0f, 692f, 360f, 60f)
+        val SP_TRACK = Box(24f, 644f, 312f, 8f)
+        val FLASH = Box(LX - 150f, LY - 150f, 300f, 300f)
+
+        /* 1.6 · the feed on the G03 phone. Built in the G02 phone's screen space (216 × 481) and scaled by FEED_FIT onto
+           the G03 phone's body, exactly like the G02 → G03 phone hand-off. FEED = that screen on the frame. */
+        const val FEED_FIT = 119.68f / 232f
+        val FEED_SCR = Box(56f, 31.5f, 216f, 481f)
+        private val FEED_Y = 189.9f - (168f + (192f - 168f) * FEED_FIT)
+        val FEED = Box(180f + (FEED_SCR.x - 164f) * FEED_FIT, 168f + FEED_Y + FEED_SCR.y * FEED_FIT, FEED_SCR.w * FEED_FIT, FEED_SCR.h * FEED_FIT)
+        const val FEED_PEEK = 44f // card 2 shows this much (feed units) while waiting
+        /** Card 2's EMMA on the frame once card 2 has landed (feed `.fc-name` top 294, 38 px line). */
+        val EMMA_X = 180f
+        val EMMA_Y = 168f + FEED_Y + (FEED_SCR.y + 294f + 19f) * FEED_FIT
+        // the swipe: hit area ends 9 dp above native #1; glass pill; hint dot
+        val SWIPE_HIT = Box(0f, 150f, 360f, 365f)
+        val SWIPE_PILL = Box(46f, 456f, 268f, 44f)
+        val TOUCH = Box(165f, 397f, 30f, 30f)
+        // the call group zooms about (CX, CY) on the fly-in; its glow breathes while the feed waits
+        const val CX = 180f
+        const val CY = 340f
+        val CALLGLOW = Box(CX - 210f, CY - 210f, 420f, 420f)
+        val BLOOM = Box(CX - 400f, CY - 400f, 800f, 800f)
+        val G04CAP = Box(0f, 318f, 360f, 18f)
+
+        // Hotspots
+        val HOT_CTA = Box(15f, 343f, 330f, 58f)
+        val HOT_SECONDARY = Box(16f, 407f, 328f, 48f)
+
+        /** Transform origins that are not the box centre, as fractions of the element's box. */
+        val ORIGIN = mapOf(
+            "splash_bg" to (LX / W to LY / H),
+            "g03_bubble" to ((137f + 0.15f * 203f - 37f) / 403f to (283f + 0.6f * 94f - 223f) / 214f),
+            "g02_phone" to (0.5f to 0f),
+            "g03_phone" to (0.5f to 0f),
+            "callzoom" to (CX / W to CY / H),
+            "sp_fill" to (0f to 0.5f),
+            "bw_hey" to (0.5f to 0.7f), "bw_sam" to (0.5f to 0.7f), "bw_call" to (0.5f to 0.7f),
+        )
+
+        // Viewport responses (see [Viewport])
+        private val BLEED = listOf("splash_bg") + BGS
+        private val FULL_WIDTH = listOf("sp_strip")
+        private val TOP = HEADS
+        private val BOTTOM = listOf("sp_note", "sp_strip")
+    }
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Loading state of a native ad slot: shows until the host app's ad view is in (A7Ads.native), then fades. -->
+<namvunhatle.r15.onboarding.views.CssBox xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    app:a7_fill="@color/zen_color_background_white_solid_default" app:a7_cornerRadius="@dimen/zen_corner_radius_large">
+    <namvunhatle.r15.onboarding.views.CssBox android:layout_width="40dp" android:layout_height="40dp" android:layout_marginLeft="12dp" android:layout_marginTop="12dp" app:a7_fill="@color/a7_native_skeleton" app:a7_cornerRadius="8dp" />
+    <namvunhatle.r15.onboarding.views.CssBox android:layout_width="150dp" android:layout_height="12dp" android:layout_marginLeft="64dp" android:layout_marginTop="16dp" app:a7_fill="@color/a7_native_skeleton" app:a7_cornerRadius="6dp" />
+    <namvunhatle.r15.onboarding.views.CssBox android:layout_width="304dp" android:layout_height="128dp" android:layout_marginLeft="12dp" android:layout_marginTop="60dp" app:a7_fill="@color/a7_native_skeleton" app:a7_cornerRadius="8dp" />
+    <namvunhatle.r15.onboarding.views.CssBox android:layout_width="304dp" android:layout_height="48dp" android:layout_marginLeft="12dp" android:layout_marginTop="196dp" app:a7_fill="@color/a7_native_skeleton" app:a7_cornerRadius="24dp" />
+</namvunhatle.r15.onboarding.views.CssBox>

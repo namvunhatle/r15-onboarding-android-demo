@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Native ad mock (A7 / Ad Slot): what MockAds puts into the onboarding's native slots. Two slots, two requests —
+     MockAds tints each copy so a demo audience sees two different ads. A real app puts its NativeAdView here. -->
+<namvunhatle.r15.onboarding.views.CssBox xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    app:a7_fill="@color/zen_color_background_white_solid_default" app:a7_cornerRadius="@dimen/zen_corner_radius_large">
+
+    <namvunhatle.r15.onboarding.views.CssBox android:id="@+id/nat_icon" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginLeft="12dp" android:layout_marginTop="12dp" app:a7_cornerRadius="@dimen/zen_corner_radius_small" />
+    <LinearLayout android:layout_width="252dp" android:layout_height="36dp" android:layout_marginLeft="64dp" android:layout_marginTop="14dp" android:orientation="vertical">
+        <TextView style="@style/A7Text.W600" android:layout_width="wrap_content" android:layout_height="18dp" android:textSize="14dp" android:textColor="@color/zen_color_content_on_white_overlay_strongest" android:text="Advertiser headline" />
+        <TextView style="@style/A7Text.W400" android:layout_width="match_parent" android:layout_height="16dp" android:textSize="12dp" android:textColor="@color/a7_native_body" android:ellipsize="end" android:text="Body text from the ad network, up to…" />
+    </LinearLayout>
+    <TextView style="@style/A7Text.W500" android:layout_width="wrap_content" android:layout_height="16dp" android:layout_gravity="top|end" android:layout_marginTop="12dp" android:layout_marginRight="12dp"
+        android:background="@drawable/ad_badge" android:paddingLeft="6dp" android:paddingRight="6dp" android:textSize="11dp" android:textColor="@color/a7_native_badge_text" android:text="Ad" />
+    <namvunhatle.r15.onboarding.views.CssBox android:id="@+id/nat_media" android:layout_width="304dp" android:layout_height="128dp" android:layout_marginLeft="12dp" android:layout_marginTop="60dp" app:a7_cornerRadius="8dp" />
+    <namvunhatle.r15.onboarding.views.CssBox android:layout_width="304dp" android:layout_height="48dp" android:layout_marginLeft="12dp" android:layout_marginTop="196dp" app:a7_fill="@color/a7_native_install" app:a7_cornerRadius="24dp">
+        <TextView style="@style/A7Text.W600" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:textSize="16dp" android:textColor="@color/a7_native_install_text" android:text="Install" />
+    </namvunhatle.r15.onboarding.views.CssBox>
+</namvunhatle.r15.onboarding.views.CssBox>

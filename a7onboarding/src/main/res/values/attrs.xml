@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="A7CssBox">
+        <attr name="a7_fill" format="color" />
+        <attr name="a7_fill2" format="color" />
+        <attr name="a7_fillAngle" format="float" />
+        <attr name="a7_fillStop0" format="float" />
+        <attr name="a7_fillStop1" format="float" />
+        <attr name="a7_cornerRadius" format="dimension" />
+        <attr name="a7_strokeColor" format="color" />
+        <attr name="a7_strokeWidth" format="dimension" />
+        <attr name="a7_shadowY" format="dimension" />
+        <attr name="a7_shadowBlur" format="dimension" />
+        <attr name="a7_shadowColor" format="color" />
+    </declare-styleable>
+    <declare-styleable name="A7RingView">
+        <attr name="a7_ringStroke" format="dimension" />
+        <attr name="a7_ringAlpha" format="float" />
+    </declare-styleable>
+</resources>

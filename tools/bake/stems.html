@@ -1,0 +1,182 @@
+<!doctype html>
+<meta charset="utf-8">
+<script>
+/* Offline bake of the A7 1.6.6 stems — same synths + automation as prototype-a7 1.6.6 (App.tsx startMusic /
+   playAccent / commit). 1.3.x baked ONE finished mix; 1.6 waits for a swipe and then switches song on the beat, so
+   the app mixes stems live (A7Mixer) and these files carry no limiter (the mixer has it, as Web Audio's master did).
+
+   Stem            timebase                         content
+   bed_intro       file 0 of the bed song           bed, file 0 → drop + 32 beats, with the ducking automation
+   bed_loop        —                                bed, beats 16–32 after the drop, at FULL (G04 / wait loop)
+   sfx_intro       same as bed_intro                every accent before the swipe (n < 20)
+   teaser_intro    the teaser song's drop           card 2's song, drop → drop + 32 beats, gain 1
+   teaser_loop     —                                card 2's song, beats 16–32 after its drop
+   sfx_tail        the beat card 2 lands on (b20)   pluck b20½ · riser → b24 · boom b24 · G04 pops b24½…b25½
+   All 48 kHz stereo (Opus decodes at 48 kHz: no resampling anywhere, frame counts stay exact). */
+const SR = 48000
+const T_DROP = 5.3 + 0.02 + 0.45 + 0.3
+const PRE = [
+  { n: 6, kind: 'pluck', f: 784 },
+  { n: 8, kind: 'gap' }, { n: 8, kind: 'swap' }, { n: 8, kind: 'pluck', f: 988 },
+  { n: 10, kind: 'gap' }, { n: 10, kind: 'swap' }, { n: 10, kind: 'pluck', f: 1175 },
+  { n: 13, kind: 'ring' },
+  { n: 14, kind: 'tick', f: 1320 }, { n: 14.5, kind: 'pluck', f: 988 }, { n: 15, kind: 'tick', f: 1568 },
+  { n: 16, kind: 'ring' }, { n: 18, kind: 'pop', f: 660 }, { n: 18.5, kind: 'pop', f: 520 },
+]
+// relative to the landing beat (N_PLAY = 20): name lights ½ beat in, riser into the phone, boom on G04 (b24), 5 sticker pops
+const TAIL = [
+  { n: 0.5, kind: 'pluck', f: 988 }, { n: 4, kind: 'rise' }, { n: 4, kind: 'boom' },
+  { n: 4.5, kind: 'pop', f: 520 }, { n: 4.75, kind: 'pop', f: 580 }, { n: 5, kind: 'pop', f: 640 },
+  { n: 5.25, kind: 'pop', f: 700 }, { n: 5.5, kind: 'pop', f: 760 },
+]
+function env(ctx, when, peak, decay) {
+  const g = ctx.createGain()
+  g.gain.setValueAtTime(0.0001, when)
+  g.gain.exponentialRampToValueAtTime(peak, when + 0.005)
+  g.gain.exponentialRampToValueAtTime(0.0001, when + decay)
+  return g
+}
+function voice(ctx, out, when, type, f0, f1, glide, peak, decay) {
+  const o = ctx.createOscillator()
+  o.type = type
+  o.frequency.setValueAtTime(f0, when)
+  o.frequency.exponentialRampToValueAtTime(f1, when + glide)
+  const g = env(ctx, when, peak, decay)
+  o.connect(g).connect(out)
+  o.start(when); o.stop(when + decay + 0.02)
+}
+function playAccent(ctx, out, a, when, noise, beat) {
+  if (a.kind === 'pluck') {
+    voice(ctx, out, when, 'square', a.f * 4, a.f * 2, 0.004, 0.25, 0.012)
+    voice(ctx, out, when, 'triangle', a.f * 0.97, a.f, 0.03, 0.95, 0.45)
+    voice(ctx, out, when, 'sine', a.f * 2, a.f * 2, 0.01, 0.4, 0.22)
+  } else if (a.kind === 'tick') {
+    voice(ctx, out, when, 'square', a.f * 3, a.f * 2, 0.003, 0.2, 0.01)
+    voice(ctx, out, when, 'triangle', a.f, a.f, 0.01, 0.7, 0.09)
+  } else if (a.kind === 'pop') {
+    voice(ctx, out, when, 'sine', a.f * 1.8, a.f * 0.6, 0.07, 0.6, 0.12)
+  } else if (a.kind === 'swap') {
+    const n = ctx.createBufferSource(); n.buffer = noise
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.2
+    const t0 = when - 0.14
+    bp.frequency.setValueAtTime(500, t0); bp.frequency.exponentialRampToValueAtTime(5000, when)
+    const g = ctx.createGain()
+    g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.5, when - 0.01); g.gain.linearRampToValueAtTime(0, when + 0.01)
+    n.connect(bp).connect(g).connect(out)
+    n.start(t0); n.stop(when + 0.03)
+  } else if (a.kind === 'rise') {
+    const n = ctx.createBufferSource(); n.buffer = noise; n.loop = true
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.4
+    const t0 = when - beat
+    bp.frequency.setValueAtTime(300, t0); bp.frequency.exponentialRampToValueAtTime(6000, when)
+    const g = ctx.createGain()
+    g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.35, when - 0.02); g.gain.linearRampToValueAtTime(0, when + 0.01)
+    n.connect(bp).connect(g).connect(out)
+    n.start(t0); n.stop(when + 0.03)
+  } else if (a.kind === 'boom') {
+    voice(ctx, out, when, 'sine', 120, 46, 0.22, 0.9, 0.6)
+    voice(ctx, out, when, 'triangle', 1568 * 0.97, 1568, 0.03, 0.5, 0.5)
+    voice(ctx, out, when, 'sine', 3136, 3136, 0.01, 0.22, 0.3)
+  } else if (a.kind === 'ring') {
+    const o = ctx.createOscillator(); o.frequency.value = 1320
+    const trem = ctx.createGain(); trem.gain.value = 0
+    const lfo = ctx.createOscillator(); lfo.type = 'square'; lfo.frequency.value = 16
+    const lfoAmt = ctx.createGain(); lfoAmt.gain.value = 0.5
+    lfo.connect(lfoAmt).connect(trem.gain)
+    const g = env(ctx, when, 0.32, 0.34)
+    o.connect(trem).connect(g).connect(out)
+    for (const n of [o, lfo]) { n.start(when); n.stop(when + 0.36) }
+  }
+}
+async function decode(url) {
+  const bytes = await (await fetch(url)).arrayBuffer()
+  return new OfflineAudioContext(2, SR, SR).decodeAudioData(bytes)
+}
+function noiseBuf(ctx) {
+  const n = ctx.createBuffer(1, SR, SR)
+  const d = n.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1
+  return n
+}
+// bed: ctx time 0 = file 0 = timeline T_DROP − preroll
+async function bedIntro(buf, tr) {
+  const beat = 60 / tr.bpm, b = (n) => T_DROP + n * beat, origin = T_DROP - tr.preroll
+  const ctx = new OfflineAudioContext(2, Math.round((tr.preroll + 32 * beat) * SR), SR)
+  const at = (tl) => tl - origin
+  const src = ctx.createBufferSource(); src.buffer = buf
+  const gain = ctx.createGain(); src.connect(gain).connect(ctx.destination)
+  const FULL = 0.55, DUCK = 0.22
+  gain.gain.setValueAtTime(FULL, 0)
+  const auto = [
+    [b(5) - 0.1, FULL, 'set'], [b(5) + 0.15, DUCK, 'ramp'],
+    ...PRE.filter((a) => a.kind === 'gap').flatMap((a) => [[b(a.n) - 0.13, 0.02, 'ramp'], [b(a.n) - 0.005, 0.02, 'set'], [b(a.n), DUCK, 'set']]),
+    [b(12), DUCK, 'set'], [b(12) + 0.1, FULL, 'ramp'],
+    [b(14) - 0.15, FULL, 'set'], [b(14), DUCK, 'ramp'], [b(15.75), DUCK, 'set'], [b(16.25), FULL, 'ramp'],
+  ]
+  for (const [tl, v, how] of auto) { if (how === 'set') gain.gain.setValueAtTime(v, at(tl)); else gain.gain.linearRampToValueAtTime(v, at(tl)) }
+  src.start(0, 0)
+  return ctx.startRendering()
+}
+async function loopOf(buf, tr, gainValue) {
+  const beat = 60 / tr.bpm, ls = tr.preroll + 16 * beat, le = tr.preroll + 32 * beat
+  const ctx = new OfflineAudioContext(2, Math.round((le - ls) * SR), SR)
+  const src = ctx.createBufferSource(); src.buffer = buf
+  const gain = ctx.createGain(); gain.gain.value = gainValue
+  src.connect(gain).connect(ctx.destination)
+  src.start(0, ls)
+  return ctx.startRendering()
+}
+async function sfxIntro(tr) {
+  const beat = 60 / tr.bpm, b = (n) => T_DROP + n * beat, origin = T_DROP - tr.preroll
+  const ctx = new OfflineAudioContext(2, Math.round((b(18.5) + 0.6 - origin) * SR), SR)
+  const noise = noiseBuf(ctx)
+  for (const a of PRE) if (a.kind !== 'gap') playAccent(ctx, ctx.destination, a, b(a.n) - origin, noise, beat)
+  return ctx.startRendering()
+}
+async function teaserIntro(buf, tr) {
+  const beat = 60 / tr.bpm
+  const ctx = new OfflineAudioContext(2, Math.round(32 * beat * SR), SR)
+  const src = ctx.createBufferSource(); src.buffer = buf
+  src.connect(ctx.destination)
+  src.start(0, tr.preroll)
+  return ctx.startRendering()
+}
+async function sfxTail(beat) {
+  const ctx = new OfflineAudioContext(2, Math.round((5.5 * beat + 0.4) * SR), SR)
+  const noise = noiseBuf(ctx)
+  for (const a of TAIL) playAccent(ctx, ctx.destination, a, a.n * beat, noise, beat)
+  return ctx.startRendering()
+}
+// Accent stems peak ~1.5 (the web's limiter came after them): stored at ×0.5, the mixer multiplies back (A7Mixer.SFX_GAIN).
+const SCALE = { sfx_intro: 0.5, sfx_tail: 0.5 }
+function pcm16(abuf, scale) {
+  const L = abuf.getChannelData(0), R = abuf.getChannelData(1), n = abuf.length
+  const o = new Int16Array(n * 2); let peak = 0
+  for (let i = 0; i < n; i++) {
+    for (const [c, ch] of [[0, L], [1, R]]) {
+      const v = ch[i] * scale; peak = Math.max(peak, Math.abs(v))
+      o[i * 2 + c] = Math.max(-32768, Math.min(32767, Math.round(v * 32767)))
+    }
+  }
+  return { o, peak, frames: n }
+}
+function b64(i16) {
+  const u8 = new Uint8Array(i16.buffer); let s = ''
+  for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000))
+  return btoa(s)
+}
+window.bake = async (bed, teaser) => {
+  const bb = await decode(bed.src), tb = await decode(teaser.src)
+  const beat = 60 / bed.bpm
+  const out = {
+    bed_intro: await bedIntro(bb, bed),
+    bed_loop: await loopOf(bb, bed, 0.55),
+    sfx_intro: await sfxIntro(bed),
+    teaser_intro: await teaserIntro(tb, teaser),
+    teaser_loop: await loopOf(tb, teaser, 1),
+    sfx_tail: await sfxTail(beat),
+  }
+  const r = {}
+  for (const [k, v] of Object.entries(out)) { const p = pcm16(v, SCALE[k] ?? 1); r[k] = { data: b64(p.o), frames: p.frames, peak: p.peak } }
+  return r
+}
+</script>

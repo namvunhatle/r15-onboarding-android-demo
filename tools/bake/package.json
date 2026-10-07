@@ -2,7 +2,11 @@
   "name": "a7-audio-bake",
   "private": true,
   "type": "module",
-  "description": "Render the A7 trailer mix (music + accents + ducking) offline, with the web prototype's own Web Audio graph.",
-  "scripts": { "bake": "node bake.mjs ../../../prototype-a7 ../../build/baked-wav" },
-  "dependencies": { "playwright": "^1.63.0" }
+  "description": "Render the A7 1.6.6 audio stems offline, with the web prototype's own Web Audio graph (stems.html).",
+  "scripts": {
+    "stems": "node stems.mjs ../../../Ring/R15/prototype-a7_versions/1.6.0-swipe-teaser ../../build/stems-wav"
+  },
+  "dependencies": {
+    "playwright": "^1.63.0"
+  }
 }

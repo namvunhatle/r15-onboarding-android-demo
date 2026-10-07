@@ -1,155 +1,61 @@
-# R15 Onboarding — Android Motion Prototype
+# R15 Onboarding (A7) — Android library
 
-An interactive demo of the R15 onboarding sequence: motion, audio cues, ad placement, and the paths into AI Ringtones and the ringtone catalog.
+The R15 onboarding as **one Android view**: splash, trailer, the swipe-to-continue feed, G04 and its two exits. Ported
+from the web prototype **1.6.6** (variant 1.6 · swipe teaser). This branch, `single-view`, packages it the way the R1
+Mood Animation library is packaged: one folder to copy, one view to put on screen.
 
-Built for the Android development team from the React/Vite web prototype **v1.3.3**.
-
-**This branch — `merge-module` — is XML Views only, in a single module.** On `main` the project has three modules: a shared `:core` library (timeline, audio, tokens and every asset) used by two apps, Compose and XML Views. Here `:core` is merged into `:app-views` and the Compose app is removed, so the code, resources and assets all live in `app-views/`. See [Single module](#single-module).
-
-**Version 1.3.5** keeps one music track, Future Pop Upbeat, shipped as Ogg Opus instead of WAV: the APK is 10 MB instead of 25 MB. **1.3.6** fixes the G01 phone's bottom edge and the G03 phone hand-off, opens the splash progress at 80 %, and drops the comma in the call bubble. **1.3.7** opens about 5× faster: a release build, with start-up work moved off the main thread. See the [changelog](CHANGELOG.md).
-
-Use it to review the experience and discuss implementation. Ads, purchases, AI generation, and destination screens are mocked.
-
-**Adding it to the production app?** Start with the [Integration guide](docs/integration/README.md): what to copy, what to replace, and the rules that must not change.
-
-**Native art.** Figma shapes, text, gradients, shadows, and blurs are drawn in code, following the v1.3.3 motion, audio, and 360 × 800 composition. Only Figma image fills and the destination mocks remain bitmaps. See [Native art](docs/IMPLEMENTATION_NOTES.md#native-art-main).
-
-**Any phone screen.** The scene fills 16:9 to 23:9 phones instead of showing black bars: backgrounds bleed, the genre wall grows, and chrome holds the screen edges. See [Screen sizes](docs/IMPLEMENTATION_NOTES.md#screen-sizes).
-
-**Developers:** start with [`FigmaArt.kt`](app-views/src/main/java/namvunhatle/r15/onboarding/core/FigmaArt.kt), where each Figma component is drawn with its Figma values.
-
-## Design tokens
-
-The A7 screens in Figma are built with the **ZEN design system**: 154 variables are bound across the frames, from ZEN plus the ad SDK kit used by the interstitial. The code uses each of those variables by name, not a copy of its value. When a variable changes in Figma, one regeneration updates the app.
-
-**Naming.** A token keeps its Figma path:
-
-| In Figma | Kotlin (native drawing) | XML layouts |
-| --- | --- | --- |
-| `Color/Background/Accent/Solid/Default` | `Zen.Color.Background.Accent.Solid.Default` (ARGB `Int`) | `@color/zen_color_background_accent_solid_default` |
-| `Corner-Radius/Large` | `Zen.CornerRadius.Large` (dp) | `@dimen/zen_corner_radius_large` |
-| Text style Heading-4: size, line height, letter spacing | `ZenText.Heading4` | `@dimen/zen_typography_font_size_heading_4`, `…line_height_heading_4` |
-| Ad SDK kit `background/bg-overlay` | `AdKit.Background.BgOverlay` | `@color/adkit_background_bg_overlay` |
-
-```kotlin
-Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Zen.ButtonPrimary.Background.Default } // native drawing
-Type(semiBold, ZenText.Heading4)                                                   // a ZEN text style
-```
-
-```xml
-android:textColor="@color/zen_color_content_on_dark_overlay_base"
-android:textSize="@dimen/zen_typography_font_size_heading_4"
-```
-
-The values are those of the ZEN modes the design locks: **Light · Global - Base 14 · Brand Emphasis - S1 · Base Colors Zen**. Letter-spacing tokens are Figma pixels; divide by the font size to get Android's `em` units.
-
-**Where they come from.**
-
-1. `tools/tokens/export_tokens.js` reads the variables bound in the A7 frames from the Figma file. It is read-only and writes nothing to Figma.
-2. `tools/tokens/a7_figma_tokens.json` is the committed snapshot: each variable, its collection, and its resolved value.
-3. `python3 tools/gen_tokens.py` generates `ZenTokens.kt` and `zen_tokens.xml`. Never edit those two files by hand.
-
-**What is not a token.** Some values have no Figma variable behind them. They are drawn literally and live only in `A7Visual.kt` and its XML copy, `a7_visual.xml`; no other file contains a raw colour.
-
-- Splash background art: the grid gradient, the purple glows, the black ramp, the smoke.
-- Spotlight glow sizes, opacities and blurs. The glow colours themselves are tokens.
-- Gradient angles, drop shadows, the phone body, the ring-burst flash and ring opacities.
-- The interstitial's progress bar, the native-ad mock tints, and the demo's own chrome.
-
-A second group in the same file keeps values that Figma now binds to a token but this demo draws differently: solid-white headlines, the opaque lyric card, the bubble's type size and a few others. Each entry names the token that production should use instead.
-
-The full token map, the visual-only table and the regeneration steps are in [Design tokens](docs/DESIGN_TOKENS.md).
+| Folder | What it is |
+| --- | --- |
+| `a7onboarding/` | **The library — the one folder to copy into the app.** `A7OnboardingView` + `A7Ads`. No ad SDK, no Compose. |
+| `sample/` | Demo app: the view full screen, mock ads (`MockAds`), the three screens after the onboarding as screenshots. |
+| `tools/` | Audio stem bake (`tools/bake/stems.*`, `tools/encode_stems.sh`) and the design-token generator. |
 
 ## Try it
 
-- **[Open the web demo](https://prototype-a7.vercel.app)** to watch the sequence in a browser. The live site may change after this release.
-- **[Download version 1.3.7](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.3.7-merge-module)**. Requires Android 9 / API 28 or later.
-- **[Build from source](#build-locally)** if you want to inspect or change the implementation.
-
-| Build | APK | Application ID |
-| --- | --- | --- |
-| XML Views | [A7-XMLViews-1.3.7.apk](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/download/v1.3.7-merge-module/A7-XMLViews-1.3.7.apk) | `namvunhatle.r15.onboarding.views.responsive` |
-
-This is a release build (R8, not debuggable) signed with a debug key for review. If Android asks, allow installation from the app used to open the download.
-
-## What to look for
-
-1. The splash logo expands and dissolves into a mock interstitial.
-2. Tap **Skip ads**. The logo returns briefly, then the ring burst opens the introduction.
-3. Watch the catalog scene, the **Same song. Any name.** sequence, and the incoming-call example.
-4. At **Yours is next.**, choose a path:
-   - **Explore AI Ringtones** → paywall mock → AI screen mock.
-   - **Browse ringtones** → Home screen mock.
-
-Closing the paywall or tapping its subscribe area opens the AI mock. No purchase is made. Two separate native-ad placeholders appear during the introduction.
-
-See [Experience](docs/EXPERIENCE.md) for the scene sequence and timing.
-
-## Review controls
-
-| Action | Result |
-| --- | --- |
-| Tap the circular replay button | Restart from the splash |
-| Open with a timeline time | Inspect a scene without playing its audio; see [instructions](docs/IMPLEMENTATION_NOTES.md#inspect-a-timeline-time) |
-| Open with `--ez dump true` | Save each native element as a PNG, for comparison with Figma; see [Native art](docs/IMPLEMENTATION_NOTES.md#native-art-main) |
-
-The replay button appears on the interstitial and destination screens.
-
-## Read the code
-
-| Folder | Purpose |
-| --- | --- |
-| `app-views/src/main/java/…/onboarding/core/` | Engine: timeline, scene script, playback, audio, geometry, native art, tokens |
-| `app-views/src/main/java/…/onboarding/views/` | Renderer: `MainActivity`, custom views |
-| `app-views/src/main/res/`, `assets/` | Every image, font, vector, token XML, layout; audio (Ogg Opus) and scene JSON |
-| `…/core/FigmaArt.kt` | **Start here for Figma → code:** each Figma component drawn natively, with its Figma values |
-| `…/core/A7Native.kt` | Which element uses which component, and what stays a bitmap |
-| `…/core/A7Glow.kt` | Figma layer blurs, computed at startup |
-| `…/core/Viewport.kt`, `Scene.kt` | Screen size → which elements bleed, grow or hold an edge |
-| `…/core/ZenTokens.kt`, `res/values/zen_tokens.xml` | Figma variables as code, generated by `tools/gen_tokens.py` — do not edit |
-| `…/core/A7Visual.kt`, `res/values/a7_visual.xml` | The only raw colours: values Figma draws without a variable, and v1.3.3 values kept over a token |
-| `tools/` | Layout and token generation, optional audio baking and Ogg encoding |
-
-- [Experience](docs/EXPERIENCE.md) — what each scene demonstrates.
-- [Implementation notes](docs/IMPLEMENTATION_NOTES.md) — where to make changes and what needs production work.
-- [Design tokens](docs/DESIGN_TOKENS.md) — what uses which token, and every visual-only value with its Figma node.
-- [Changelog](CHANGELOG.md) — what changed in each version.
-- [Credits](docs/CREDITS.md) — music, fonts, icons, and asset sources.
-
-## Known limits
-
-- **Phones only.** Screens from about 16:9 to 23:9 are filled; tablets and landscape are still letterboxed. Destination screens are screenshots, so their margins show edge colour, not layout.
-- **Replay during a transition can leave an old destination visible.** Wait for the destination to settle before replaying. Relaunch the app if it occurs.
-- **Time inspection does not fully freeze the final scene.** Its idle animation can keep running.
-- **Reduced motion is partial.** Some splash movement remains when system animations are disabled.
-- Font scaling is fixed. Status bars and the camera cutout are drawn into the demo; destination screens are screenshots with tap areas.
-- **Launch** takes about 0.31 s to the first frame on the emulator. Blurs, glows and native art are prepared off the main thread; see [Rendering details](docs/IMPLEMENTATION_NOTES.md#rendering-details). Not yet measured on a physical phone.
-- Smoothness, audio timing, and the GPU memory of the cached element layers have not been measured on physical devices.
-
-These limitations apply to this build as they do to 1.3.4. See [Validation and known limitations](docs/IMPLEMENTATION_NOTES.md#validation-and-known-limitations) for the review scope.
-
-## Build locally
-
-Open this repository in Android Studio, configure **JDK 17**, and install **Android SDK Platform 37**. Let Android Studio create `local.properties`, or set `ANDROID_HOME` to your SDK directory.
-
-```sh
-./gradlew :app-views:assembleRelease
-adb install -r app-views/build/outputs/apk/release/app-views-release.apk
+```
+./gradlew :sample:installRelease
 ```
 
-These commands build version 1.3.7. The release build is signed with your local debug key, so it installs like a debug build. Use `assembleDebug` only for debugging: a debuggable build opens about 3× slower. The project pins Gradle 9.7.1, AGP 9.4.1 and Kotlin 2.4.20 (the same compiler as `main`; without the pin, AGP falls back to its bundled 2.2.10). The Gradle wrapper is included; the first build needs network access to download dependencies. Windows users can run `gradlew.bat`.
+The release build is R8-minified and signed with the debug key (a debuggable build opens about 3× slower).
+`adb shell am start -n namvunhatle.r15.onboarding.sample/.MainActivity --ef t 12.4` opens frozen at 12.4 s.
 
-## Single module
+## Add it to the app
 
-What moved from `main`:
+```xml
+<namvunhatle.r15.onboarding.A7OnboardingView android:id="@+id/onboarding"
+    android:layout_width="match_parent" android:layout_height="match_parent" />
+```
 
-| On `main` | On this branch |
-| --- | --- |
-| `core/src/main/java/…/onboarding/core/` | `app-views/src/main/java/…/onboarding/core/` — package name unchanged |
-| `core/src/main/res/` (images, fonts, vectors, `zen_tokens.xml`, `a7_visual.xml`, theme) | `app-views/src/main/res/` |
-| `core/src/main/assets/` (audio, `manifest.json`, `tracks.json`) | `app-views/src/main/assets/` |
-| `app-compose/` | removed |
+```kotlin
+val a7 = findViewById<A7OnboardingView>(R.id.onboarding)
+a7.ads = MyAds(this)               // your ad SDK behind A7Ads; null = no ads
+a7.onExplore = { openPaywall() }    // "Explore AI Ringtones" → paywall → AI Ringtones
+a7.onBrowse = { openHome() }        // "Browse ringtones" → Home, no paywall
+a7.start()
+```
 
-Code changes: `A7Art.kt` and `A7Native.kt` import `namvunhatle.r15.onboarding.views.R`, since the library's own `R` no longer exists. The tools in `tools/` write to the new paths.
+Full steps, the ads contract and what the host owns: **[docs/INTEGRATION.md](docs/INTEGRATION.md)**.
 
-**Checked (merge, 1.3.4).** Comparing the merged APK with the `main` 1.3.4 XML Views build: all 85 resource and asset files are byte-identical, the 1,522 resource entries match, and the bytecode of all 203 app classes is the same apart from dex offsets, `R` class names, and Kotlin's module suffix on `internal` members (`$core` → `$app_views`). Lint: 0 errors. On an Android 16 emulator at 1080 × 2400, both paths run without a crash, and screenshots at 14 timeline points are pixel-identical to the 1.3.4 XML Views APK.
+## What is in the view
+
+- **Drawn in code.** Text, headlines, buttons, tiles, stickers, phone frames, the lyric card's name reel, the feed cards,
+  glows. Six bitmaps remain, all artwork that is an image in Figma too: the splash background and smoke, the logo, and
+  the three phone screens.
+- **Real status bar.** The scene draws edge to edge under the system status bar; its top 40 dp is kept free for it.
+  Nothing is painted in its place.
+- **Music mixed live.** Six Ogg Opus stems (≈ 710 KB): bed, accents, the teaser song, its accents. The feed's wait
+  muffles the bed, the swipe opens it, and card 2's song comes in on the music's next beat. Music stays off on silent /
+  vibrate or when another app plays music.
+- **Ads are the host's.** The library only says when (`A7Ads`): splash banner, interstitial after the splash, native #1
+  under the G03 call, native #2 on G04. Slots show a loading skeleton and collapse when there is no ad.
+- **Any phone screen**, 16:9 to 23:9: backgrounds bleed and chrome holds the edges.
+- **Reduced motion**: with system animations off, entrances become fades.
+
+Design tokens (ZEN, 154 Figma variables): [docs/DESIGN_TOKENS.md](docs/DESIGN_TOKENS.md). Rendering details:
+[docs/IMPLEMENTATION_NOTES.md](docs/IMPLEMENTATION_NOTES.md) (written for 1.3.x; the native-art and screen-size parts
+still hold). History: [CHANGELOG.md](CHANGELOG.md).
+
+## Not verified
+
+Feel and sound on a physical phone: the emulator renders on the CPU and has no audio. The swipe's haptics, the music's
+sync with the picture, and the drag-opened lowpass need a real device.

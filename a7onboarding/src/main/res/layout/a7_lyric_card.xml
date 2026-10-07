@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A7 / Lyric Card, 1.6.3+: "Hey [name]" + one still line. The name is a reel (LyricView): the current name wears the
+     pill, the last and next ones peek faint above and below. Opaque on purpose: any see-through lets the phone's own
+     "SAM" ghost through. -->
+<namvunhatle.r15.onboarding.views.CssBox xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:tag="card"
+    android:layout_width="312dp" android:layout_height="230dp"
+    android:layout_marginLeft="24dp" android:layout_marginTop="414dp"
+    app:a7_fill="@color/a7_card_top" app:a7_fill2="@color/a7_card_bottom" app:a7_fillAngle="180"
+    app:a7_cornerRadius="@dimen/zen_corner_radius_2xlarge" app:a7_strokeColor="@color/zen_color_border_overlay_subtle_default" app:a7_strokeWidth="1dp"
+    app:a7_shadowY="20dp" app:a7_shadowBlur="40dp" app:a7_shadowColor="@color/a7_shadow">
+
+    <namvunhatle.r15.onboarding.views.LyricView
+        android:id="@+id/a7_lyric"
+        android:layout_width="match_parent" android:layout_height="match_parent"
+        android:contentDescription="Hey Sam, pick up, it’s for you" />
+</namvunhatle.r15.onboarding.views.CssBox>

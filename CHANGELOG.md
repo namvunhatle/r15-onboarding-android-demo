@@ -2,6 +2,42 @@
 
 All Android builds share the v1.3.3 web prototype's timeline, audio and scene script. Releases: [GitHub](https://github.com/namvunhatle/r15-onboarding-android-demo/releases).
 
+
+## 1.6.6 — the web's 1.6 onboarding, as one view (branch `single-view`)
+
+Port of web prototype 1.6.6 (variant 1.6 · swipe teaser) and a new package shape, after the R1 Mood Animation library.
+
+**Package**
+- `a7onboarding/` is a library: one view (`A7OnboardingView`: `start()`, `onExplore`, `onBrowse`) and one interface
+  (`A7Ads`). The app copies the folder and includes it. Integration: [docs/INTEGRATION.md](docs/INTEGRATION.md).
+- `sample/` is the demo: mock ads, the screens after the onboarding as screenshots, a replay button.
+- No ad SDK in the library: the interstitial, banner and both natives go through `A7Ads`. Slots show a loading skeleton
+  and collapse when there is no ad. The mock interstitial, banner and native art moved to the sample.
+- Every resource prefixed `a7_` (`zen_` / `adkit_` for tokens), assets under `assets/a7/`. Compose app dropped.
+
+**1.6 trailer**
+- G03's call ends at b18 and the phone shows the AI feed; card 2 peeks and the trailer **waits for a swipe** at b19½
+  (glow breathing, one hint per bar on the music's downbeat, a "Swipe for the next ringtone" pill that is also a button).
+- The finger moves the feed 1:1 (rubber band down); 70 dp, a fling or a tap takes it. Card 2 (Summer Crush · for Emma)
+  lands on the music's next beat ≥ 0.3 s away, its song comes in, EMMA lights up.
+- b22½ the chrome leaves, b23 the camera flies into the phone and EMMA lifts off card 2 and lands as G04's Emma
+  sticker on the downbeat (web 1.6.5). G04 adds the caption "With any name you like ↓".
+- G02: the lyric card is "Hey [name]" + "pick up, it's for you ♪", the name a picker-style reel (Sam → Emma → Jake,
+  Mia peeks); the four G02 stickers are gone. G03 bubble: "Hey Sam pick up…". The "Your name" field under G04's
+  headline is gone. Native #1 sits at y 524, under the swipe area.
+- Haptics at the swipe threshold, the commit, card 2's landing and G04.
+
+**Audio**
+- Six stems instead of one baked mix, mixed live (`A7Mixer`): the bed with its ducking, accents, the teaser song and its
+  accents, a lowpass the drag opens, a limiter shaped like Web Audio's compressor. `tools/bake/stems.*` renders them
+  with the web's own graph; `tools/encode_stems.sh` encodes them (Opus 48 kHz, ≈ 710 KB).
+
+**Status bar**
+- The real system status bar shows over the scene; the painted Figma one ("9:30", fake icons, camera dot) is gone.
+
+Verified on emulators (1080 × 2400 and 1080 × 1920, no audio): the whole path — splash, ad, trailer, wait, swipe,
+fly-in, G04, both exits, native #2's skeleton → ad. Lint: 0 errors. Not verified: sound, sync and haptics on a phone.
+
 ## 1.3.7 (branch `merge-module`) — faster launch
 
 Cold start on an Android 16 emulator (1080 × 2400, Apple M1 host), time to first frame: **1.57 s → 0.31 s**.
