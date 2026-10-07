@@ -2,7 +2,7 @@
 
 [Back to README](../README.md)
 
-The onboarding as the user sees it, **1.6.6** (web variant 1.6 · swipe teaser). Scene ids match `A7Script.kt`.
+The onboarding as the user sees it, **1.6.7** (web variant 1.6 · swipe teaser). Scene ids match `A7Script.kt`.
 
 ## Flow
 

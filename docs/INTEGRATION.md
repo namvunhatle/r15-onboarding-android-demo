@@ -50,6 +50,25 @@ a7.start()
   and not once G04 is reached.
 - `restart()` goes back to the splash. `seekFrozen(t)` opens frozen at second `t` (review only).
 
+**From a Compose app.** The library is a classic `View` (no Compose inside); host it with `AndroidView`, full screen:
+
+```kotlin
+AndroidView(
+    modifier = Modifier.fillMaxSize(),
+    factory = { ctx ->
+        A7OnboardingView(ctx).apply {
+            ads = myAds                 // your A7Ads
+            onExplore = { /* paywall */ }
+            onBrowse = { /* Home */ }
+            start()
+        }
+    },
+)
+```
+
+Call `start()` once, in `factory` (not in `update`). Removing the composable detaches the view, which releases audio and
+ads.
+
 ## 4. Implement `A7Ads`
 
 The library has no ad SDK. The app implements the interface with its own (AdMob, mediation, its wrapper):

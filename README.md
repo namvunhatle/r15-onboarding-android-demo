@@ -1,7 +1,10 @@
 # R15 Onboarding (A7) — Android library
 
+> **XML Views only — no Jetpack Compose.** One custom `FrameLayout` + XML layouts; the library depends on `androidx.core` alone.
+> The Compose build lives on [`main`](https://github.com/namvunhatle/r15-onboarding-android-demo/tree/main) (1.3.7, older). Compose apps can host this view with `AndroidView` (see [INTEGRATION](docs/INTEGRATION.md)).
+
 The R15 onboarding as **one Android view**: splash → interstitial → trailer → swipe-to-continue feed → G04 with two
-exits. Ported from web prototype **1.6.6** (variant 1.6 · swipe teaser). Packaged like the R1 Mood Animation library:
+exits. Ported from web prototype **1.6.7** (variant 1.6 · swipe teaser). Packaged like the R1 Mood Animation library:
 **copy one folder, put one view on screen.**
 
 ```kotlin
@@ -11,7 +14,7 @@ a7.onBrowse = { openHome() }        // "Browse ringtones"      → Home, no payw
 a7.start()
 ```
 
-**Demo APK:** [release v1.6.6-single-view](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.6.6-single-view) ·
+**Demo APK:** [release v1.6.7-single-view](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.6.7-single-view) ·
 `./gradlew :sample:installRelease`
 
 ## Structure

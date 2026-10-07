@@ -1,6 +1,6 @@
 # Changelog
 
-All Android builds share the v1.3.3 web prototype's timeline, audio and scene script. Releases: [GitHub](https://github.com/namvunhatle/r15-onboarding-android-demo/releases).
+This branch (`single-view`) is XML Views only, no Compose. Entries 1.3.x–1.3.7 below are history from `main` / `merge-module`, which shipped Compose and XML Views apps side by side. Releases: [GitHub](https://github.com/namvunhatle/r15-onboarding-android-demo/releases).
 
 
 
