@@ -7,8 +7,8 @@ android {
         applicationId = "namvunhatle.r15.onboarding.sample"
         minSdk = 28
         targetSdk = 37
-        versionCode = 166
-        versionName = "1.6.6"
+        versionCode = 167
+        versionName = "1.6.7"
     }
     // Review builds are release builds (R8, not debuggable) signed with the debug key: a debuggable build opens ~3× slower.
     buildTypes {

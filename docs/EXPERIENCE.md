@@ -27,7 +27,7 @@ One stop for the user: the swipe on the feed (or a tap on its pill). Everything 
 | G01 · Thousands of ringtones | Genre wall, phone with a song list | Countdown wave runs to beat 19 |
 | G02 · Same song. Any name. | Phone (Morning Glow) + lyric card "Hey [name]" / "pick up, it's for you ♪" | The name reel rolls Sam → Emma → Jake (Mia peeks: there are more) |
 | G03 · Rings for you. | Phone ringing, bubble “Hey Sam pick up…”, native #1 | Words light on the half beat; native #1 after the line lands |
-| Feed (wait) | The phone shows the AI feed; card 2 peeks; pill "Swipe for the next ringtone" | Pauses. Glow breathes, one hint per bar; the bed is muffled |
+| Feed (wait) | The phone shows the AI feed; card 2 peeks; pill "Tap to hear the next one" (the swipe works too) | Pauses. Glow breathes, one hint per bar; the bed is muffled |
 | Card 2 | Summer Crush · Pop · for Emma | Lands on the music's next beat; its song takes over; EMMA lights |
 | Fly-in | Camera into the phone | EMMA lifts off card 2 and becomes G04's Emma sticker |
 | G04 · Yours is next. | 6 name stickers, "With any name you like ↓", two buttons, native #2 | Native #2 shows a skeleton until the app's ad arrives |

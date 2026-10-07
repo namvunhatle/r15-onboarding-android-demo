@@ -3,6 +3,14 @@
 All Android builds share the v1.3.3 web prototype's timeline, audio and scene script. Releases: [GitHub](https://github.com/namvunhatle/r15-onboarding-android-demo/releases).
 
 
+
+## 1.6.7 — the pill says what you get
+
+- The wait's pill reads **"Tap to hear the next one"** with a play icon, instead of "Swipe for the next ringtone" with
+  an up chevron (user, 2026-10-07: the gesture was hard to read; say the reward). The swipe still works: the hint
+  dot and card 2's peek keep teaching it. Same change as the web prototype 1.6.7.
+- `versionCode` 167.
+
 ## 1.6.6 — the web's 1.6 onboarding, as one view (branch `single-view`)
 
 Port of web prototype 1.6.6 (variant 1.6 · swipe teaser) and a new package shape, after the R1 Mood Animation library.

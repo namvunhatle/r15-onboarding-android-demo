@@ -40,7 +40,7 @@ The demo uses processed excerpts mixed with synthesized sound cues. The bundled 
 
 **Lucide** — Lucide Icons and Contributors.
 
-Replay (sample) and the swipe pill's chevron (library).
+Replay (sample) and the pill's play icon (library).
 
 - [Project](https://github.com/lucide-icons/lucide)
 - [License and attribution notices](licenses/Lucide-LICENSE.txt)

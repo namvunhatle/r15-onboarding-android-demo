@@ -96,10 +96,10 @@
             <View android:id="@+id/a7_hot_swipe" android:layout_width="360dp" android:layout_height="365dp" android:layout_marginLeft="0dp" android:layout_marginTop="150dp" android:contentDescription="Swipe up for the next ringtone" />
             <namvunhatle.r15.onboarding.views.RadialView android:tag="touch" android:layout_width="30dp" android:layout_height="30dp" android:layout_marginLeft="165dp" android:layout_marginTop="397dp" />
             <namvunhatle.r15.onboarding.views.CssBox android:id="@+id/a7_swipe_pill" android:tag="swipe_pill" android:layout_width="268dp" android:layout_height="44dp" android:layout_marginLeft="46dp" android:layout_marginTop="456dp"
-                android:contentDescription="Swipe up for the next ringtone" app:a7_fill="@color/a7_glass" app:a7_cornerRadius="22dp" app:a7_strokeColor="@color/zen_color_border_overlay_subtle_default" app:a7_strokeWidth="1dp">
+                android:contentDescription="Tap to hear the next one" app:a7_fill="@color/a7_glass" app:a7_cornerRadius="22dp" app:a7_strokeColor="@color/zen_color_border_overlay_subtle_default" app:a7_strokeWidth="1dp">
                 <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent" android:layout_gravity="center" android:gravity="center_vertical" android:orientation="horizontal">
-                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/a7_ic_chevron_up" android:importantForAccessibility="no" />
-                    <TextView style="@style/A7Text.W600" android:layout_width="wrap_content" android:layout_height="20dp" android:layout_marginLeft="6dp" android:textSize="15dp" android:textColor="@color/zen_color_content_on_dark_overlay_strongest" android:text="Swipe for the next ringtone" />
+                    <ImageView android:layout_width="15dp" android:layout_height="15dp" android:src="@drawable/a7_ic_play" android:importantForAccessibility="no" />
+                    <TextView style="@style/A7Text.W600" android:layout_width="wrap_content" android:layout_height="20dp" android:layout_marginLeft="6dp" android:textSize="15dp" android:textColor="@color/zen_color_content_on_dark_overlay_strongest" android:text="Tap to hear the next one" />
                 </LinearLayout>
             </namvunhatle.r15.onboarding.views.CssBox>
             <View android:tag="g04_sam" android:layout_width="113.5dp" android:layout_height="88.5dp" android:layout_marginLeft="0dp" android:layout_marginTop="77.8dp" android:importantForAccessibility="no" />

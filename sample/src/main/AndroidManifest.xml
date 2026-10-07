@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="A7 Onboarding 1.6.6"
+        android:label="A7 Onboarding 1.6.7"
         android:icon="@drawable/ic_a7_launcher"
         android:theme="@style/Theme.A7Sample">
         <activity

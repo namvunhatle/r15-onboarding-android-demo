@@ -381,7 +381,7 @@ object A7Script {
 
         /* ---------------- 1.6 · the feed ----------------
            b18: the call ends — the phone shows the AI feed card it was ringing with (Morning Glow · for Sam)
-           b18½: card 2 peeks at the bottom + "Swipe up" · b19½: pause until the swipe (A7Player) */
+           b18½: card 2 peeks at the bottom + the pill "Tap to hear the next one" · b19½: pause until the swipe (A7Player) */
         out(one("g03_bubble"), b(A7Times.N_FEED) - 0.1, v("scale" to 0.85), 0.2)
         out(g3rings, b(A7Times.N_FEED) - 0.1, v("scale" to 1.15), 0.4, Ease.power1Out) // the call is over
         t.init(one("feed_stack"), v("y" to 0))
