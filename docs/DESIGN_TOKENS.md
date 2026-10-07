@@ -9,11 +9,11 @@ Figma (variables bound in the A7 frames)
   └─ tools/tokens/export_tokens.js     read-only export
        └─ tools/tokens/a7_figma_tokens.json   snapshot in the repo: 154 variables and their resolved values
             └─ tools/gen_tokens.py
-                 ├─ app-views/…/core/ZenTokens.kt      native drawing
-                 └─ app-views/src/main/res/values/zen_tokens.xml   XML layouts: colors, dimens
+                 ├─ a7onboarding/…/core/ZenTokens.kt      native drawing
+                 └─ a7onboarding/src/main/res/values/zen_tokens.xml   XML layouts: colors, dimens
 ```
 
-Values without a variable are in [`A7Visual.kt`](../app-views/src/main/java/namvunhatle/r15/onboarding/core/A7Visual.kt) and its XML copy, [`a7_visual.xml`](../app-views/src/main/res/values/a7_visual.xml). No other source file contains a raw colour.
+Values without a variable are in [`A7Visual.kt`](../a7onboarding/src/main/java/namvunhatle/r15/onboarding/core/A7Visual.kt) and its XML copy, [`a7_visual.xml`](../a7onboarding/src/main/res/values/a7_visual.xml). No other source file contains a raw colour.
 
 ## Using a token
 
@@ -40,8 +40,7 @@ A token keeps its Figma path:
 | --- | --- |
 | Tagline, disclaimer | `On-Dark-Overlay/Strongest`, `/Base`; Heading-4, Caption |
 | Splash progress | `Background/Neutral/Subtle/Default`, `Background/Active/Accent/Solid` |
-| Banner ad | `White-Solid`, `Support/Neutral/Subtle`, `On-White-Overlay/Strongest` and `/Base`, `Warning/Solid`, `On-Brights`; Body-Small, Caption; radius Small |
-| Status bar | `Project.White`, `Content/On-Colors` |
+| Banner ad (sample mock) | `White-Solid`, `Support/Neutral/Subtle`, `On-White-Overlay/Strongest` and `/Base`, `Warning/Solid`, `On-Brights`; Body-Small, Caption; radius Small |
 | Spotlights G01–G03 | base `Support/Neutral/Deep`; glows `Accent/Gradient/Default-Left` and `/Right`, `Support/Pink`, `/Violet`, `/Teal`, `/Blue` `Solid` |
 | Headline echoes | Same colour tokens per screen; size Display-1, tracking ALL-CAPS-M; line 2 `On-Dark-Overlay/Strongest` |
 | Genre tiles | `Support/*/Solid` → `Support/*/Deep`; title `On-Dark-Overlay/Strongest`, Heading-1; radius Large; padding Medium |
@@ -51,8 +50,8 @@ A token keeps its Figma path:
 | Lyric card | border `Border/Overlay/Subtle`; tag `Tag/Background`, `Tag/Border`, `Content/Neutral/Strongest`; pill `Accent/Solid`, `On-Accent`; text Body-Base, Heading-2, Heading-4, `On-Dark-Overlay/Strongest`, `/Base` and `/Light`; radii 2XLarge and Base; padding and gaps |
 | Bubble | `Accent/Solid/Default`, `On-Accent/Default` |
 | Wave | `Active/Accent/Solid`, `On-Dark-Overlay/Strongest`, `/Disabled`; timecode `/Base` and Body-Base size |
-| Native ad | `White-Solid`, headline `On-White-Overlay/Strongest`; radii Large and Small |
-| Interstitial | `AdKit.Background.BgOverlay`, `AdKit.Content.CtEmphasis` and `CtMedium`, AdKit label-md type; radius 2XLarge |
+| Native ad (sample mock) | `White-Solid`, headline `On-White-Overlay/Strongest`; radii Large and Small |
+| Interstitial (sample mock) | `AdKit.Background.BgOverlay`, `AdKit.Content.CtEmphasis` and `CtMedium`, AdKit label-md type; radius 2XLarge |
 
 ## Visual-only values: no token in Figma
 
@@ -90,4 +89,4 @@ The demo matches the v1.3.3 build 1:1. Where the Figma file has since bound a di
 | Bubble text | 18 / 24 −0.4 | Body-Base 14 / 20 −0.32 |
 | Wave timecode | no letter spacing | Body-Base −0.32 |
 | Divider | white 8 % | `Border/Neutral/Pale/Default` (`#010101` at 6.3 %, dark on dark) |
-| Native ad | body `#666666`, badge `#FBBD23` with `#0D0D0D` 11 px, Install `#FDE8F5` / `#7A1F84` 16 / 24 | `On-White-Overlay/Base`, `Warning/Solid` + `On-Brights` + Caption, `Accent/Subtle` + `Content/Accent/Base` + Button-Label-L |
+| Native ad (sample mock) | body `#666666`, badge `#FBBD23` with `#0D0D0D` 11 px, Install `#FDE8F5` / `#7A1F84` 16 / 24 | `On-White-Overlay/Base`, `Warning/Solid` + `On-Brights` + Caption, `Accent/Subtle` + `Content/Accent/Base` + Button-Label-L |

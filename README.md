@@ -1,61 +1,79 @@
 # R15 Onboarding (A7) — Android library
 
-The R15 onboarding as **one Android view**: splash, trailer, the swipe-to-continue feed, G04 and its two exits. Ported
-from the web prototype **1.6.6** (variant 1.6 · swipe teaser). This branch, `single-view`, packages it the way the R1
-Mood Animation library is packaged: one folder to copy, one view to put on screen.
-
-| Folder | What it is |
-| --- | --- |
-| `a7onboarding/` | **The library — the one folder to copy into the app.** `A7OnboardingView` + `A7Ads`. No ad SDK, no Compose. |
-| `sample/` | Demo app: the view full screen, mock ads (`MockAds`), the three screens after the onboarding as screenshots. |
-| `tools/` | Audio stem bake (`tools/bake/stems.*`, `tools/encode_stems.sh`) and the design-token generator. |
-
-## Try it
-
-```
-./gradlew :sample:installRelease
-```
-
-The release build is R8-minified and signed with the debug key (a debuggable build opens about 3× slower).
-`adb shell am start -n namvunhatle.r15.onboarding.sample/.MainActivity --ef t 12.4` opens frozen at 12.4 s.
-
-## Add it to the app
-
-```xml
-<namvunhatle.r15.onboarding.A7OnboardingView android:id="@+id/onboarding"
-    android:layout_width="match_parent" android:layout_height="match_parent" />
-```
+The R15 onboarding as **one Android view**: splash → interstitial → trailer → swipe-to-continue feed → G04 with two
+exits. Ported from web prototype **1.6.6** (variant 1.6 · swipe teaser). Packaged like the R1 Mood Animation library:
+**copy one folder, put one view on screen.**
 
 ```kotlin
-val a7 = findViewById<A7OnboardingView>(R.id.onboarding)
-a7.ads = MyAds(this)               // your ad SDK behind A7Ads; null = no ads
-a7.onExplore = { openPaywall() }    // "Explore AI Ringtones" → paywall → AI Ringtones
-a7.onBrowse = { openHome() }        // "Browse ringtones" → Home, no paywall
+a7.ads = MyAds(this)               // the app's ad SDK behind A7Ads (null = no ads)
+a7.onExplore = { openPaywall() }    // "Explore AI Ringtones"  → paywall → AI Ringtones
+a7.onBrowse = { openHome() }        // "Browse ringtones"      → Home, no paywall
 a7.start()
 ```
 
-Full steps, the ads contract and what the host owns: **[docs/INTEGRATION.md](docs/INTEGRATION.md)**.
+**Demo APK:** [release v1.6.6-single-view](https://github.com/namvunhatle/r15-onboarding-android-demo/releases/tag/v1.6.6-single-view) ·
+`./gradlew :sample:installRelease`
+
+## Structure
+
+```text
+a7onboarding/                     ◀ THE LIBRARY — the one folder to copy into the app
+├─ src/main/java/namvunhatle/r15/onboarding/
+│  ├─ A7OnboardingView.kt         public · the view: start(), restart(), onExplore, onBrowse, ads
+│  ├─ A7Ads.kt                    public · what the app implements with its ad SDK (banner, interstitial, 2 natives)
+│  ├─ core/                       internal engine — the app never calls it
+│  │  ├─ A7Script.kt              the trailer: every beat, tween and ease (port of the web's master timeline)
+│  │  ├─ A7Player.kt              runs the timeline, the wait for the swipe, drag / commit, haptic cues
+│  │  ├─ A7Mixer.kt               music: 6 stems mixed live, lowpass, limiter; the picture follows its clock
+│  │  ├─ Timeline.kt · Ease.kt    GSAP-like timeline and eases
+│  │  ├─ Scene.kt · Viewport.kt   element boxes in the 360 × 800 frame; fitting any 16:9–23:9 screen
+│  │  ├─ A7Native.kt · FigmaArt.kt   Figma elements drawn in code (headlines, tiles, phones, stickers, buttons)
+│  │  ├─ A7Art.kt · A7Glow.kt · Bleed.kt   baked glows / blurs, done off the main thread (Later.kt)
+│  │  └─ ZenTokens.kt · A7Visual.kt   ZEN design tokens (generated) · the few values Figma has no token for
+│  └─ views/Widgets.kt            custom views: DesignFrame, CssBox, LyricView (name reel), FeedView, WaveView, …
+├─ src/main/res/                  layout a7_onboarding.xml (the scene), fonts, 6 artwork bitmaps, tokens — all a7_ / zen_
+└─ src/main/assets/a7/            manifest.json (Figma boxes) · audio/ (6 Ogg Opus stems, ≈ 710 KB)
+
+sample/                           demo app — NOT for the production app
+└─ …/sample/  MainActivity.kt (host + screenshots of paywall / AI / Home) · MockAds.kt · MockArt.kt · Immersive.kt
+
+tools/                            bake/stems.* + encode_stems.sh (audio) · gen_tokens.py + tokens/ (design tokens)
+docs/                             INTEGRATION · ARCHITECTURE · EXPERIENCE · DESIGN_TOKENS · CREDITS · history/
+```
+
+**Two public types, everything else is internal.** The app sees `A7OnboardingView` and `A7Ads`; `core/` and
+`views/` are the implementation.
+
+## Where to change what
+
+| To change… | Edit |
+| --- | --- |
+| When something happens (beats, durations, eases) | `core/A7Script.kt` |
+| How an element looks (Figma geometry, text, gradients) | `core/FigmaArt.kt`, `core/A7Native.kt`; the lyric card / feed in `views/Widgets.kt` |
+| Colours, type, radii, spacing | Figma variables → `tools/gen_tokens.py` ([DESIGN_TOKENS](docs/DESIGN_TOKENS.md)) |
+| Where an element sits | `res/layout/a7_onboarding.xml` and `core/Scene.kt` |
+| The swipe (threshold, fling, hints) | `core/A7Player.kt` |
+| Music / sound cues | `tools/bake/stems.html` → re-bake ([ARCHITECTURE § Audio](docs/ARCHITECTURE.md#audio)) |
+| Ads | the app's own `A7Ads` implementation — not the library |
 
 ## What is in the view
 
-- **Drawn in code.** Text, headlines, buttons, tiles, stickers, phone frames, the lyric card's name reel, the feed cards,
-  glows. Six bitmaps remain, all artwork that is an image in Figma too: the splash background and smoke, the logo, and
-  the three phone screens.
-- **Real status bar.** The scene draws edge to edge under the system status bar; its top 40 dp is kept free for it.
-  Nothing is painted in its place.
-- **Music mixed live.** Six Ogg Opus stems (≈ 710 KB): bed, accents, the teaser song, its accents. The feed's wait
-  muffles the bed, the swipe opens it, and card 2's song comes in on the music's next beat. Music stays off on silent /
-  vibrate or when another app plays music.
-- **Ads are the host's.** The library only says when (`A7Ads`): splash banner, interstitial after the splash, native #1
-  under the G03 call, native #2 on G04. Slots show a loading skeleton and collapse when there is no ad.
-- **Any phone screen**, 16:9 to 23:9: backgrounds bleed and chrome holds the edges.
-- **Reduced motion**: with system animations off, entrances become fades.
+- **Drawn in code.** Six bitmaps remain, all artwork that is an image in Figma too: splash background and smoke, the
+  logo, the three phone screens.
+- **Real status bar** over the scene; its top 40 dp is kept free for it.
+- **Music mixed live** from six stems: the wait muffles the bed, the drag opens it, card 2's song lands on the beat.
+  Off on silent / vibrate or when another app plays music.
+- **Ads are the app's.** The library only says *when* (`A7Ads`); slots show a skeleton and collapse without an ad.
+- **Any phone screen** 16:9–23:9 · **reduced motion** turns entrances into fades.
 
-Design tokens (ZEN, 154 Figma variables): [docs/DESIGN_TOKENS.md](docs/DESIGN_TOKENS.md). Rendering details:
-[docs/IMPLEMENTATION_NOTES.md](docs/IMPLEMENTATION_NOTES.md) (written for 1.3.x; the native-art and screen-size parts
-still hold). History: [CHANGELOG.md](CHANGELOG.md).
+## Docs
 
-## Not verified
+| | |
+| --- | --- |
+| [INTEGRATION](docs/INTEGRATION.md) | 4 steps to put it in the app · the `A7Ads` contract · what the app owns |
+| [ARCHITECTURE](docs/ARCHITECTURE.md) | how it runs: timeline, player, mixer, rendering, screen sizes, debugging |
+| [EXPERIENCE](docs/EXPERIENCE.md) | the flow, scene by scene, with timings |
+| [DESIGN_TOKENS](docs/DESIGN_TOKENS.md) | ZEN tokens: naming, regeneration |
+| [CHANGELOG](CHANGELOG.md) · [CREDITS](docs/CREDITS.md) | history · music, fonts, icons |
 
-Feel and sound on a physical phone: the emulator renders on the CPU and has no audio. The swipe's haptics, the music's
-sync with the picture, and the drag-opened lowpass need a real device.
+**Not verified on a physical phone yet:** sound, audio / picture sync, haptics. The emulator renders on the CPU.

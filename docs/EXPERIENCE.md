@@ -2,98 +2,67 @@
 
 [Back to README](../README.md)
 
-This document describes the behavior in **v1.3.3**. Scene IDs match the names used in the animation script and exported assets.
+The onboarding as the user sees it, **1.6.6** (web variant 1.6 · swipe teaser). Scene ids match `A7Script.kt`.
 
 ## Flow
 
 ```text
-Splash → mock interstitial → Skip ads → re-entry → animated introduction
-                                                     ↓
-                                              Yours is next.
-                                               /           \
-                                Explore AI Ringtones    Browse ringtones
-                                         ↓                    ↓
-                                    Paywall mock          Home mock
-                                         ↓
-                           Close or Subscribe → AI mock
+Splash (5 s) → interstitial (app's ad) → re-entry → ring burst → trailer
+   G01 catalog → G02 same song, any name → G03 the phone rings → feed: WAITS for a swipe
+   → card 2 plays → fly into the phone → G04 Yours is next.
+                                            /                \
+                              Explore AI Ringtones      Browse ringtones
+                               (app: paywall → AI)        (app: Home)
 ```
 
-The introduction advances automatically. It has no skip control. **Skip ads** closes only the mock interstitial.
+One stop for the user: the swipe on the feed (or a tap on its pill). Everything else runs on the music.
 
 ## Scenes
 
-| Scene | What appears | Motion and behavior |
+| Scene | What appears | Behaviour |
 | --- | --- | --- |
-| P01 · Splash | Logo, tagline, progress strip, and ad artwork | The logo enters and pulses. The progress strip fills over five seconds. |
-| P02 · Ad transition | Enlarging logo | The logo expands and dissolves before the interstitial covers the scene. |
-| Interstitial | Full-screen ad image and Skip ads tap area | The timeline pauses until the reviewer taps Skip ads. There is no ad SDK. |
-| P03 · Re-entry | Logo at its resting size | A nominal 450 ms hold gives the sequence a visual restart after the ad. Audio startup can extend this hold. |
-| P04 · Ring burst | Expanding rings, genre tiles, and a moving light | The light moves toward the progress wave while the tiles assemble into the catalog wall. |
-| G01 · Thousands of ringtones | Catalog tiles and a phone preview | The phone rises into view. The progress wave counts down toward G04. |
-| G02a · Same song. | Song card and Sam name label | The card enters, followed by the name label. |
-| G02b/c · Any name. | Emma and Jake labels, plus name stickers | The names swap on the beat. Sound cues mark each change. No song is generated. |
-| G03 · Rings for you. | Incoming-call preview and “Hey Sam calling…” bubble | Ring pulses and word highlights build the call example. Native ad #1 enters after the phrase lands. |
-| G04 · Yours is next. | Name stickers, two actions, and native ad #2 | The actions enter. The second ad shows a loading placeholder before its content appears. The scene remains open for a choice. |
-
-## Destinations
-
-| Action | Destination | What the demo actually does |
-| --- | --- | --- |
-| Explore AI Ringtones | Paywall | Slides in a screenshot with close and subscribe tap areas |
-| Close paywall | AI Ringtones | Opens the AI screen screenshot |
-| Subscribe | AI Ringtones | Opens the same screenshot; no billing flow |
-| Browse ringtones | Home | Opens the Home screenshot directly |
-
-The destination screenshots end the demo. Catalog browsing, ringtone setup, generation, and subscription management are outside its scope.
+| P01 · Splash | Logo, tagline, progress, "This action may contain ads.", banner slot | Progress opens at 80 % and eases to 100 % over 5 s |
+| Interstitial | The app's ad | The trailer waits on its re-entry frame until the ad closes |
+| P03 · Re-entry · P04 · Ring burst | Logo at rest, then rings, 4 genre tiles, a light | The light lands on the progress wave on beat 1 |
+| G01 · Thousands of ringtones | Genre wall, phone with a song list | Countdown wave runs to beat 19 |
+| G02 · Same song. Any name. | Phone (Morning Glow) + lyric card "Hey [name]" / "pick up, it's for you ♪" | The name reel rolls Sam → Emma → Jake (Mia peeks: there are more) |
+| G03 · Rings for you. | Phone ringing, bubble “Hey Sam pick up…”, native #1 | Words light on the half beat; native #1 after the line lands |
+| Feed (wait) | The phone shows the AI feed; card 2 peeks; pill "Swipe for the next ringtone" | Pauses. Glow breathes, one hint per bar; the bed is muffled |
+| Card 2 | Summer Crush · Pop · for Emma | Lands on the music's next beat; its song takes over; EMMA lights |
+| Fly-in | Camera into the phone | EMMA lifts off card 2 and becomes G04's Emma sticker |
+| G04 · Yours is next. | 6 name stickers, "With any name you like ↓", two buttons, native #2 | Native #2 shows a skeleton until the app's ad arrives |
 
 ## Timing
 
-Times below are **timeline seconds**, not elapsed time since launch. Time spent waiting on the interstitial is excluded. Audio startup and frame scheduling can also affect elapsed time.
+Timeline seconds (time on the interstitial and in the wait excluded). 100 BPM: one beat = 0.6 s, beat 0 = 6.07 s.
 
-The track runs at **100 BPM**, so one beat is **0.6 seconds**.
-
-| Event | Timeline time at 100 BPM |
-| --- | ---: |
-| Splash progress completes | 5.00 s |
-| Mock interstitial appears | 5.30 s |
-| Timeline pauses for Skip ads | 5.31 s |
-| Re-entry begins | 5.32 s |
-| Fly-through begins | 5.77 s |
-| Ring burst / musical drop, beat 0 | 6.07 s |
-| G01, beat 1 | 6.67 s |
-| G02a heading, beat 5 | 9.07 s |
-| Sam, beat 6 | 9.67 s |
-| Emma, beat 8 | 10.87 s |
-| Jake, beat 10 | 12.07 s |
-| G03, beat 12 | 13.27 s |
-| “Hey”, beat 14 | 14.47 s |
-| “Sam”, beat 14.5 | 14.77 s |
-| “calling…”, beat 15 | 15.07 s |
-| Native ad #1, beat 17 | 16.27 s |
-| G04, beat 20 | 18.07 s |
-| Primary action becomes available, beat 22 | 19.27 s |
-| Secondary action enters, beat 22.5 | 19.57 s |
-| Native ad #2 loading placeholder enters, beat 23 | 19.87 s |
-| Native ad #2 placeholder starts fading, beat 24.5 | 20.77 s |
-
-The second ad's content is fully revealed about 0.35 seconds after its placeholder starts fading. The final scene continues with idle movement until a destination is chosen.
-
-Exact timings and easing curves are in [A7Script.kt](../app-views/src/main/java/namvunhatle/r15/onboarding/core/A7Script.kt). The script is the source for implementation details when a summary here is insufficient.
+| Event | Beat | Time |
+| --- | ---: | ---: |
+| Interstitial | — | 5.30 |
+| Ring burst / drop | 0 | 6.07 |
+| G01 | 1 | 6.67 |
+| G02 · Sam / Emma / Jake | 6 / 8 / 10 | 9.67 / 10.87 / 12.07 |
+| G03 | 12 | 13.27 |
+| "Hey" · "Sam" · "pick up…" | 14 · 14½ · 15 | 14.47 · 14.77 · 15.07 |
+| Native #1 | 17 | 16.27 |
+| Feed · card 2 peeks + pill | 18 · 18½ | 16.87 · 17.17 |
+| **Wait** | 19½ | 17.77 |
+| Card 2 lands (on the music's next beat after the swipe) | 20 | 18.07 |
+| EMMA lights | 20½ | 18.37 |
+| Headline + wave leave · fly-in | 22½ · 23 | 19.57 · 19.87 |
+| G04 · Emma sticker lands | 24 | 20.47 |
+| Buttons live, caption | 26 | 21.67 |
+| Native #2 slot | 27 | 22.27 |
 
 ## Audio
 
-The demo uses instrumental background music with baked plucks, swaps, pops, ring sounds, and word accents. The name examples are visual; the music does not sing the names.
+Instrumental music with synthesized cues; the names are visual, the music does not sing them. Starts when the
+interstitial closes. Off on silent / vibrate, when another app plays music, or without audio focus. Fades out on
+either button. Tracks: [CREDITS](CREDITS.md).
 
-Playback is requested after Skip ads. It remains off if the device is in silent/vibrate mode or another app is already playing music. It also requires audio focus. Choosing a destination fades the audio out.
+## What must not change in production
 
-The onboarding has one track, Future Pop Upbeat; see [Credits](CREDITS.md).
-
-## What to preserve in a production implementation
-
-- The order of the scenes and the two destination paths.
+- The order of scenes, the single swipe stop, and the two exits (paywall only on the AI branch).
+- The beat relationships: names, words and card 2's landing on the music.
+- Two separate native placements; nothing tappable next to an ad; the swipe area clear of native #1.
 - The brief return to the brand after the interstitial.
-- The relationship between the musical beats and the name/call transitions.
-- The separation between the two native-ad placements.
-- The primary and secondary choices on the final scene.
-
-Responsive layout, system bars, accessibility, real ad behavior, and billing need their own implementation decisions. The prototype's fixed canvas and screenshot tap areas do not define those solutions.

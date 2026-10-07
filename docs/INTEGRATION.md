@@ -1,5 +1,7 @@
 # Integrating the A7 onboarding
 
+[Back to README](../README.md) · how it works inside: [ARCHITECTURE](ARCHITECTURE.md)
+
 The onboarding is one view, `A7OnboardingView`, in the library module `a7onboarding/`. Four steps.
 
 ## 1. Copy the folder
