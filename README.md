@@ -128,7 +128,7 @@ Branch `christmas-2026` adds a seasonal skin behind one switch: `XmasTheme.enabl
 
 - **Assets.** All are in `core/src/main/res/drawable-nodpi/xmas_*`.
 - **Preview.** Web: https://claude.ai/artifact/6MTjkaqsKAenpCx16UGAnU (private until shared from its Share menu).
-- **Figma.** R15 2024 Update, page Christmas Theme: onboarding screens `16987:1008`, kit `16849:17`.
+- **Figma.** R15 2024 Update, page Christmas Theme: themed screens in order Splash → onboarding → Home `16847:3604`, kit `16849:17`.
 - **Unchanged.** Timeline, copy, the interstitial and the native ads.
 
 ## Known limits
