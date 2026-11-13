@@ -113,6 +113,24 @@ The replay button appears on the interstitial and destination screens. Track swi
 - [Changelog](CHANGELOG.md) — what changed in each version.
 - [Credits](docs/CREDITS.md) — music, fonts, icons, and asset sources.
 
+## Christmas 2026 skin
+
+Branch `christmas-2026` adds a seasonal skin behind one switch: `XmasTheme.enabled` in [`XmasTheme.kt`](core/src/main/java/namvunhatle/r15/onboarding/core/XmasTheme.kt). With the switch off, the app is 1.3.7.
+
+| Where | Change | Code |
+| --- | --- | --- |
+| Splash | Christmas background, full-width garland with bell at the top edge | `XmasSplashBg` in `FigmaArt.kt` |
+| Splash icon | Dressed icon drops on a ribbon, bursts, twinkles; round icon when zoomed | [`XmasOverlay.kt`](core/src/main/java/namvunhatle/r15/onboarding/core/XmasOverlay.kt), `A7Art` |
+| Splash rings, progress | Gold rings, primary fill | `A7Visual.RING`, `SplashTrack` / `sp_fill` |
+| Intro G01–G04 | Accent hue map, garland without bell, snow (never over ads) | `XmasTheme.tint`, `XmasOverlay` |
+| G04 | Primary CTA + CTA decor, muted name stickers | `A7Native`, `Sticker(muted)`, `XmasOverlay` |
+| Home destination | Themed screenshot; magic moment plays once on open | `xmas_dest_home.jpg`, [`MagicMomentView.kt`](core/src/main/java/namvunhatle/r15/onboarding/core/MagicMomentView.kt) |
+
+- **Assets.** All are in `core/src/main/res/drawable-nodpi/xmas_*`.
+- **Preview.** Web: https://claude.ai/artifact/6MTjkaqsKAenpCx16UGAnU (private until shared from its Share menu).
+- **Figma.** R15 2024 Update, page Christmas Theme: onboarding screens `16987:1008`, kit `16849:17`.
+- **Unchanged.** Timeline, copy, the interstitial and the native ads.
+
 ## Known limits
 
 - **Phones only.** Screens from about 16:9 to 23:9 are filled; tablets and landscape are still letterboxed. Destination screens are screenshots, so their margins show edge colour, not layout.

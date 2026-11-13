@@ -35,6 +35,10 @@ class A7Player(ctx: Context, val scene: Scene) {
     private var frozen = false
     private var lastNanos = 0L
 
+    /** Skin hook ([XmasOverlay]): runs around every frame, after the timeline wrote the store. */
+    interface FrameHook { fun before(store: Store); fun after(store: Store); fun reset() }
+    var hook: FrameHook? = null
+
     /** Bumped whenever [atAd] / [dest] change, so UIs can re-read them cheaply. */
     var uiVersion = 0; private set
 
@@ -52,6 +56,12 @@ class A7Player(ctx: Context, val scene: Scene) {
 
     /** Called once per vsync with the frame's timestamp. */
     fun frame(frameTimeNanos: Long) {
+        hook?.before(store)
+        step(frameTimeNanos)
+        hook?.after(store)
+    }
+
+    private fun step(frameTimeNanos: Long) {
         val dt = if (lastNanos == 0L) 0.0 else min((frameTimeNanos - lastNanos) / 1e9, 0.1)
         lastNanos = frameTimeNanos
         fxTime += dt
@@ -109,6 +119,7 @@ class A7Player(ctx: Context, val scene: Scene) {
         atAd = false; paused = false; frozen = false; uiVersion++
         main.reset()
         main.advanceTo(0.0)
+        hook?.reset()
     }
 
     /** Dev tool: next track (or none), restarts from the splash like the web music menu. */
@@ -120,6 +131,7 @@ class A7Player(ctx: Context, val scene: Scene) {
         atAd = false; paused = false; frozen = false; uiVersion++
         rebuild()
         main.advanceTo(0.0)
+        hook?.reset()
         return track?.title ?: "Tắt nhạc"
     }
 
@@ -127,6 +139,7 @@ class A7Player(ctx: Context, val scene: Scene) {
     fun seekFrozen(t: Double) {
         main.reset()
         main.advanceTo(t, events = false)
+        hook?.reset()
         frozen = true
         if (t >= times.tEnd) startIdle()
     }

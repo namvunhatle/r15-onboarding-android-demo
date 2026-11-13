@@ -132,7 +132,7 @@ class Scene(ctx: Context, val vp: Viewport = Viewport.FRAME) {
         const val W = 360f
         const val H = 800f
         /** The brand accent: Color/Background/Accent/Solid/Default (wave, progress, glows, pills). */
-        val ACCENT = Zen.Color.Background.Accent.Solid.Default
+        val ACCENT = XmasTheme.tint(Zen.Color.Background.Accent.Solid.Default)
 
         // Splash logo centre — the camera flies through this point into G01.
         const val LX = 180f

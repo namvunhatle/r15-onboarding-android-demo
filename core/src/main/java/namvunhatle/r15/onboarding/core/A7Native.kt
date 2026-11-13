@@ -47,7 +47,10 @@ class A7Native(private val ctx: Context, private val scene: Scene) {
     val layered: Set<String> = LAYERED + scene.extraTiles.keys
 
     private val made: Map<String, Later<Drawable>> = ids.associateWith { id -> Later.of { make(id) } }
-    private val shots: Map<String, Later<Bitmap>> = SHOTS.mapValues { (_, res) -> Later.of { bitmap(res) } }
+    private val shots: Map<String, Later<Bitmap>> = SHOTS.mapValues { (k, res) ->
+        val id = if (XmasTheme.enabled && k == "dest_home") R.drawable.xmas_dest_home else res
+        Later.of { bitmap(id) }
+    }
 
     /** The element [id]; drawing it waits for its bake. */
     fun art(id: String) = LaterDrawable(made.getValue(id))
@@ -58,7 +61,7 @@ class A7Native(private val ctx: Context, private val scene: Scene) {
     private fun make(id: String): Drawable {
         val box = scene.artBox(id)
         return when (id) {
-            "splash_bg" -> SplashBg(
+            "splash_bg" -> if (XmasTheme.enabled) XmasSplashBg(box, bitmap(R.drawable.xmas_splash_bg), bitmap(R.drawable.xmas_top_garland)) else SplashBg(
                 box, bitmap(R.drawable.splash_base), A7Glow.bake(box, null, SplashBg.GLOWS), bitmap(R.drawable.splash_wisps),
                 PathParser.createPathFromPathData(FigmaPaths.SPLASH_GRID),
             )
@@ -79,9 +82,14 @@ class A7Native(private val ctx: Context, private val scene: Scene) {
             "g01_phone" -> Phone(box, RectF(64f, 516f, 296f, 1012f), screens.getValue(id))
             "g02_phone" -> Phone(box, RectF(64f, 192f, 296f, 688f), screens.getValue(id))
             "g03_phone" -> Phone(box, RectF(120.16f, 189.9f, 239.84f, 445.1f), screens.getValue(id))
-            in STICKERS -> STICKERS.getValue(id).let { s -> Sticker(box, name20, s.name, s.w, s.cx, s.cy, s.rot, s.stroke) }
+            // Christmas: the G04 stickers are muted so they do not read as buttons ([XmasTheme])
+            in STICKERS -> STICKERS.getValue(id).let { s -> Sticker(box, name20, s.name, s.w, s.cx, s.cy, s.rot, s.stroke, muted = XmasTheme.enabled && id.startsWith("g04_")) }
             "g04_center" -> NameCenter(box, anton, name20)
-            "g04_cta" -> CtaButton(box, Type(be600, ZenText.ButtonLabelXL), "Explore AI Ringtones")
+            "g04_cta" -> if (XmasTheme.enabled) {
+                CtaButton(box, Type(be600, ZenText.ButtonLabelXL), "Explore AI Ringtones", XmasTheme.PRIMARY, XmasTheme.ON_PRIMARY)
+            } else {
+                CtaButton(box, Type(be600, ZenText.ButtonLabelXL), "Explore AI Ringtones")
+            }
             // Ad kit label-md; its +4 % tracking is not a variable
             "bridge_full" -> Interstitial(
                 box, bitmap(R.drawable.inter_fill), Type(font(R.font.mona_sans_medium), AdKit.Size.SizeLabelMd, AdKit.Height.HeightLabelMd, 0.48f),
@@ -131,8 +139,8 @@ class A7Native(private val ctx: Context, private val scene: Scene) {
 
         private val W = NameCenter.WHITE
         private fun head(text: String, e1: Int, e2: Int) = listOf(
-            Headline.Echo(Line(text, 180f, 126f, true), e1, 1.5f),
-            Headline.Echo(Line(text, 180f, 132f, true), e2, 1.5f),
+            Headline.Echo(Line(text, 180f, 126f, true), XmasTheme.tint(e1), 1.5f),
+            Headline.Echo(Line(text, 180f, 132f, true), XmasTheme.tint(e2), 1.5f),
             Headline.Echo(Line(text, 180f, 120f, true), W),
         )
 
@@ -144,8 +152,8 @@ class A7Native(private val ctx: Context, private val scene: Scene) {
         private val HEADS = mapOf(
             "g01_head" to listOf(
                 Headline.Echo(Line("THOUSANDS OF", 180f, 120f, true), W),
-                Headline.Echo(Line("RINGTONES", 180f, 180f, true), Accent.Gradient.DefaultLeft, 1.5f, Align.OUTSIDE),
-                Headline.Echo(Line("RINGTONES", 180f, 174f, true), Accent.Gradient.DefaultRight, 1.5f, Align.OUTSIDE),
+                Headline.Echo(Line("RINGTONES", 180f, 180f, true), XmasTheme.tint(Accent.Gradient.DefaultLeft), 1.5f, Align.OUTSIDE),
+                Headline.Echo(Line("RINGTONES", 180f, 174f, true), XmasTheme.tint(Accent.Gradient.DefaultRight), 1.5f, Align.OUTSIDE),
                 Headline.Echo(Line("RINGTONES", 180f, 168f, true), NameCenter.WHITE_96),
             ),
             "g02a_head" to head("SAME SONG.", Accent.Gradient.DefaultLeft, Accent.Gradient.DefaultRight),

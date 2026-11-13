@@ -24,8 +24,11 @@ import namvunhatle.r15.onboarding.core.Dest
 import namvunhatle.r15.onboarding.core.El
 import namvunhatle.r15.onboarding.core.Later
 import namvunhatle.r15.onboarding.core.LaterDrawable
+import namvunhatle.r15.onboarding.core.MagicMomentView
 import namvunhatle.r15.onboarding.core.Prop
 import namvunhatle.r15.onboarding.core.Scene
+import namvunhatle.r15.onboarding.core.XmasOverlay
+import namvunhatle.r15.onboarding.core.XmasTheme
 import namvunhatle.r15.onboarding.core.dumpExtra
 import namvunhatle.r15.onboarding.core.immersive
 import namvunhatle.r15.onboarding.core.seekExtra
@@ -72,6 +75,8 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
                 .setImageDrawable(LaterDrawable(Later.of { shot.value.toDrawable(resources) }))
         }
         if (!scene.vp.isFrame) fill(scene, native)
+        // Christmas: the splash progress fill uses primary ([XmasTheme]).
+        if (XmasTheme.enabled) frame.findViewWithTag<CssBox>("sp_fill").tint(XmasTheme.PRIMARY, XmasTheme.PRIMARY, 180f)
         fab = findViewById(R.id.fab)
         wave = findViewById(R.id.wave_bars)
         wave.clock = player.store["clock"]
@@ -96,6 +101,11 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
         (frame.findViewWithTag<BakedView>("dot")).layers += art.dot
         listOf("ghost0", "ghost1", "ghost2").forEach { frame.findViewWithTag<BakedView>(it).layers += art.ghost }
 
+        // Christmas layer (garland, snow, CTA decor, splash icon drop): above the scene, below the status bar ([XmasOverlay])
+        if (XmasTheme.enabled) {
+            val sb = frame.findViewWithTag<View>("statusbar")
+            frame.addView(XmasOverlay(this, player), frame.indexOfChild(sb), FrameLayout.LayoutParams(px(Scene.W), px(Scene.H)))
+        }
         prepare(frame)
         val zoom = player.store["zoom"]
         collect(frame) { v, id -> bound += Bound(v, player.store[id], scene.origin(id).first, scene.origin(id).second, if (id == "logo" || id == "logoB") zoom else null) }
@@ -104,7 +114,11 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
         hot(R.id.hot_skip, null, { player.atAd }) { player.skipAd() }
         val ctaOk = { player.ctaEnabled() && player.dest == null }
         hot(R.id.hot_cta, "g04_cta", ctaOk) { player.go(Dest.PAYWALL) }
-        hot(R.id.hot_secondary, "g04_secondary", ctaOk) { player.go(Dest.HOME) }
+        hot(R.id.hot_secondary, "g04_secondary", ctaOk) {
+            player.go(Dest.HOME)
+            // Christmas: the magic moment plays once over Home, right after onboarding ([XmasTheme]).
+            if (XmasTheme.enabled) MagicMomentView.play(frame.findViewWithTag(A7Player.destId(Dest.HOME)))
+        }
         hot(R.id.hot_paywall_close, null, { player.dest == Dest.PAYWALL }) { player.go(Dest.AI) }
         hot(R.id.hot_subscribe, null, { player.dest == Dest.PAYWALL }) { player.go(Dest.AI) }
         fab.setOnClickListener { player.replay() }
