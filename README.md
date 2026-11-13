@@ -1,5 +1,3 @@
-
-- **Magic moment as Lottie (optional).** [`docs/christmas-2026/r15_magic_moment.json`](docs/christmas-2026/r15_magic_moment.json), 912 KB, same motion as `MagicMomentView` (5.0 s, 1080 × 2400, WebP images embedded). For apps that already ship lottie-android; this demo uses the Kotlin view and does not package the JSON.
 # R15 Onboarding — Android Motion Prototype
 
 An interactive demo of the R15 onboarding sequence: motion, audio cues, ad placement, and the paths into AI Ringtones and the ringtone catalog.
@@ -129,6 +127,7 @@ Branch `christmas-2026` adds a seasonal skin behind one switch: `XmasTheme.enabl
 | Home destination | Themed screenshot; magic moment plays once on open | `xmas_dest_home.jpg`, [`MagicMomentView.kt`](core/src/main/java/namvunhatle/r15/onboarding/core/MagicMomentView.kt) |
 
 - **Assets.** All are in `core/src/main/res/drawable-nodpi/xmas_*`.
+- **Magic moment as Lottie (optional).** [`docs/christmas-2026/r15_magic_moment.json`](docs/christmas-2026/r15_magic_moment.json), 912 KB, same motion as `MagicMomentView` (5.0 s, 1080 × 2400, WebP images embedded). For apps that already ship lottie-android; this demo uses the Kotlin view and does not package the JSON.
 - **Preview.** Web: https://claude.ai/artifact/6MTjkaqsKAenpCx16UGAnU (private until shared from its Share menu).
 - **Figma.** R15 2024 Update, page Christmas Theme: themed screens in order Splash → onboarding → Home `16847:3604`, kit `16849:17`.
 - **Unchanged.** Timeline, copy, the interstitial and the native ads.
