@@ -1,3 +1,5 @@
+
+- **Magic moment as Lottie (optional).** [`docs/christmas-2026/r15_magic_moment.json`](docs/christmas-2026/r15_magic_moment.json), 912 KB, same motion as `MagicMomentView` (5.0 s, 1080 × 2400, WebP images embedded). For apps that already ship lottie-android; this demo uses the Kotlin view and does not package the JSON.
 # R15 Onboarding — Android Motion Prototype
 
 An interactive demo of the R15 onboarding sequence: motion, audio cues, ad placement, and the paths into AI Ringtones and the ringtone catalog.
