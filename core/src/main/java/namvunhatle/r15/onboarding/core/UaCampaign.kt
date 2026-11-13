@@ -9,7 +9,8 @@ import android.app.Activity
  *
  * - [AI_RINGTONES]: "Explore AI Ringtones" → Paywall → AI Ringtones.
  * - [RINGTONES]: "Explore Ringtones" → Home (no Paywall, like the old "Browse ringtones"; to be confirmed), with the
- *   one-time magic moment while the Christmas skin is on.
+ *   one-time magic moment while the Christmas skin is on. No name micro copy above the CTA ("With any name you
+ *   like ↓" in Figma): it belongs to the AI Ringtones flow only. 1.3.7 has no such caption; the CTA keeps its place.
  *
  * Production reads the campaign from attribution data on first launch; when it is unknown (organic, error, timeout)
  * the flow is [AI_RINGTONES] (PROPOSED). This demo takes it from the launch intent: `--es campaign ringtones`.
