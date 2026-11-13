@@ -2,6 +2,13 @@
 
 All Android builds share the v1.3.3 web prototype's timeline, audio and scene script. Releases: [GitHub](https://github.com/namvunhatle/r15-onboarding-android-demo/releases).
 
+## Unreleased — G04: one primary CTA by UA campaign
+
+- **One primary CTA.** The secondary "Browse ringtones" is removed. Its 48 dp stay empty, so the native ad keeps its position and its distance from the CTA.
+- **Label and destination from the UA campaign** (`UaCampaign` in `core`): AI Ringtones campaign → "Explore AI Ringtones" → Paywall → AI Ringtones; Ringtones campaign → "Explore Ringtones" → Home (no Paywall, as the old secondary; to be confirmed) with the Christmas magic moment.
+- **Unknown campaign** (organic, attribution error or timeout) → AI Ringtones flow (PROPOSED). The demo reads the campaign from the launch intent: `adb shell am start -n <package>/.MainActivity --es campaign ringtones`.
+- Figma: R15 · Christmas, G04 · UA AI Ringtones and G04 · UA Ringtones, with dev notes on both flows.
+
 ## Unreleased — Christmas 2026 skin (branch `christmas-2026`)
 
 One switch, `XmasTheme.enabled` in `core`. Set it to `false` to get 1.3.7 exactly. Timeline, audio, layout, copy, the interstitial and the native ads are unchanged. Status: PROPOSED, approved on the web preview on 2026-11-13.

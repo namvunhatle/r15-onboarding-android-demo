@@ -123,6 +123,7 @@ Branch `christmas-2026` adds a seasonal skin behind one switch: `XmasTheme.enabl
 | Splash icon | Dressed icon drops on a ribbon, bursts, twinkles; round icon when zoomed | [`XmasOverlay.kt`](core/src/main/java/namvunhatle/r15/onboarding/core/XmasOverlay.kt), `A7Art` |
 | Splash rings, progress | Gold rings, primary fill | `A7Visual.RING`, `SplashTrack` / `sp_fill` |
 | Intro G01–G04 | Accent hue map, garland without bell, snow (never over ads) | `XmasTheme.tint`, `XmasOverlay` |
+| G04 CTA | One primary CTA by UA campaign, no secondary: "Explore AI Ringtones" → Paywall, or "Explore Ringtones" → Home. Demo: `--es campaign ringtones` | [`UaCampaign.kt`](core/src/main/java/namvunhatle/r15/onboarding/core/UaCampaign.kt) |
 | G04 | Primary CTA + CTA decor, muted name stickers | `A7Native`, `Sticker(muted)`, `XmasOverlay` |
 | Home destination | Themed screenshot; magic moment plays once on open | `xmas_dest_home.jpg`, [`MagicMomentView.kt`](core/src/main/java/namvunhatle/r15/onboarding/core/MagicMomentView.kt) |
 

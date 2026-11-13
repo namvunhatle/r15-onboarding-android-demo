@@ -95,6 +95,7 @@ import namvunhatle.r15.onboarding.core.Ring
 import namvunhatle.r15.onboarding.core.Scene
 import namvunhatle.r15.onboarding.core.Scene.Companion.ACCENT
 import namvunhatle.r15.onboarding.core.TextToken
+import namvunhatle.r15.onboarding.core.UaCampaign
 import namvunhatle.r15.onboarding.core.XmasOverlay
 import namvunhatle.r15.onboarding.core.XmasTheme
 import namvunhatle.r15.onboarding.core.Zen
@@ -245,8 +246,8 @@ private fun Device(c: Ctx, ui: Int) {
             NativeAd(c, "nat2", 135f, A7Visual.NATIVE_TINT_2)
             Scene.G04_STICKERS.forEach { Sprite(c, it) }
             Sprite(c, "g04_center"); Sprite(c, "g04_cta"); Sprite(c, "g04_secondary")
-            Hot(c, Scene.HOT_CTA, pressId = "g04_cta", enabled = { c.player.ctaEnabled() && c.player.dest == null }) { c.player.go(Dest.PAYWALL) }
-            Hot(c, Scene.HOT_SECONDARY, pressId = "g04_secondary", enabled = { c.player.ctaEnabled() && c.player.dest == null }) { c.player.go(Dest.HOME) }
+            // One primary CTA; label and destination come from the UA campaign. No secondary button.
+            Hot(c, Scene.HOT_CTA, pressId = "g04_cta", enabled = { c.player.ctaEnabled() && c.player.dest == null }) { c.player.go(UaCampaign.current.dest) }
             Scene.GHOSTS.forEach { Baked(c, it, c.art.ghost) }
             Baked(c, "dot", c.art.dot)
         }

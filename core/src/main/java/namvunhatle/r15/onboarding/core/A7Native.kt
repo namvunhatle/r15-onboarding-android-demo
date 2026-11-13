@@ -85,17 +85,19 @@ class A7Native(private val ctx: Context, private val scene: Scene) {
             // Christmas: the G04 stickers are muted so they do not read as buttons ([XmasTheme])
             in STICKERS -> STICKERS.getValue(id).let { s -> Sticker(box, name20, s.name, s.w, s.cx, s.cy, s.rot, s.stroke, muted = XmasTheme.enabled && id.startsWith("g04_")) }
             "g04_center" -> NameCenter(box, anton, name20)
+            // one primary CTA, its label from the UA campaign ([UaCampaign])
             "g04_cta" -> if (XmasTheme.enabled) {
-                CtaButton(box, Type(be600, ZenText.ButtonLabelXL), "Explore AI Ringtones", XmasTheme.PRIMARY, XmasTheme.ON_PRIMARY)
+                CtaButton(box, Type(be600, ZenText.ButtonLabelXL), UaCampaign.current.ctaLabel, XmasTheme.PRIMARY, XmasTheme.ON_PRIMARY)
             } else {
-                CtaButton(box, Type(be600, ZenText.ButtonLabelXL), "Explore AI Ringtones")
+                CtaButton(box, Type(be600, ZenText.ButtonLabelXL), UaCampaign.current.ctaLabel)
             }
             // Ad kit label-md; its +4 % tracking is not a variable
             "bridge_full" -> Interstitial(
                 box, bitmap(R.drawable.inter_fill), Type(font(R.font.mona_sans_medium), AdKit.Size.SizeLabelMd, AdKit.Height.HeightLabelMd, 0.48f),
                 PathParser.createPathFromPathData(Interstitial.CLOSE),
             )
-            "g04_secondary" -> FlatButton(box, Type(be600, ZenText.ButtonLabelL), "Browse ringtones", 421f, Zen.Color.Content.OnDarkOverlay.Base)
+            // no secondary button any more ([UaCampaign]): its box stays, empty, so the native ad keeps its place
+            "g04_secondary" -> object : FigmaArt(box) { override fun paint(c: Canvas) = Unit }
             else -> error("no native art for $id")
         }
     }

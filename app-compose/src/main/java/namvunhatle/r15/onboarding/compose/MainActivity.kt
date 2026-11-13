@@ -1,5 +1,7 @@
 package namvunhatle.r15.onboarding.compose
 
+import namvunhatle.r15.onboarding.core.UaCampaign
+import namvunhatle.r15.onboarding.core.campaignExtra
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,6 +21,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         immersive()
+        UaCampaign.current = campaignExtra()
         val scene = Scene(this, viewport())
         // Start every bake and decode on the start-up pool first, so they run while the scene composes.
         val art = A7Art(this)

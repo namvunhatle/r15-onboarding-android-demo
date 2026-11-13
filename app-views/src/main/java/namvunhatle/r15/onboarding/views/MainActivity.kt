@@ -27,7 +27,9 @@ import namvunhatle.r15.onboarding.core.LaterDrawable
 import namvunhatle.r15.onboarding.core.MagicMomentView
 import namvunhatle.r15.onboarding.core.Prop
 import namvunhatle.r15.onboarding.core.Scene
+import namvunhatle.r15.onboarding.core.UaCampaign
 import namvunhatle.r15.onboarding.core.XmasOverlay
+import namvunhatle.r15.onboarding.core.campaignExtra
 import namvunhatle.r15.onboarding.core.XmasTheme
 import namvunhatle.r15.onboarding.core.dumpExtra
 import namvunhatle.r15.onboarding.core.immersive
@@ -59,6 +61,7 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         immersive()
+        UaCampaign.current = campaignExtra()
         val scene = Scene(this, viewport())
         // Start every bake and decode on the start-up pool first, so they run while the layout inflates.
         val art = A7Art(this)
@@ -113,12 +116,16 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
 
         hot(R.id.hot_skip, null, { player.atAd }) { player.skipAd() }
         val ctaOk = { player.ctaEnabled() && player.dest == null }
-        hot(R.id.hot_cta, "g04_cta", ctaOk) { player.go(Dest.PAYWALL) }
-        hot(R.id.hot_secondary, "g04_secondary", ctaOk) {
-            player.go(Dest.HOME)
+        // One primary CTA; label and destination come from the UA campaign ([UaCampaign]).
+        val campaign = UaCampaign.current
+        findViewById<View>(R.id.hot_cta).contentDescription = campaign.ctaLabel
+        hot(R.id.hot_cta, "g04_cta", ctaOk) {
+            player.go(campaign.dest)
             // Christmas: the magic moment plays once over Home, right after onboarding ([XmasTheme]).
-            if (XmasTheme.enabled) MagicMomentView.play(frame.findViewWithTag(A7Player.destId(Dest.HOME)))
+            if (XmasTheme.enabled && campaign.dest == Dest.HOME) MagicMomentView.play(frame.findViewWithTag(A7Player.destId(Dest.HOME)))
         }
+        // the old secondary "Browse ringtones" is gone: its hotspot takes no touches and is not announced
+        findViewById<View>(R.id.hot_secondary).apply { visibility = View.GONE; importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }
         hot(R.id.hot_paywall_close, null, { player.dest == Dest.PAYWALL }) { player.go(Dest.AI) }
         hot(R.id.hot_subscribe, null, { player.dest == Dest.PAYWALL }) { player.go(Dest.AI) }
         fab.setOnClickListener { player.replay() }
