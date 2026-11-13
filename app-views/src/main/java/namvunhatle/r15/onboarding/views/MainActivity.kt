@@ -24,8 +24,13 @@ import namvunhatle.r15.onboarding.core.Dest
 import namvunhatle.r15.onboarding.core.El
 import namvunhatle.r15.onboarding.core.Later
 import namvunhatle.r15.onboarding.core.LaterDrawable
+import namvunhatle.r15.onboarding.core.MagicMomentView
 import namvunhatle.r15.onboarding.core.Prop
 import namvunhatle.r15.onboarding.core.Scene
+import namvunhatle.r15.onboarding.core.UaCampaign
+import namvunhatle.r15.onboarding.core.XmasOverlay
+import namvunhatle.r15.onboarding.core.campaignExtra
+import namvunhatle.r15.onboarding.core.XmasTheme
 import namvunhatle.r15.onboarding.core.dumpExtra
 import namvunhatle.r15.onboarding.core.immersive
 import namvunhatle.r15.onboarding.core.seekExtra
@@ -56,6 +61,7 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         immersive()
+        UaCampaign.current = campaignExtra()
         val scene = Scene(this, viewport())
         // Start every bake and decode on the start-up pool first, so they run while the layout inflates.
         val art = A7Art(this)
@@ -72,6 +78,8 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
                 .setImageDrawable(LaterDrawable(Later.of { shot.value.toDrawable(resources) }))
         }
         if (!scene.vp.isFrame) fill(scene, native)
+        // Christmas: the splash progress fill uses primary ([XmasTheme]).
+        if (XmasTheme.enabled) frame.findViewWithTag<CssBox>("sp_fill").tint(XmasTheme.PRIMARY, XmasTheme.PRIMARY, 180f)
         fab = findViewById(R.id.fab)
         wave = findViewById(R.id.wave_bars)
         wave.clock = player.store["clock"]
@@ -96,6 +104,11 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
         (frame.findViewWithTag<BakedView>("dot")).layers += art.dot
         listOf("ghost0", "ghost1", "ghost2").forEach { frame.findViewWithTag<BakedView>(it).layers += art.ghost }
 
+        // Christmas layer (garland, snow, CTA decor, splash icon drop): above the scene, below the status bar ([XmasOverlay])
+        if (XmasTheme.enabled) {
+            val sb = frame.findViewWithTag<View>("statusbar")
+            frame.addView(XmasOverlay(this, player), frame.indexOfChild(sb), FrameLayout.LayoutParams(px(Scene.W), px(Scene.H)))
+        }
         prepare(frame)
         val zoom = player.store["zoom"]
         collect(frame) { v, id -> bound += Bound(v, player.store[id], scene.origin(id).first, scene.origin(id).second, if (id == "logo" || id == "logoB") zoom else null) }
@@ -103,8 +116,16 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
 
         hot(R.id.hot_skip, null, { player.atAd }) { player.skipAd() }
         val ctaOk = { player.ctaEnabled() && player.dest == null }
-        hot(R.id.hot_cta, "g04_cta", ctaOk) { player.go(Dest.PAYWALL) }
-        hot(R.id.hot_secondary, "g04_secondary", ctaOk) { player.go(Dest.HOME) }
+        // One primary CTA; label and destination come from the UA campaign ([UaCampaign]).
+        val campaign = UaCampaign.current
+        findViewById<View>(R.id.hot_cta).contentDescription = campaign.ctaLabel
+        hot(R.id.hot_cta, "g04_cta", ctaOk) {
+            player.go(campaign.dest)
+            // Christmas: the magic moment plays once over Home, right after onboarding ([XmasTheme]).
+            if (XmasTheme.enabled && campaign.dest == Dest.HOME) MagicMomentView.play(frame.findViewWithTag(A7Player.destId(Dest.HOME)))
+        }
+        // the old secondary "Browse ringtones" is gone: its hotspot takes no touches and is not announced
+        findViewById<View>(R.id.hot_secondary).apply { visibility = View.GONE; importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }
         hot(R.id.hot_paywall_close, null, { player.dest == Dest.PAYWALL }) { player.go(Dest.AI) }
         hot(R.id.hot_subscribe, null, { player.dest == Dest.PAYWALL }) { player.go(Dest.AI) }
         fab.setOnClickListener { player.replay() }

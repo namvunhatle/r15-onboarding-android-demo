@@ -26,7 +26,7 @@ class A7Art(ctx: Context) {
     class Baked(val bitmap: Bitmap, val dp: Float)
 
     private val res = ctx.resources
-    private val src = Later.of { BitmapFactory.decodeResource(res, R.drawable.logo_src, BitmapFactory.Options().apply { inScaled = false }) }
+    private val src = Later.of { BitmapFactory.decodeResource(res, if (XmasTheme.enabled) R.drawable.xmas_logo_round else R.drawable.logo_src, BitmapFactory.Options().apply { inScaled = false }) }
 
     /** `.logo-icon` box-shadow `0 0 34px rgba(255,255,255,.2)` (122 px at the ×3.6 build size). */
     val iconGlow = Later.of { glow(96f / 2, 34f / 2, A7Visual.ICON_GLOW) }

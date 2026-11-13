@@ -42,19 +42,19 @@ object A7Visual {
 
     /** Ring burst flash: radial white 95 % → rgba(231,170,255,.55) → transparent accent. */
     val FLASH_CORE = argb(0.95f, 0xFFFFFF)
-    val FLASH_MID = 0x8CE7AAFF.toInt()
-    val FLASH_EDGE = 0x00BB4ABF
+    val FLASH_MID = XmasTheme.tint(0x8CE7AAFF.toInt())
+    val FLASH_EDGE = XmasTheme.tint(0x00BB4ABF)
 
     /** Logo record glow, the burst dot (white, with a white inner glow), and the comet trail ghosts. */
     val ICON_GLOW = 0x33FFFFFF
     val DOT = 0xFFFFFFFF.toInt()
-    val GHOST = 0xFFF3D6FF.toInt()
+    val GHOST = XmasTheme.tint(0xFFF3D6FF.toInt())
 
     /** Rings (splash mark, burst, G03): white; each ring's opacity is in Scene. */
-    val RING = 0xFFFFFFFF.toInt()
+    val RING = if (XmasTheme.enabled) XmasTheme.RING else 0xFFFFFFFF.toInt()
 
     /** G03 bubble: the lit words' glow (two text shadows) and the white "Sam" chip. */
-    val BUBBLE_GLOW_UNDER = argb(0.9f, 0xFFD6FF)
+    val BUBBLE_GLOW_UNDER = XmasTheme.tint(argb(0.9f, 0xFFD6FF))
     val BUBBLE_GLOW_TOP = argb(0.95f, 0xFFFFFF)
     val BUBBLE_CHIP = 0xFFFFFFFF.toInt()
 

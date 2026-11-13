@@ -146,6 +146,24 @@ class SplashBg(box: Box, private val base: Bitmap, private val glow: Bitmap, pri
 }
 
 /**
+ * Christmas splash ([XmasTheme]): the Christmas background replaces the whole P01 background (fill + centre crop, like
+ * the original image fill), and the top garland (with the bell) is 360×120 dp at the top edge, its leaves running past both
+ * sides. The status bar is a separate element drawn above it.
+ */
+class XmasSplashBg(box: Box, private val bg: Bitmap, private val garland: Bitmap) : FigmaArt(box) {
+    private val cover = (maxOf(box.w / Scene.W, box.h / Scene.H)).let { k ->
+        RectF(box.cx - Scene.W * k / 2, box.cy - Scene.H * k / 2, box.cx + Scene.W * k / 2, box.cy + Scene.H * k / 2)
+    }
+    // full-width garland with the bell, 360×120 dp, flush with the top edge (the bitmap holds the 1.15× garland)
+    private val top = RectF(box.cx - Scene.W / 2, box.y, box.cx + Scene.W / 2, box.y + 120f)
+
+    override fun paint(c: Canvas) {
+        c.drawBitmap(bg, null, cover, FILTER)
+        c.drawBitmap(garland, null, top, FILTER)
+    }
+}
+
+/**
  * G01–G04 › BG › Spotlight BG: Support/Neutral/Deep + "Glow · main" (520×420, 70 %, blur 170) + "Glow · rim" (240×200,
  * 35 %, blur 110). The glow colours are tokens (G04's are not bound in Figma); size, opacity and blur are visual-only.
  */
@@ -156,12 +174,12 @@ class Spotlight(box: Box, private val baked: Bitmap) : FigmaArt(box) {
     companion object {
         /** Main glow top (rim sits 20 dp higher), main colour, rim colour — per screen. */
         val SPOTS = mapOf(
-            "bg_G01" to Triple(430f, Accent.Gradient.DefaultRight, Accent.Gradient.DefaultLeft),
-            "bg_G02a" to Triple(268f, Accent.Gradient.DefaultLeft, Accent.Gradient.DefaultRight),
-            "bg_G02b" to Triple(268f, Support.Pink.Solid, Support.Violet.Solid),
-            "bg_G02c" to Triple(268f, Support.Teal.Solid, Support.Blue.Solid),
-            "bg_G03" to Triple(194f, Support.Violet.Solid, Support.Pink.Solid),
-            "bg_G04" to Triple(72f, A7Visual.SPOT_G04_MAIN, A7Visual.SPOT_G04_RIM),
+            "bg_G01" to Triple(430f, XmasTheme.tint(Accent.Gradient.DefaultRight), XmasTheme.tint(Accent.Gradient.DefaultLeft)),
+            "bg_G02a" to Triple(268f, XmasTheme.tint(Accent.Gradient.DefaultLeft), XmasTheme.tint(Accent.Gradient.DefaultRight)),
+            "bg_G02b" to Triple(268f, XmasTheme.tint(Support.Pink.Solid), XmasTheme.tint(Support.Violet.Solid)),
+            "bg_G02c" to Triple(268f, XmasTheme.tint(Support.Teal.Solid), XmasTheme.tint(Support.Blue.Solid)),
+            "bg_G03" to Triple(194f, XmasTheme.tint(Support.Violet.Solid), XmasTheme.tint(Support.Pink.Solid)),
+            "bg_G04" to Triple(72f, XmasTheme.tint(A7Visual.SPOT_G04_MAIN), XmasTheme.tint(A7Visual.SPOT_G04_RIM)),
         )
 
         /** The spotlight over [box] (the visible screen, frame coordinates). */
@@ -284,13 +302,16 @@ class Phone(box: Box, private val frame: RectF, private val screen: Bitmap) : Fi
  * shadow 0 8 16 @ 35 %, name Be Vietnam Pro SemiBold 20/28 −0.72 at 95 % black. [cx], [cy] = centre, [rot] = Figma
  * rotation (counter-clockwise positive).
  */
-class Sticker(box: Box, type: Type, private val name: String, private val w: Float, private val cx: Float, private val cy: Float, private val rot: Float, stroke: Int) : FigmaArt(box) {
+class Sticker(box: Box, type: Type, private val name: String, private val w: Float, private val cx: Float, private val cy: Float, private val rot: Float, stroke: Int, private val muted: Boolean = false) : FigmaArt(box) {
     private val t = type
     private val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Zen.Color.Background.WhiteSolid.Default }
-    private val shadowed = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = stroke }.dropShadow(8f, 16f, A7Visual.SHADOW)
+    private val shadowed = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = stroke }.let { if (muted) it else it.dropShadow(8f, 16f, A7Visual.SHADOW) }
+    /** Christmas G04 ([XmasTheme]): illustration, not a button — 42 % opacity, half saturation, no shadow. */
+    private val mute = Paint().apply { alpha = 107; colorFilter = android.graphics.ColorMatrixColorFilter(android.graphics.ColorMatrix().apply { setSaturation(0.5f) }) }
     private val ink = t.paint(Zen.Color.Content.OnWhiteOverlay.Strongest)
 
     override fun paint(c: Canvas) {
+        val layer = if (muted) c.saveLayer(null, mute) else -1
         c.withTranslation(cx, cy) {
             rotate(-rot)
             val hw = w / 2
@@ -298,6 +319,7 @@ class Sticker(box: Box, type: Type, private val name: String, private val w: Flo
             drawRoundRect(-hw, -22f, hw, 22f, 22f, 22f, fill)
             text(Line(name, -hw + Zen.Spacing.Padding.Medium, -14f), t, ink)
         }
+        if (layer >= 0) c.restoreToCount(layer)
     }
 }
 
@@ -305,8 +327,8 @@ class Sticker(box: Box, type: Type, private val name: String, private val w: Flo
 class NameCenter(box: Box, anton: Typeface, type: Type) : FigmaArt(box) {
     private val head = Headline(box, anton, listOf(
         Headline.Echo(Line("YOURS", 180.5f, 100f, center = true), WHITE),
-        Headline.Echo(Line("IS NEXT.", 180.5f, 184f, center = true), Support.Pink.Solid, 1.5f, Align.OUTSIDE),
-        Headline.Echo(Line("IS NEXT.", 180.5f, 178f, center = true), Accent.Gradient.DefaultLeft, 1.5f, Align.OUTSIDE),
+        Headline.Echo(Line("IS NEXT.", 180.5f, 184f, center = true), XmasTheme.tint(Support.Pink.Solid), 1.5f, Align.OUTSIDE),
+        Headline.Echo(Line("IS NEXT.", 180.5f, 178f, center = true), XmasTheme.tint(Accent.Gradient.DefaultLeft), 1.5f, Align.OUTSIDE),
         Headline.Echo(Line("IS NEXT.", 180.5f, 172f, center = true), WHITE_96),
     ))
     private val t = type
@@ -329,10 +351,13 @@ class NameCenter(box: Box, anton: Typeface, type: Type) : FigmaArt(box) {
 }
 
 /** Button/Main XLarge, Primary (CTA): pill 328×56 #BB4ABF, shadow 0 1 1 @ 4 %, label SemiBold 16/24 −0.4 white. */
-class CtaButton(box: Box, type: Type, private val label: String) : FigmaArt(box) {
+class CtaButton(
+    box: Box, type: Type, private val label: String,
+    background: Int = Zen.ButtonPrimary.Background.Default, content: Int = Zen.ButtonPrimary.Content.Default,
+) : FigmaArt(box) {
     private val t = type
-    private val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Zen.ButtonPrimary.Background.Default }.dropShadow(1f, 1f, Zen.Color.Shadow.Neutral.Light)
-    private val ink = t.paint(Zen.ButtonPrimary.Content.Default)
+    private val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = background }.dropShadow(1f, 1f, Zen.Color.Shadow.Neutral.Light)
+    private val ink = t.paint(content)
     override fun paint(c: Canvas) {
         c.drawRoundRect(16f, 343f, 344f, 399f, 28f, 28f, fill) // Corner-Radius/Action/XLarge = pill
         c.text(Line(label, 180f, 359f, center = true), t, ink)

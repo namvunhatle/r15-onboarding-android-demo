@@ -2,6 +2,25 @@
 
 All Android builds share the v1.3.3 web prototype's timeline, audio and scene script. Releases: [GitHub](https://github.com/namvunhatle/r15-onboarding-android-demo/releases).
 
+## Unreleased — G04: one primary CTA by UA campaign
+
+- **One primary CTA.** The secondary "Browse ringtones" is removed. Its 48 dp stay empty, so the native ad keeps its position and its distance from the CTA.
+- **Label and destination from the UA campaign** (`UaCampaign` in `core`): AI Ringtones campaign → "Explore AI Ringtones" → Paywall → AI Ringtones; Ringtones campaign → "Explore Ringtones" → Home (no Paywall, as the old secondary; to be confirmed) with the Christmas magic moment.
+- **Unknown campaign** (organic, attribution error or timeout) → AI Ringtones flow (PROPOSED). The demo reads the campaign from the launch intent: `adb shell am start -n <package>/.MainActivity --es campaign ringtones`.
+- Figma: R15 · Christmas, G04 · UA AI Ringtones and G04 · UA Ringtones, with dev notes on both flows.
+
+## Unreleased — Christmas 2026 skin (branch `christmas-2026`)
+
+One switch, `XmasTheme.enabled` in `core`. Set it to `false` to get 1.3.7 exactly. Timeline, audio, layout, copy, the interstitial and the native ads are unchanged. Status: PROPOSED, approved on the web preview on 2026-11-13.
+
+- **Splash.** Christmas background, and the top garland with the bell drawn full width (360 × 120 dp) flush with the top edge, behind the status bar. Rings are gold #FFE296, the progress fill is primary #F6C453.
+- **Splash icon.** The dressed Christmas icon drops on a red ribbon from the garland (1.05 s drop and bounce, 2.8 s damped swing), with a burst of gold sparkles and snow when it lands, then three slow twinkles. As the logo zooms into the ad it fades out between 1.2× and 1.7×; the round Christmas icon (`xmas_logo_round`) is used whenever the logo is larger than splash size.
+- **Intro G01–G04, light touch.** Accent colours hue-mapped by `XmasTheme.tint` (blue/indigo → wine red, violet → red, pink → gold, teal → pine): spotlight glows, headline echoes, accent, flash, ghost dots. The garland without the bell sits under the status bar. Gentle snow falls everywhere except over the splash banner and the two native ads.
+- **G04.** Primary CTA #F6C453 with a #4A0F14 label and the kit CTA decor (right − 117, top − 28 dp). The name stickers are muted (42 %, half saturation, no shadow) so they no longer read as buttons.
+- **Home destination.** Themed Home screenshot and the one-time magic moment (`MagicMomentView`: bells and a light reindeer, 5.0 s, drawn in code, no Lottie).
+- **New code.** `XmasOverlay` (one View, used by both UIs, above the scene and below the status bar) and `A7Player.FrameHook` (lets the overlay hide the baked splash icon while the dressed one shows).
+- Built with `assembleRelease` (both UIs) on 2026-11-13. Not run on a device or emulator yet.
+
 ## 1.3.7 — faster launch
 
 Cold start on an Android 16 emulator (1080 × 2400, Apple M1 host), time to first frame:

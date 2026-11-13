@@ -76,6 +76,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.foundation.text.BasicText
 import namvunhatle.r15.onboarding.core.A7Art
 import namvunhatle.r15.onboarding.core.A7Native
@@ -87,12 +88,16 @@ import namvunhatle.r15.onboarding.core.Css
 import namvunhatle.r15.onboarding.core.Dest
 import namvunhatle.r15.onboarding.core.El
 import namvunhatle.r15.onboarding.core.Later
+import namvunhatle.r15.onboarding.core.MagicMomentView
 import namvunhatle.r15.onboarding.core.Prop
 import namvunhatle.r15.onboarding.core.R
 import namvunhatle.r15.onboarding.core.Ring
 import namvunhatle.r15.onboarding.core.Scene
 import namvunhatle.r15.onboarding.core.Scene.Companion.ACCENT
 import namvunhatle.r15.onboarding.core.TextToken
+import namvunhatle.r15.onboarding.core.UaCampaign
+import namvunhatle.r15.onboarding.core.XmasOverlay
+import namvunhatle.r15.onboarding.core.XmasTheme
 import namvunhatle.r15.onboarding.core.Zen
 import namvunhatle.r15.onboarding.core.ZenText
 import kotlin.math.exp
@@ -241,11 +246,13 @@ private fun Device(c: Ctx, ui: Int) {
             NativeAd(c, "nat2", 135f, A7Visual.NATIVE_TINT_2)
             Scene.G04_STICKERS.forEach { Sprite(c, it) }
             Sprite(c, "g04_center"); Sprite(c, "g04_cta"); Sprite(c, "g04_secondary")
-            Hot(c, Scene.HOT_CTA, pressId = "g04_cta", enabled = { c.player.ctaEnabled() && c.player.dest == null }) { c.player.go(Dest.PAYWALL) }
-            Hot(c, Scene.HOT_SECONDARY, pressId = "g04_secondary", enabled = { c.player.ctaEnabled() && c.player.dest == null }) { c.player.go(Dest.HOME) }
+            // One primary CTA; label and destination come from the UA campaign. No secondary button.
+            Hot(c, Scene.HOT_CTA, pressId = "g04_cta", enabled = { c.player.ctaEnabled() && c.player.dest == null }) { c.player.go(UaCampaign.current.dest) }
             Scene.GHOSTS.forEach { Baked(c, it, c.art.ghost) }
             Baked(c, "dot", c.art.dot)
         }
+        // Christmas layer (garland, snow, CTA decor, splash icon drop): above the scene, below the status bar
+        if (XmasTheme.enabled) AndroidView({ XmasOverlay(it, c.player) }, Modifier.size(Scene.W.dp, Scene.H.dp))
         Sprite(c, "statusbar")
         // the Figma status bar marks the camera as a white dot — a real punch-hole is black
         Box(Modifier.at(scene.punch).drawBehind {
@@ -270,6 +277,10 @@ private fun Device(c: Ctx, ui: Int) {
                 if (d == Dest.PAYWALL && c.player.dest == Dest.PAYWALL) {
                     Hot(c, Scene.HOT_PAYWALL_CLOSE, enabled = { c.player.dest == Dest.PAYWALL }) { c.player.go(Dest.AI) }
                     Hot(c, Scene.HOT_SUBSCRIBE, enabled = { c.player.dest == Dest.PAYWALL }) { c.player.go(Dest.AI) }
+                }
+                // Christmas: the magic moment plays once over Home, right after onboarding ([XmasTheme]).
+                if (XmasTheme.enabled && d == Dest.HOME && c.player.dest == Dest.HOME) {
+                    AndroidView({ MagicMomentView(it).apply { removeOnFinish = false; start() } }, Modifier.size(Scene.W.dp, Scene.H.dp))
                 }
             }
         }
@@ -396,7 +407,7 @@ private fun Logo(c: Ctx) {
 @Composable
 private fun SplashTrack(c: Ctx) {
     Box(Modifier.at(c.player.scene.spTrack).anim(c, "sp_track").clip(CircleShape).background(Color(Zen.Color.Background.Neutral.Subtle.Default))) {
-        Box(Modifier.fillMaxSize().anim(c, "sp_fill").background(Accent, CircleShape))
+        Box(Modifier.fillMaxSize().anim(c, "sp_fill").background(if (XmasTheme.enabled) Color(XmasTheme.PRIMARY) else Accent, CircleShape))
     }
 }
 
